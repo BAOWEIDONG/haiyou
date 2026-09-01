@@ -60,6 +60,11 @@ const journey = computed(() =>
   generatePersonalJourney(studentDiets.value, studentExercises.value, studentWeights.value, studentId.value),
 );
 
+// 是否尚无打卡/报告数据（大量学员未上传报告时，指标可能为空 → 显示上传引导）
+const hasAnyData = computed(() =>
+  studentWeights.value.length > 0 || studentDiets.value.length > 0 || studentExercises.value.length > 0,
+);
+
 // 生成成就（复用结业报告的成就计算）
 const report = computed(() =>
   generateStudentReport(
@@ -183,6 +188,22 @@ const exportPDF = () => {
     </div>
 
     <div ref="exportRef" class="p-4 space-y-4">
+      <!-- 空态：尚未有打卡/报告数据，引导上传 -->
+      <Card v-if="!hasAnyData" class="border-[#0EA5E9]/30 bg-[#0EA5E9]/5">
+        <div class="flex flex-col items-center text-center py-4">
+          <div class="w-12 h-12 rounded-full bg-[#0EA5E9]/12 flex items-center justify-center mb-3">
+            <BookOpen class="w-6 h-6 text-[#0EA5E9]" />
+          </div>
+          <div class="text-sm font-bold text-gray-900">还没有生成个人历程</div>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed max-w-[260px]">
+            上传体检报告、完善健康档案后，这里会自动汇总你的指标、打卡与数据趋势。
+          </p>
+          <button class="mt-4 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:scale-[0.97] transition-transform shadow-sm" @click="store.setCurrentView('health-profile')">
+            去上传报告
+          </button>
+        </div>
+      </Card>
+      <template v-else>
       <!-- 顶部概览卡片 -->
       <div class="bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] rounded-2xl p-5 text-white shadow-lg">
         <div class="flex items-center gap-2 mb-4">
@@ -374,6 +395,7 @@ const exportPDF = () => {
           </div>
         </div>
       </Card>
+      </template>
     </div>
 
     <StudentTabbar anchor="dashboard" print-hidden :badge="unreadCount > 0 ? unreadCount : undefined" />

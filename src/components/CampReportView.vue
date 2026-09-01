@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useAppStore } from '../store/app';
 import { campDateRange, campDaysOf } from '../lib/camps';
 import { NavBar, Card, StudentTabbar } from './ui';
-import { Trophy, TrendingDown, TrendingUp, Activity, Target, Heart, Download, Lock, MessageCircle } from 'lucide-vue-next';
+import { Trophy, TrendingDown, TrendingUp, Activity, Target, Heart, Download, Lock, BookOpen } from 'lucide-vue-next';
 import { Popup as VanPopup } from 'vant';
 import { MOCK_STUDENT_METRIC_VALUES } from '../mock/data';
 import { generateStudentReport, weightTrendToSvgPoints } from '../lib/campReport';
@@ -115,28 +115,6 @@ const labMetricGroups = computed(() => {
     groups.get(m.category)!.push(m);
   }
   return Array.from(groups.entries());
-});
-
-// 营养师结业寄语（按服务批次存储，key = `${campId}_${studentId}`）
-const campMessage = computed(() => {
-  const sid = store.user?.id;
-  const cid = selectedCampId.value || campInfo.value?.id;
-  if (!sid || !cid) return '';
-  return store.getCampMessage(cid, sid);
-});
-// 营养师姓名：优先取「填写结业寄语的营养师」；历史寄语未记录作者时回退到批注人
-const dietitianName = computed(() => {
-  const sid = store.user?.id;
-  const cid = selectedCampId.value || campInfo.value?.id;
-  if (sid && cid) {
-    const author = store.getCampMessageAuthor(cid, sid);
-    if (author) return author;
-  }
-  const names = [campDietRecords.value, campExerciseRecords.value, campWeightRecords.value]
-    .flat()
-    .map((r) => (r as any).dietitianName || (r as any).coachName)
-    .filter(Boolean);
-  return names.length > 0 ? names[names.length - 1] : '营养师';
 });
 
 // 目标达成度（学员在体重打卡页设置的目标体重）
@@ -464,16 +442,12 @@ const exportPDF = () => {
         </p>
       </Card>
 
-      <!-- 营养师寄语与保持建议 -->
+      <!-- 保持建议 -->
       <Card class="bg-gradient-to-br from-[#1677FF]/5 to-[#1677FF]/[0.02] border-[#1677FF]/15">
         <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2 border-b border-[#1677FF]/10 pb-2">
-          <MessageCircle class="h-4 w-4 text-[#1677FF]" />
-          营养师寄语与保持建议
+          <BookOpen class="h-4 w-4 text-[#1677FF]" />
+          保持建议
         </h3>
-        <div v-if="campMessage" class="mb-4">
-          <p class="text-sm text-gray-700 leading-relaxed">{{ campMessage }}</p>
-          <p class="text-xs text-gray-400 mt-2 text-right">-- {{ dietitianName }}</p>
-        </div>
         <div class="space-y-3 text-sm text-gray-700 leading-relaxed">
           <div class="flex gap-2.5">
             <span class="shrink-0">🥗</span>

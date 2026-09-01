@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, PlayCircle } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, PlayCircle, Newspaper, Radio } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 
@@ -87,6 +87,22 @@ const handleCampSelect = (campId: string) => {
   store.selectedCampId = campId;
   showCampPicker.value = false;
 };
+
+// ─── 健康活动 tab 信息流（锻炼活动｜健康科普，首页平铺） ─────────────
+const feedTab = ref<'exercise' | 'knowledge'>('exercise');
+const feedActivities = computed(() =>
+  [...(activeCampId.value ? store.getCampCoachActivities(activeCampId.value) : store.coachActivities)]
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
+);
+const feedKnowledge = computed(() => store.knowledgeContents);
+const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
+  article: { label: '图文', cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]', icon: Newspaper },
+  video: { label: '视频', cls: 'bg-purple-50 text-purple-500', icon: PlayCircle },
+  live: { label: '直播', cls: 'bg-red-50 text-red-500', icon: Radio },
+};
+const feedEmpty = computed(() =>
+  feedTab.value === 'exercise' ? feedActivities.value.length === 0 : feedKnowledge.value.length === 0,
+);
 
 // 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
@@ -383,68 +399,55 @@ onMounted(() => {
       </div>
 
       <!-- 健康服务（四小板块：报告解读 / 健康答疑 / 个人历程 / 健康活动[订阅+锻炼]） -->
+      <!-- 健康活动（锻炼活动｜健康科普 tab 信息流，首页平铺） -->
       <div>
-        <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-5">
-          <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
-          健康服务
-        </h3>
-        <div class="grid grid-cols-2 gap-3">
-          <!-- 报告解读 -->
-          <Card class="p-4 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm h-32 bg-white relative overflow-hidden flex flex-col justify-between" @click="store.setCurrentView('interpretation-result')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-[#0EA5E9]/10 to-sky-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0EA5E9]/12 to-sky-50 flex items-center justify-center text-[#0EA5E9] mb-2 shadow-sm">
-                <FileSearch class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">报告解读</div>
-                <div class="text-[11px] text-gray-500 mt-0.5 leading-snug">请营养师解读<br />看结论 · 追问</div>
-              </div>
-            </div>
-          </Card>
+        <div class="flex items-center justify-between mb-1 mt-5">
+          <h3 class="text-sm font-bold text-gray-900 ml-1 flex items-center gap-1.5">
+            <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
+            健康活动
+          </h3>
+          <button @click="store.setCurrentView(feedTab === 'exercise' ? 'activities-list' : 'knowledge')" class="text-[11px] text-gray-400 font-medium flex items-center gap-0.5 shrink-0">
+            查看全部
+            <ChevronRight class="w-3 h-3" />
+          </button>
+        </div>
 
-          <!-- 健康答疑 -->
-          <Card class="p-4 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm h-32 bg-white relative overflow-hidden flex flex-col justify-between" @click="store.setCurrentView('consult')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-teal-100/60 to-teal-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-100/60 to-teal-50 flex items-center justify-center text-[#0EA5E9] mb-2 shadow-sm">
-                <MessageSquareText class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">健康答疑</div>
-                <div class="text-[11px] text-gray-500 mt-0.5 leading-snug">给健康顾问留言<br />索取电话 / 微信</div>
-              </div>
-            </div>
-          </Card>
+        <div class="flex gap-2 mb-3 px-1">
+          <button @click="feedTab = 'exercise'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0EA5E9] text-[#0EA5E9] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
+            锻炼活动
+          </button>
+          <button @click="feedTab = 'knowledge'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'knowledge' ? 'border-[#0EA5E9] text-[#0EA5E9] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
+            健康科普
+          </button>
+        </div>
 
-          <!-- 个人历程 -->
-          <Card class="p-4 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm h-32 bg-white relative overflow-hidden flex flex-col justify-between" @click="store.setCurrentView('personal-journey')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-[#FF976A]/10 to-orange-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF976A]/15 to-orange-50 flex items-center justify-center text-[#FF976A] mb-2 shadow-sm">
-                <BookOpen class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">个人历程</div>
-                <div class="text-[11px] text-gray-500 mt-0.5 leading-snug">批次报告 · 数据趋势<br />结业寄语</div>
-              </div>
+        <div class="space-y-3">
+          <button v-if="feedTab === 'exercise'" v-for="a in feedActivities" :key="a.id" @click="store.setCurrentView('activities-list')" class="w-full flex items-center gap-3 text-left bg-white/70 backdrop-blur-md border border-white/70 rounded-2xl p-3 shadow-sm active:bg-gray-50">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1677FF]/12 to-blue-50 flex items-center justify-center shrink-0 overflow-hidden">
+              <img v-if="a.imageUrls[0]" :src="a.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" />
+              <PlayCircle v-else class="h-6 w-6 text-[#1677FF]" />
             </div>
-          </Card>
-
-          <!-- 健康活动（锻炼活动 + 知识订阅 合并） -->
-          <Card class="p-4 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm h-32 bg-white relative overflow-hidden flex flex-col justify-between" @click="store.setCurrentView('my-team')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-purple-100/50 to-purple-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center text-purple-500 mb-2 shadow-sm">
-                <PlayCircle class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">健康活动</div>
-                <div class="text-[11px] text-gray-500 mt-0.5 leading-snug">锻炼指导 · 健康科普<br />从「健康」hub 进入</div>
-              </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-gray-900 truncate">{{ a.title }}</div>
+              <div class="text-[11px] text-gray-400 mt-0.5 truncate">{{ a.coachName }} · {{ a.date.slice(0, 10) }}</div>
             </div>
-          </Card>
+            <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
+          </button>
 
+          <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.setCurrentView('knowledge')" class="w-full flex items-center gap-3 text-left bg-white/70 backdrop-blur-md border border-white/70 rounded-2xl p-3 shadow-sm active:bg-gray-50">
+            <div :class="['w-12 h-12 rounded-xl flex items-center justify-center shrink-0', ktypeMeta[k.contentType].cls]">
+              <component :is="ktypeMeta[k.contentType].icon" class="h-5 w-5" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-gray-900 truncate">{{ k.title }}</div>
+              <div class="text-[11px] text-gray-400 mt-0.5 truncate">{{ ktypeMeta[k.contentType].label }} · {{ k.authorName }}</div>
+            </div>
+            <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
+          </button>
+
+          <div v-if="feedEmpty" class="text-center text-xs text-gray-400 py-8">
+            {{ feedTab === 'exercise' ? '暂无锻炼活动' : '暂无健康科普' }}
+          </div>
         </div>
       </div>
 
