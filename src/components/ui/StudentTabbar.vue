@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Activity, Bell, FileText } from 'lucide-vue-next';
+import { Activity, Bell, Stethoscope } from 'lucide-vue-next';
 import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
 import { useAppStore } from '../../store/app';
+import type { View } from '../../store/app';
 
 /**
- * 学员端底部主导航（首页/消息/档案）。共用，杜绝手写高亮索引复制错位(曾「档案页亮活动」)。
+ * 学员端底部主导航（首页/消息/健康）。共用，杜绝手写高亮索引复制错位(曾「档案页亮活动」)。
  *
  * 高亮索引由 anchor 锚点在「可见 tab 列表」里的位置推导。props.anchor: 本页要高亮的 tab
- * （语义键，非索引）。个人服务报告传 'dashboard'（高亮首页，用户口径）；个人历程传 'health-profile'。
+ * （语义键，非索引）。个人服务报告传 'dashboard'（高亮首页，用户口径）；个人历程传 'dashboard'。
  * 当 anchor 不在列表中（如不可达子页），回退高亮首页。
  */
-type Anchor = 'dashboard' | 'messages' | 'health-profile';
+type Anchor = 'dashboard' | 'messages' | 'health';
 
 const props = defineProps<{
   anchor: Anchor;
@@ -24,23 +25,23 @@ const store = useAppStore();
 const ICONS: Record<Anchor, typeof Activity> = {
   dashboard: Activity,
   messages: Bell,
-  'health-profile': FileText,
+  health: Stethoscope,
 };
 
-const tabs = computed(() => {
-  const list: { key: Anchor; label: string }[] = [{ key: 'dashboard', label: '首页' }];
-  list.push({ key: 'messages', label: '消息' });
-  list.push({ key: 'health-profile', label: '档案' });
-  return list;
-});
+const tabs: { key: Anchor; label: string; view: View }[] = [
+  { key: 'dashboard', label: '首页', view: 'dashboard' },
+  { key: 'messages', label: '消息', view: 'messages' },
+  { key: 'health', label: '健康', view: 'my-team' },
+];
 
 const modelValue = computed(() => {
-  const i = tabs.value.findIndex((t) => t.key === props.anchor);
+  const i = tabs.findIndex((t) => t.key === props.anchor);
   return i < 0 ? 0 : i;
 });
 
 function go(key: Anchor) {
-  store.setCurrentView(key);
+  const t = tabs.find((x) => x.key === key);
+  store.setCurrentView(t ? t.view : 'dashboard');
 }
 </script>
 

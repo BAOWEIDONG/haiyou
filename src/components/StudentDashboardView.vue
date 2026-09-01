@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, PlayCircle, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, Stethoscope, FileSearch, MessageSquareText, Newspaper } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, Stethoscope } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 
@@ -382,7 +382,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- 服务批次回顾与指导 -->
+      <!-- 健康服务（入口统一收进「健康」hub，首页只留团队通卡 + 个人历程） -->
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-5">
           <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
@@ -409,45 +409,6 @@ onMounted(() => {
               <div class="flex items-center gap-1 shrink-0">
                 <span class="text-[10px] text-gray-400 font-medium">查看详情</span>
                 <ChevronRight class="w-4 h-4 text-gray-300" />
-              </div>
-            </div>
-          </Card>
-
-          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('interpretation-result')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-sky-100/50 to-sky-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-100 to-sky-50 flex items-center justify-center text-[#0EA5E9] mb-2 shadow-sm">
-                <FileSearch class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">报告解读</div>
-                <div class="text-[11px] text-gray-500 mt-0.5">请医生解读</div>
-              </div>
-            </div>
-          </Card>
-
-          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('consult')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-green-100/50 to-green-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center text-[#0EA5E9] mb-2 shadow-sm">
-                <MessageSquareText class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">健康答疑</div>
-                <div class="text-[11px] text-gray-500 mt-0.5">给营养师留言</div>
-              </div>
-            </div>
-          </Card>
-
-          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('activities-list')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-blue-100/50 to-blue-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-blue-500 mb-2 shadow-sm">
-                <PlayCircle class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">锻炼活动</div>
-                <div class="text-[11px] text-gray-500 mt-0.5">健康指导与教学</div>
               </div>
             </div>
           </Card>

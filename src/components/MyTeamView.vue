@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
-import { NavBar } from './ui';
-import { Stethoscope, Leaf, Dumbbell, ShieldAlert, CalendarClock, FileSearch, MessageSquareText, Newspaper, ChevronRight } from 'lucide-vue-next';
+import { NavBar, StudentTabbar } from './ui';
+import { Stethoscope, Leaf, Dumbbell, ShieldAlert, CalendarClock, FileSearch, MessageSquareText, Newspaper, PlayCircle, ClipboardList, ChevronRight } from 'lucide-vue-next';
 import { ROLE_LABEL } from '../types';
 
 const store = useAppStore();
@@ -14,7 +14,12 @@ const roleColor: Record<string, { bg: string; icon: any }> = {
   ops: { bg: 'bg-[#8B5CF6]/10 text-[#8B5CF6]', icon: ShieldAlert },
 };
 
-// 我的医生团队：本院已激活的医生/营养师/康复教练（医院×企业服务团队成员）
+// 消息未读数（批注 + 系统通知，store 级统一口径；本页即底部「健康」Tab）
+const unreadCount = computed(() =>
+  store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
+);
+
+// 我的健康团队：当前服务的营养师/康复教练（医院×企业健康服务团队成员）
 const myTeam = computed(() =>
   store.accounts.filter((a) => a.active && (a.role === 'dietitian' || a.role === 'coach')),
 );
@@ -24,21 +29,24 @@ const nextFollowup = computed(() =>
   (store.user ? store.getStudentFollowups(store.user.id) : []).find((t) => t.status === 'open'),
 );
 
+// 单一服务入口：报告解读/答疑/锻炼/知识订阅 + 健康档案 统一悖口（与首页健康服务区块去重）
 const services = [
-  { key: 'interpretation-result', title: '报告健康解读', desc: '勾指标请医生解读、看结论、追问', icon: FileSearch, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
+  { key: 'interpretation-result', title: '报告健康解读', desc: '勾指标请营养师解读、看结论、追问', icon: FileSearch, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
   { key: 'consult', title: '健康答疑', desc: '给健康顾问留言，索取电话/微信', icon: MessageSquareText, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
-  { key: 'knowledge', title: '健康知识订阅', desc: '医生/营养师/教练科普图文视频', icon: Newspaper, tone: 'text-purple-600 bg-purple-50' },
+  { key: 'activities-list', title: '锻炼活动', desc: '健康指导与教学', icon: PlayCircle, tone: 'text-[#1677FF] bg-[#1677FF]/8' },
+  { key: 'knowledge', title: '健康知识订阅', desc: '营养师/康复教练科普图文视频', icon: Newspaper, tone: 'text-purple-600 bg-purple-50' },
+  { key: 'health-profile', title: '我的健康档案', desc: '体检指标 · 上传报告 · 编辑档案', icon: ClipboardList, tone: 'text-[#FF976A] bg-[#FF976A]/8' },
 ];
 </script>
 
 <template>
-  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
-    <NavBar title="我的健康服务" :on-back="() => store.goBack()" />
+  <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
+    <NavBar title="我的健康服务" />
 
     <div class="flex-1 px-4 py-4 space-y-4" v-if="store.user">
-      <!-- 我的医生团队 -->
+      <!-- 我的健康团队 -->
       <div>
-        <div class="text-sm font-bold text-gray-900 mb-2">我的医生团队</div>
+        <div class="text-sm font-bold text-gray-900 mb-2">我的健康团队</div>
         <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm divide-y divide-gray-50">
           <div v-for="m in myTeam" :key="m.id" class="flex items-center gap-3 p-3.5">
             <div :class="['w-10 h-10 rounded-full flex items-center justify-center shrink-0', roleColor[m.role].bg]">
@@ -100,5 +108,7 @@ const services = [
         以上为健康管理与减重服务，不构成医疗诊断。健康指标异常将引导你就医（转介线下医院），由有资质的医生承接。
       </div>
     </div>
+
+    <StudentTabbar anchor="health" :badge="unreadCount > 0 ? unreadCount : undefined" />
   </div>
 </template>

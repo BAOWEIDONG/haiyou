@@ -522,6 +522,6 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
     </VanPopup>
 
     <!-- Bottom Nav：首页 / 活动(显隐随服务批次) / 消息 / 档案；高亮由 anchor 推导 -->
-    <StudentTabbar anchor="health-profile" :badge="unreadCount > 0 ? unreadCount : undefined" />
+    <StudentTabbar anchor="health" :badge="unreadCount > 0 ? unreadCount : undefined" />
   </div>
 </template>
