@@ -287,7 +287,7 @@ const switchTab = (role: Role) => {
       <div class="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
         <ShieldCheck class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
         <div class="text-xs text-blue-700 leading-relaxed">
-          只有配置了手机号的账户才能登录系统。学员需关联营期，每期排名相互独立；同一人可参与多期。
+          只有配置了手机号的账户才能登录系统。学员需关联服务批次（营期），各批次数据相互独立；同一人可参与多批。
         </div>
       </div>
 
@@ -599,7 +599,7 @@ const switchTab = (role: Role) => {
                 {{ camp.name }}
               </button>
             </div>
-            <div class="text-[10px] text-gray-400 mt-1.5">{{ editingAccount.role === 'coach' ? '可多选，不选则负责全部营期；发布活动时仅可选负责的营期' : '可多选，同一人可参与多期；每期排名相互独立' }}</div>
+            <div class="text-[10px] text-gray-400 mt-1.5">{{ editingAccount.role === 'coach' ? '可多选，不选则负责全部营期；发布活动时仅可选负责的营期' : '可多选，同一人可参与多批次；各批次数据相互独立' }}</div>
           </div>
           <!-- 启用状态 -->
           <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3">

@@ -3,8 +3,9 @@ import { ref } from 'vue';
 import { showDialog, Checkbox as VanCheckbox, showToast } from 'vant';
 import { useAppStore } from '../store/app';
 import { Button, NavBar } from './ui';
-import { MessageCircle, UserCircle, Dumbbell, Leaf, Activity } from 'lucide-vue-next';
+import { MessageCircle, UserCircle, Dumbbell, Leaf, Stethoscope, Building2, Activity } from 'lucide-vue-next';
 import type { Role } from '../types';
+import { ROLE_LABEL } from '../types';
 
 const store = useAppStore();
 const step = ref<1 | 2>(1);
@@ -38,8 +39,7 @@ const handlePhoneSubmit = () => {
   // 若手机号已注册其他角色则提示切换；未知手机号自动建档为学员。
   const existing = store.accounts.find((a) => a.phone === phone.value && a.active);
   if (existing && existing.role !== role.value) {
-    const roleLabel = existing.role === 'student' ? '学员' : existing.role === 'coach' ? '教练' : '营养师';
-    error.value = `该手机号已注册为${roleLabel}，请切换角色后登录`;
+    error.value = `该手机号已注册为${ROLE_LABEL[existing.role]}，请切换角色后登录`;
     return;
   }
 
@@ -60,7 +60,7 @@ const handlePhoneSubmit = () => {
     gender: studentInfo?.gender,
     age: studentInfo?.age,
   });
-  const roleLabel = account.role === 'dietitian' ? '营养师' : account.role === 'coach' ? '教练' : '学员';
+  const roleLabel = ROLE_LABEL[account.role];
   if (created) {
     showToast(`已为您创建学员账号，请完善个人档案`);
   } else {
@@ -69,6 +69,8 @@ const handlePhoneSubmit = () => {
 
   if (account.role === 'coach') store.setCurrentView('coach-dashboard');
   else if (account.role === 'dietitian') store.setCurrentView('dietitian-dashboard');
+  else if (account.role === 'doctor') store.setCurrentView('doctor-dashboard');
+  else if (account.role === 'ops') store.setCurrentView('ops-dashboard');
   else store.setCurrentView('questionnaire');
 };
 </script>
@@ -113,6 +115,24 @@ const handlePhoneSubmit = () => {
               <Leaf class="w-6 h-6" />
             </div>
             <span :class="['text-sm font-bold', role === 'dietitian' ? 'text-[#1677FF]' : 'text-gray-600']">营养师</span>
+          </button>
+          <button
+            @click="role = 'doctor'"
+            :class="['flex flex-col items-center justify-center py-4 rounded-2xl border-2 transition-all', role === 'doctor' ? 'border-[#0EA5E9] bg-[#0EA5E9]/5' : 'border-gray-100 bg-white hover:border-[#0EA5E9]/30']"
+          >
+            <div :class="['p-2 rounded-full mb-2', role === 'doctor' ? 'bg-[#0EA5E9] text-white' : 'bg-gray-100 text-gray-500']">
+              <Stethoscope class="w-6 h-6" />
+            </div>
+            <span :class="['text-sm font-bold', role === 'doctor' ? 'text-[#0EA5E9]' : 'text-gray-600']">医生</span>
+          </button>
+          <button
+            @click="role = 'ops'"
+            :class="['flex flex-col items-center justify-center py-4 rounded-2xl border-2 transition-all', role === 'ops' ? 'border-[#8B5CF6] bg-[#8B5CF6]/5' : 'border-gray-100 bg-white hover:border-[#8B5CF6]/30']"
+          >
+            <div :class="['p-2 rounded-full mb-2', role === 'ops' ? 'bg-[#8B5CF6] text-white' : 'bg-gray-100 text-gray-500']">
+              <Building2 class="w-6 h-6" />
+            </div>
+            <span :class="['text-sm font-bold', role === 'ops' ? 'text-[#8B5CF6]' : 'text-gray-600']">运营</span>
           </button>
         </div>
 

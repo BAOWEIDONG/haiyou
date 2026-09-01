@@ -1,4 +1,4 @@
-import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account } from '../types';
+import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, HealthRiskPortrait, Referral, FollowupTask, KnowledgeContent } from '../types';
 import type { MetricValue } from '../lib/medicalData';
 
 function dateStr(offsetDays: number): string {
@@ -690,6 +690,11 @@ export const MOCK_ACCOUNTS: Account[] = [
   { id: 'c1', phone: '13700000001', name: '李教练', role: 'coach', campIds: ['camp1'], active: true, createdAt: iso(-28, '10:00:00') },
   { id: 'c2', phone: '13700000002', name: '王教练', role: 'coach', campIds: ['camp1', 'camp2'], active: true, createdAt: iso(-28, '10:00:00') },
   { id: 'c3', phone: '13700000003', name: '张教练', role: 'coach', active: true, createdAt: iso(-28, '10:00:00') },
+  // 医生（减重 Explanation/答疑/异常处置/随访 把关人；服务组长）
+  { id: 'doc1', phone: '13600000001', name: '刘医生', role: 'doctor', campIds: ['camp1', 'camp2'], active: true, createdAt: iso(-30, '09:00:00') },
+  { id: 'doc2', phone: '13600000002', name: '陈医生', role: 'doctor', campIds: ['camp1', 'camp2'], active: true, createdAt: iso(-25, '09:00:00') },
+  // 医院运营（医院运营端：团队账号/服务包/看板/合规）
+  { id: 'op1', phone: '13500000001', name: '医院运营', role: 'ops', active: true, createdAt: iso(-30, '09:00:00') },
   // 学员（id 与 MOCK_STUDENTS 一致，确保登录后能关联到打卡/体重/检测数据）
   { id: 's1', phone: '13800000001', name: '李明', role: 'student', campIds: ['camp1'], active: true, createdAt: iso(-15, '08:00:00') },
   { id: 's2', phone: '13800000002', name: '王丽', role: 'student', campIds: ['camp1'], active: true, createdAt: iso(-15, '08:00:00') },
@@ -704,3 +709,147 @@ export const MOCK_ACCOUNTS: Account[] = [
   // 仅属于未开营营期（camp3）的学员，用于演示"营期未开始禁止打卡"
   { id: 's11', phone: '13800000011', name: '钱多多', role: 'student', campIds: ['camp3'], active: true, createdAt: iso(7, '08:00:00') },
 ];
+
+// ============================================================================
+//  B2C 开放健康管理模型 · 新增域种子
+// ============================================================================
+
+export const MOCK_INTERPRETATION_REQUESTS = [
+  {
+    id: 'ir1',
+    studentId: 's10',
+    campId: 'camp1',
+    indicatorNames: ['体重', '血脂', '肝功能'],
+    question: '最近这周体重下降变慢了，早上空腹血糖也有点波动，想请医生帮忙看看整体趋势合不合理，饮食还要注意什么。',
+    status: 'pending',
+    createdAt: iso(-1, '20:15:00'),
+    exchanges: [],
+    read: false,
+  },
+  {
+    id: 'ir2',
+    studentId: 's1',
+    campId: 'camp1',
+    indicatorNames: ['体重', '体脂'],
+    question: '减了一个多月，体重和体脂的变化还算满意，想知道接下来怎么保持，会不会反弹。',
+    status: 'answered',
+    createdAt: iso(-4, '09:30:00'),
+    doctorId: 'doc1',
+    doctorName: '刘医生',
+    answeredAt: iso(-3, '15:40:00'),
+    exchanges: [
+      {
+        text: '从趋势看，你的体重下降了 2.8kg，体脂率同步下降了 1.6 个百分点，减重方向是健康可持续的。接下来进入平台期很常见，建议把力量训练加进每周安排，饮食维持当前蛋白质摄入，体重稳定后保持比继续掉秤更重要。',
+        authorName: '刘医生',
+        side: 'doctor',
+        createdAt: iso(-3, '15:40:00'),
+      },
+      {
+        text: '谢谢医生，那我力量训练先从每周几次开始比较合适？',
+        authorName: '李明',
+        side: 'user',
+        createdAt: iso(-2, '12:10:00'),
+      },
+      {
+        text: '先每周 2 次，每次 20-30 分钟，从自重动作开始（深蹲、臀桥、俯卧撑），感觉适应后再增加次数。健身房器械重量不宜一开始就冒进。',
+        authorName: '刘医生',
+        side: 'doctor',
+        createdAt: iso(-2, '18:05:00'),
+      },
+    ],
+    read: false,
+  },
+] as InterpretationRequest[];
+
+export const MOCK_CONSULT_THREADS = [
+  {
+    id: 'ct1',
+    studentId: 's1',
+    topic: '减重如何应对聚会多的情况',
+    question: '最近公司应酬比较多，外食很难控制，担心打乱减重节奏，想问问有没有在外就餐的实用建议。',
+    createdAt: iso(-2, '21:00:00'),
+    status: 'answered',
+    replierId: 'doc1',
+    replierName: '刘医生',
+    replierRole: 'doctor',
+    replies: [
+      {
+        text: '外食掌握几个原则就好：先喝汤和吃蔬菜打底，再吃蛋白质（鱼/鸡/豆腐），主食减半；油炸和甜饮品尽量往后排。偶尔一次外食不影响整体，第二天恢复正常饮食即可，不必补偿式节食。',
+        authorName: '刘医生',
+        side: 'staff',
+        createdAt: iso(-1, '10:20:00'),
+      },
+    ],
+    read: false,
+  },
+] as ConsultThread[];
+
+export const MOCK_HEALTH_RISK_PORTRAITS = [
+  { studentId: 's10', level: 'refer', flags: ['血脂偏高', '早上空腹血糖波动', '近两周打卡频率下降'], updatedAt: iso(-1, '08:00:00') },
+  { studentId: 's6', level: 'watch', flags: ['体脂率偏高', '运动打卡不规律'], updatedAt: iso(-3, '08:00:00') },
+] as HealthRiskPortrait[];
+
+export const MOCK_REFERRALS = [
+  {
+    id: 'rf1',
+    studentId: 's10',
+    indicatorNames: ['空腹血糖'],
+    riskLevel: 'refer',
+    reason: '两次空腹血糖超过正常参考区间，波动需线下医院复查确认。',
+    doctorId: 'doc1',
+    doctorName: '刘医生',
+    createdAt: iso(-1, '11:00:00'),
+    method: 'retest',
+    contactValue: '建议至内分泌科复查空腹血糖+糖化血红蛋白（复测日期未定，医生将安排随访）',
+    status: 'open',
+  },
+] as Referral[];
+
+export const MOCK_FOLLOWUP_TASKS = [
+  {
+    id: 'fu1',
+    studentId: 's10',
+    title: '复查空腹血糖 + 糖化血红蛋白',
+    dueDate: dateStr(7),
+    doctorId: 'doc1',
+    doctorName: '刘医生',
+    createdAt: iso(-1, '11:05:00'),
+    status: 'open',
+  },
+] as FollowupTask[];
+
+export const MOCK_KNOWLEDGE_CONTENTS = [
+  {
+    id: 'kc1',
+    title: '减重平台的黄金期：如何长期稳定不复胖',
+    summary: '体重下降后身体会进入适应性平台期，本图文讲解如何通过饮食结构、力量训练和睡眠管理做到长期稳定。',
+    imageUrls: [],
+    authorRole: 'doctor',
+    authorName: '刘医生',
+    contentType: 'article',
+    createdAt: iso(-3, '09:00:00'),
+    campIds: [],
+  },
+  {
+    id: 'kc2',
+    title: '职场人的高效减脂餐单（30 秒看懂）',
+    summary: '单位食堂/外卖怎么点？一张图看懂主食、蛋白质、蔬菜的合理配比。',
+    imageUrls: [],
+    authorRole: 'dietitian',
+    authorName: '王营养师',
+    contentType: 'article',
+    createdAt: iso(-6, '09:00:00'),
+    campIds: [],
+  },
+  {
+    id: 'kc3',
+    title: '每天 10 分钟办公室康复拉伸',
+    summary: '久坐人群的肩颈放松与核心激活示范，由康复教练录制。',
+    imageUrls: [],
+    authorRole: 'coach',
+    authorName: '李教练',
+    contentType: 'article',
+    createdAt: iso(-8, '09:00:00'),
+    campIds: [],
+  },
+] as KnowledgeContent[];

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
-import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account } from '../types';
+import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, HealthRiskPortrait, Referral, FollowupTask, KnowledgeContent } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
   MOCK_DIET_RECORDS,
@@ -12,6 +12,12 @@ import {
   MOCK_STUDENTS,
   MOCK_CAMPS,
   MOCK_ACCOUNTS,
+  MOCK_INTERPRETATION_REQUESTS,
+  MOCK_CONSULT_THREADS,
+  MOCK_HEALTH_RISK_PORTRAITS,
+  MOCK_REFERRALS,
+  MOCK_FOLLOWUP_TASKS,
+  MOCK_KNOWLEDGE_CONTENTS,
 } from '../mock/data';
 import * as api from '../lib/api';
 import { latestOrFirstId } from '../lib/camps';
@@ -51,7 +57,26 @@ export type View =
   | 'metric-config'
   | 'messages'
   | 'account-manage'
-  | 'dietitian-config';
+  | 'dietitian-config'
+  // B2C 新增：用户端健康服务入口
+  | 'my-team'
+  | 'interpretation-request'
+  | 'interpretation-result'
+  | 'consult'
+  | 'knowledge'
+  // 医生端（医生·工作台 + 报告解读/答疑/异常转介/随访）
+  | 'doctor-dashboard'
+  | 'doctor-interpretation'
+  | 'doctor-consult'
+  | 'doctor-referral'
+  | 'doctor-followup'
+  // 医院运营端（手机端管理员）
+  | 'ops-dashboard'
+  | 'ops-service-pack'
+  | 'ops-users'
+  | 'ops-content'
+  | 'ops-referral-ledger'
+  | 'ops-compliance';
 
 export const useAppStore = defineStore('app', () => {
   const user = ref<User | null>(null);
@@ -106,6 +131,26 @@ export const useAppStore = defineStore('app', () => {
   /** 账户列表（手机号=登录凭证） */
   const accounts = ref<Account[]>([...MOCK_ACCOUNTS]);
 
+  // ─── B2C 开放健康管理模型 · 新增域状态 ───
+  /** 报告健康解读请求（U7/D2） */
+  const interpretationRequests = ref<InterpretationRequest[]>([...MOCK_INTERPRETATION_REQUESTS]);
+  /** 异步健康答疑线程（U8/D3） */
+  const consultThreads = ref<ConsultThread[]>([...MOCK_CONSULT_THREADS]);
+  /** 健康画像·风险分层（U4，仅本人+医生端可见） */
+  const riskPortraits = ref<HealthRiskPortrait[]>([...MOCK_HEALTH_RISK_PORTRAITS]);
+  /** 异常指标预警→就医/私域转介（D4/O6） */
+  const referrals = ref<Referral[]>([...MOCK_REFERRALS]);
+  /** 随访计划（D5） */
+  const followupTasks = ref<FollowupTask[]>([...MOCK_FOLLOWUP_TASKS]);
+  /** 医院健康知识内容（D8/U9/O5） */
+  const knowledgeContents = ref<KnowledgeContent[]>([...MOCK_KNOWLEDGE_CONTENTS]);
+  /** 当前打开的解读/答疑线程 ID（医生端查看某条） */
+  const activeRequestId = ref<string | null>(null);
+  const activeThreadId = ref<string | null>(null);
+
+  function setActiveRequestId(id: string | null) { activeRequestId.value = id; }
+  function setActiveThreadId(id: string | null) { activeThreadId.value = id; }
+
   const selectedStudentId = ref<string | null>(null);
   const selectedDateStr = ref<string | null>(null);
   // 教练批注深链：跳转到某条运动记录（教练学员详情页滚动定位到该条后清空）
@@ -143,10 +188,12 @@ export const useAppStore = defineStore('app', () => {
   const bizSources = [
     students, weightRecords, exerciseRecords, dietRecords, coachActivities,
     metricConfigs, camps, accounts, mealTimeConfigByCamp,
+    interpretationRequests, consultThreads, riskPortraits, referrals, followupTasks, knowledgeContents,
   ];
   const bizNames = [
     'students', 'weightRecords', 'exerciseRecords', 'dietRecords', 'coachActivities',
     'metricConfigs', 'camps', 'accounts', 'mealTimeConfigByCamp',
+    'interpretationRequests', 'consultThreads', 'riskPortraits', 'referrals', 'followupTasks', 'knowledgeContents',
   ] as const;
   function persistBiz() {
     const snap: Record<string, unknown> = {};
@@ -298,6 +345,10 @@ export const useAppStore = defineStore('app', () => {
           viewHistory.value = ['coach-dashboard'];
         } else if (data.user.role === 'dietitian') {
           viewHistory.value = ['dietitian-dashboard'];
+        } else if (data.user.role === 'doctor') {
+          viewHistory.value = ['doctor-dashboard'];
+        } else if (data.user.role === 'ops') {
+          viewHistory.value = ['ops-dashboard'];
         } else {
           // 学员：已填问卷 -> 首页，未填 -> 问卷页
           viewHistory.value = [qSaved ? 'dashboard' : 'questionnaire'];
@@ -327,7 +378,7 @@ export const useAppStore = defineStore('app', () => {
 
   /** 底部 Tab 根页面（切换时去重，避免历史栈无限增长） */
   // 学员端底部Tab：首页/消息/活动/档案（无活动配置时「活动」自动隐藏）；教练/营养师端各自的底部Tab根页
-  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
+  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'coach-dashboard', 'dietitian-dashboard', 'doctor-dashboard', 'ops-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
 
   /** 学员详情流视图：在此流内继承 detailSelectedCampId，离开则清空（不污染全局 selectedCampId） */
   const DETAIL_FLOW_VIEWS: View[] = ['dietitian-student-detail', 'coach-student-detail'];
@@ -614,7 +665,7 @@ export const useAppStore = defineStore('app', () => {
   }
 
   /**
-   * 学员「消息」Tab 角标总数 = 批注未读(营养师/医生 + 康复教练) 的条数。
+   * 学员「消息」Tab 角标总数 = 批注未读(营养师/医生 + 康复教练) + 报告解读已回未读 + 答疑已复未读 的条数。
    * 供各学员页底部 StudentTabbar 的 messages badge 统一使用，保证任何页面下角标一致。
    */
   function getStudentMsgUnreadCount(studentId: string): number {
@@ -629,7 +680,11 @@ export const useAppStore = defineStore('app', () => {
     const wt = (cid ? getCampWeightRecords(cid) : weightRecords.value).filter(
       (r) => r.studentId === studentId && r.dietitianComment && !r.commentRead,
     );
-    return diet.length + ex.length + wt.length;
+    // 报告健康解读：医生已解读但学员未读
+    const irUnread = interpretationRequests.value.filter((r) => r.studentId === studentId && r.status === 'answered' && !r.read).length;
+    // 异步答疑：医生已回复但学员未读
+    const ctUnread = consultThreads.value.filter((t) => t.studentId === studentId && t.status === 'answered' && !t.read).length;
+    return diet.length + ex.length + wt.length + irUnread + ctUnread;
   }
 
   /** 获取教练负责的营期列表（从 coach account.campIds 获取） */
@@ -696,6 +751,170 @@ export const useAppStore = defineStore('app', () => {
   function getStudentCampId(studentId: string): string | null {
     const camp = getStudentCamp(studentId);
     return camp?.id || null;
+  }
+
+  // ============================================================================
+  //  B2C 新增域：报告健康解读 / 异步答疑 / 风险画像 / 转介 / 随访 / 知识内容
+  //  注：demo 纯前端，状态存内存 + localStorage 持久化；接口语义已对齐，便于后续接后端。
+  // ============================================================================
+  const _seq = { n: 0 };
+
+  function submitInterpretationRequest(studentId: string, indicatorNames: string[], question: string) {
+    const now = formatDateTimeStr();
+    const req: InterpretationRequest = {
+      id: `ir_${Date.now()}_${_seq.n++}`,
+      studentId,
+      campId: getStudentCampId(studentId) || undefined,
+      indicatorNames,
+      question,
+      status: 'pending',
+      createdAt: now,
+      exchanges: [],
+      read: false,
+    };
+    interpretationRequests.value.unshift(req);
+    return req.id;
+  }
+
+  function answerInterpretation(id: string, text: string) {
+    const req = interpretationRequests.value.find((r) => r.id === id);
+    if (!req) return;
+    const now = formatDateTimeStr();
+    req.status = 'answered';
+    req.doctorId = user.value?.id || 'doc1';
+    req.doctorName = user.value?.name || '医生';
+    req.answeredAt = now;
+    req.exchanges.push({ text, authorName: user.value?.name || '医生', side: 'doctor', createdAt: now });
+    req.read = false;
+  }
+
+  function followupInterpretation(id: string, text: string, side: 'user' | 'doctor' = 'user') {
+    const req = interpretationRequests.value.find((r) => r.id === id);
+    if (!req) return;
+    req.exchanges.push({
+      text,
+      authorName: side === 'user' ? studentName(req.studentId) : user.value?.name || '医生',
+      side,
+      createdAt: formatDateTimeStr(),
+    });
+    if (side === 'user') req.status = 'answered'; // 追问后保持已解读
+    if (side === 'doctor') req.read = false;
+  }
+
+  function markInterpretationRead(id: string) {
+    const req = interpretationRequests.value.find((r) => r.id === id);
+    if (req) req.read = true;
+  }
+
+  function studentName(studentId: string): string {
+    const s = students.value.find((x) => x.id === studentId);
+    if (s?.name) return s.name;
+    const a = accounts.value.find((x) => x.id === studentId);
+    return a?.name || '学员';
+  }
+
+  /** 某学员的报告解读请求（最新在前） */
+  function getStudentInterpretations(studentId: string) {
+    return interpretationRequests.value.filter((r) => r.studentId === studentId);
+  }
+  /** 医生端待解读队列 */
+  function getPendingInterpretations() {
+    return interpretationRequests.value.filter((r) => r.status === 'pending');
+  }
+
+  function askConsult(studentId: string, topic: string, question: string) {
+    const thread: ConsultThread = {
+      id: `ct_${Date.now()}_${_seq.n++}`,
+      studentId,
+      topic,
+      question,
+      createdAt: formatDateTimeStr(),
+      status: 'pending',
+      replies: [],
+      read: false,
+    };
+    consultThreads.value.unshift(thread);
+    return thread.id;
+  }
+
+  function staffReplyConsult(id: string, text: string) {
+    const t = consultThreads.value.find((x) => x.id === id);
+    if (!t) return;
+    t.status = 'answered';
+    t.replierId = user.value?.id || 'doc1';
+    t.replierName = user.value?.name || '医生';
+    t.replierRole = user.value?.role === 'dietitian' || user.value?.role === 'coach' ? user.value.role : 'doctor';
+    t.replies.push({ text, authorName: user.value?.name || '医生', side: 'staff', createdAt: formatDateTimeStr() });
+    t.read = false;
+  }
+
+  function studentReplyConsult(id: string, text: string) {
+    const t = consultThreads.value.find((x) => x.id === id);
+    if (!t) return;
+    t.replies.push({ text, authorName: studentName(t.studentId), side: 'student', createdAt: formatDateTimeStr() });
+    t.status = 'answered';
+  }
+
+  function setConsultContact(id: string, contact: { type: 'phone' | 'wechat'; value: string }) {
+    const t = consultThreads.value.find((x) => x.id === id);
+    if (t) t.contact = contact;
+  }
+
+  function markThreadRead(id: string) {
+    const t = consultThreads.value.find((x) => x.id === id);
+    if (t) t.read = true;
+  }
+
+  function getStudentThreads(studentId: string) {
+    return consultThreads.value.filter((t) => t.studentId === studentId);
+  }
+  function getPendingThreads() {
+    return consultThreads.value.filter((t) => t.status === 'pending');
+  }
+
+  function getRiskPortrait(studentId: string): HealthRiskPortrait | undefined {
+    return riskPortraits.value.find((r) => r.studentId === studentId);
+  }
+
+  function addReferral(data: Omit<Referral, 'id' | 'createdAt' | 'status'>) {
+    const ref: Referral = {
+      ...data,
+      id: `rf_${Date.now()}_${_seq.n++}`,
+      createdAt: formatDateTimeStr(),
+      status: 'open',
+    };
+    referrals.value.unshift(ref);
+    return ref.id;
+  }
+  function closeReferral(id: string, opsNote: string) {
+    const r = referrals.value.find((x) => x.id === id);
+    if (r) { r.status = 'done'; r.opsNote = opsNote; r.closedAt = formatDateTimeStr(); }
+  }
+  function getOpenReferrals() { return referrals.value.filter((r) => r.status === 'open'); }
+
+  function addFollowupTask(data: Omit<FollowupTask, 'id' | 'createdAt' | 'status'>) {
+    const t: FollowupTask = { ...data, id: `fu_${Date.now()}_${_seq.n++}`, createdAt: formatDateTimeStr(), status: 'open' };
+    followupTasks.value.unshift(t);
+    return t.id;
+  }
+  function completeFollowupTask(id: string, result: string) {
+    const t = followupTasks.value.find((x) => x.id === id);
+    if (t) { t.status = 'done'; t.result = result; t.resultAt = formatDateTimeStr(); }
+  }
+  function getOpenFollowups() { return followupTasks.value.filter((t) => t.status === 'open'); }
+
+  /** 学员的随访任务 */
+  function getStudentFollowups(studentId: string) {
+    return followupTasks.value.filter((t) => t.studentId === studentId);
+  }
+
+  function addKnowledgeContent(data: Omit<KnowledgeContent, 'id' | 'createdAt'>) {
+    const k: KnowledgeContent = { ...data, id: `kc_${Date.now()}_${_seq.n++}`, createdAt: formatDateTimeStr() };
+    knowledgeContents.value.unshift(k);
+    return k.id;
+  }
+  function deleteKnowledgeContent(id: string) {
+    knowledgeContents.value = knowledgeContents.value.filter((k) => k.id !== id);
   }
 
   return {
@@ -778,5 +997,40 @@ export const useAppStore = defineStore('app', () => {
     getCoachStudents,
     getStudentCampId,
     getStudentCamps,
+    // B2C 新增域
+    interpretationRequests,
+    consultThreads,
+    riskPortraits,
+    referrals,
+    followupTasks,
+    knowledgeContents,
+    activeRequestId,
+    activeThreadId,
+    setActiveRequestId,
+    setActiveThreadId,
+    submitInterpretationRequest,
+    answerInterpretation,
+    followupInterpretation,
+    markInterpretationRead,
+    getStudentInterpretations,
+    getPendingInterpretations,
+    askConsult,
+    staffReplyConsult,
+    studentReplyConsult,
+    setConsultContact,
+    markThreadRead,
+    getStudentThreads,
+    getPendingThreads,
+    getRiskPortrait,
+    addReferral,
+    closeReferral,
+    getOpenReferrals,
+    addFollowupTask,
+    completeFollowupTask,
+    getOpenFollowups,
+    getStudentFollowups,
+    addKnowledgeContent,
+    deleteKnowledgeContent,
+    studentName,
   };
 });

@@ -1,4 +1,13 @@
-export type Role = 'student' | 'coach' | 'dietitian';
+export type Role = 'student' | 'coach' | 'dietitian' | 'doctor' | 'ops';
+
+/** 角色对外展示名（用户端/医疗团队端/运营端各入口共用） */
+export const ROLE_LABEL: Record<Role, string> = {
+  student: '学员',
+  coach: '康复教练',
+  dietitian: '营养师',
+  doctor: '医生',
+  ops: '医院运营',
+};
 
 // ============================================================================
 //  账户管理类型 (Account Management)
@@ -345,4 +354,142 @@ export interface MetricAggregate {
   totalCount: number;
   /** 改善率 */
   improvementRate: number | null;
+}
+
+// ============================================================================
+//  B2C 开放健康管理模型 · 新增域
+//  (报告健康解读 / 异步答疑 / 异常预警转介 / 随访 / 内容订阅)
+// ============================================================================
+
+/** 一份报告健康解读的往返（用户提请求 → 医生解读 → 用户追问 → 医生再答） */
+export interface InterpretationExchange {
+  /** 解读内容 */
+  text: string;
+  /** 作者身份 */
+  authorName: string;
+  /** 发言方：user 提问 / doctor 解读 */
+  side: 'user' | 'doctor';
+  /** 时间 yyyy-MM-dd HH:mm:ss */
+  createdAt: string;
+}
+
+/** 报告健康解读请求（U7 / D2）：用户勾指标留问题 → 医生健康解读（非医疗诊断） */
+export interface InterpretationRequest {
+  id: string;
+  /** 发起学员 */
+  studentId: string;
+  /** 所属服务批次 */
+  campId?: string;
+  /** 希望解读的指标名（来自健康档案，可多选） */
+  indicatorNames: string[];
+  /** 用户留言 */
+  question: string;
+  /** pending 待解读 / answered 已解读 / closed 已关闭 */
+  status: 'pending' | 'answered' | 'closed';
+  createdAt: string;
+  /** 解读医生 */
+  doctorId?: string;
+  doctorName?: string;
+  /** 已解读时间 */
+  answeredAt?: string;
+  /** 解读+追问往返 */
+  exchanges: InterpretationExchange[];
+  /** 学员是否已读最新解读 */
+  read?: boolean;
+}
+
+/** 异步答疑线程（U8 / D3）：消息型留言，非实时；可索取电话/微信私域凭证 */
+export interface ConsultThread {
+  id: string;
+  studentId: string;
+  /** 一线提问 */
+  topic: string;
+  /** 详情/首次提问正文 */
+  question: string;
+  createdAt: string;
+  /** pending 待回复 / answered 已回复 / closed 已关闭 */
+  status: 'pending' | 'answered' | 'closed';
+  /** 医生团队成员 */
+  replierId?: string;
+  replierName?: string;
+  replierRole?: Role;
+  replies: {
+    text: string;
+    authorName: string;
+    side: 'student' | 'staff';
+    createdAt: string;
+  }[];
+  /** 医嘱/私域跟进凭证（线上无法处置 → 电话/微信转介） */
+  contact?: { type: 'phone' | 'wechat'; value: string };
+  /** 学员是否已读最新回复 */
+  read?: boolean;
+}
+
+/** 风险分层结果（U4 健康画像·风险分层，仅本人+医生端可见） */
+export interface HealthRiskPortrait {
+  studentId: string;
+  /** normal 正常 / watch 需关注 / refer 需干预 → 转介线下医院 */
+  level: 'normal' | 'watch' | 'refer';
+  /** 风险说明（分类） */
+  flags: string[];
+  updatedAt: string;
+}
+
+/** 异常指标预警 → 就医/私域转介（D4 / O6） */
+export interface Referral {
+  id: string;
+  studentId: string;
+  /** 触发预警的指标名 */
+  indicatorNames: string[];
+  /** 预警等级 */
+  riskLevel: 'watch' | 'refer';
+  reason: string;
+  /** 处置医生 */
+  doctorId?: string;
+  doctorName?: string;
+  createdAt: string;
+  /** 转介方式：电话 / 微信 / 建议复测 */
+  method: 'phone' | 'wechat' | 'retest';
+  /** 线下承接联系方式（医院/HCP 转介凭证，平台不给医疗处置） */
+  contactValue: string;
+  /** 运营端登记备注（O6 线索台账） */
+  opsNote?: string;
+  /** open 待处置 / done 已闭环 */
+  status: 'open' | 'done';
+  closedAt?: string;
+}
+
+/** 随访计划（D5）：医生建复查/复测任务，到点提醒用户 */
+export interface FollowupTask {
+  id: string;
+  studentId: string;
+  /** 任务名，如"复查血脂""复测体成分" */
+  title: string;
+  /** 建议完成日期 yyyy-MM-dd */
+  dueDate: string;
+  /** 创建医生 */
+  doctorId?: string;
+  doctorName?: string;
+  createdAt: string;
+  status: 'open' | 'done' | 'missed';
+  /** 用户回填结果 */
+  result?: string;
+  resultAt?: string;
+}
+
+/** 医院健康知识内容（D8 知识发布 / U9 内容订阅 / O5 内容管理） */
+export interface KnowledgeContent {
+  id: string;
+  title: string;
+  summary: string;
+  imageUrls: string[];
+  /** 作者（医生/营养师/康复教练） */
+  authorRole: Role;
+  authorName: string;
+  /** 知识分类：科普图文 / 短视频 / 直播 */
+  contentType: 'article' | 'video' | 'live';
+  createdAt: string;
+  videoUrls?: string[];
+  /** 可见范围：空/未填 = 全部订阅用户可见（内部置空） */
+  campIds?: string[];
 }

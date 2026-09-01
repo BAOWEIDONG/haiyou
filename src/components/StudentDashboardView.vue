@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Calendar, Scale, PlayCircle, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame } from 'lucide-vue-next';
+import { Activity, Coffee, Calendar, Scale, PlayCircle, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, Stethoscope, FileSearch, MessageSquareText, Newspaper } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 
@@ -383,6 +383,78 @@ onMounted(() => {
       </div>
 
       <!-- 营期回顾与指导 -->
+      <div>
+        <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-5">
+          <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
+          健康服务
+        </h3>
+        <div class="grid grid-cols-2 gap-3">
+          <Card class="col-span-2 p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('my-team')">
+            <div class="absolute -top-10 -right-8 w-44 h-44 bg-gradient-to-br from-[#0EA5E9]/12 to-sky-50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10 h-full flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] flex items-center justify-center text-white shrink-0 shadow-sm">
+                  <Stethoscope class="h-6 w-6" />
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-gray-900">我的医生团队</div>
+                  <div class="text-[11px] text-gray-500 mt-0.5">报告解读 · 答疑 · 随访 · 知识订阅</div>
+                  <div class="flex gap-1.5 mt-2">
+                    <span class="text-[9px] font-bold text-[#0EA5E9] bg-[#0EA5E9]/8 px-2 py-0.5 rounded-full">解读</span>
+                    <span class="text-[9px] font-bold text-[#07C160] bg-[#07C160]/8 px-2 py-0.5 rounded-full">答疑</span>
+                    <span class="text-[9px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/8 px-2 py-0.5 rounded-full">订阅</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="text-[10px] text-gray-400 font-medium">查看详情</span>
+                <ChevronRight class="w-4 h-4 text-gray-300" />
+              </div>
+            </div>
+          </Card>
+
+          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('interpretation-result')">
+            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-sky-100/50 to-sky-50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-100 to-sky-50 flex items-center justify-center text-[#0EA5E9] mb-2 shadow-sm">
+                <FileSearch class="h-5 w-5" />
+              </div>
+              <div>
+                <div class="text-sm font-bold text-gray-900">报告解读</div>
+                <div class="text-[11px] text-gray-500 mt-0.5">请医生解读</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('consult')">
+            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-green-100/50 to-green-50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center text-[#07C160] mb-2 shadow-sm">
+                <MessageSquareText class="h-5 w-5" />
+              </div>
+              <div>
+                <div class="text-sm font-bold text-gray-900">健康答疑</div>
+                <div class="text-[11px] text-gray-500 mt-0.5">给医生留言</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('knowledge')">
+            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-purple-100/50 to-purple-50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center text-purple-500 mb-2 shadow-sm">
+                <Newspaper class="h-5 w-5" />
+              </div>
+              <div>
+                <div class="text-sm font-bold text-gray-900">知识订阅</div>
+                <div class="text-[11px] text-gray-500 mt-0.5">健康科普图文</div>
+              </div>
+            </div>
+          </Card>
+
+        </div>
+      </div>
+
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-2">
           <div class="w-1.5 h-4 bg-[#04a551] rounded-full"></div>

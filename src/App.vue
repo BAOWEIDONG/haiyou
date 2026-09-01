@@ -10,6 +10,8 @@ import StudentDashboard from './components/StudentDashboardView.vue';
 import DietitianDashboard from './components/DietitianDashboardView.vue';
 import CoachDashboard from './components/CoachDashboardView.vue';
 import Questionnaire from './components/QuestionnaireView.vue';
+import DoctorDashboard from './components/DoctorDashboardView.vue';
+import OpsDashboard from './components/OpsDashboardView.vue';
 
 // 异步视图统一包装：加载 chunk 期间立即显示共享骨架屏，避免白屏"等好久"
 function lazyView(loader: () => Promise<{ default: Component }>): Component {
@@ -45,13 +47,34 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
   messages: () => import('./components/MessagesView.vue'),
   'account-manage': () => import('./components/AccountManageView.vue'),
   'dietitian-config': () => import('./components/DietitianConfigView.vue'),
+  // B2C 用户端健康服务
+  'my-team': () => import('./components/MyTeamView.vue'),
+  'interpretation-request': () => import('./components/InterpretationRequestView.vue'),
+  'interpretation-result': () => import('./components/InterpretationResultView.vue'),
+  consult: () => import('./components/ConsultView.vue'),
+  knowledge: () => import('./components/KnowledgeView.vue'),
+  // 医生端
+  'doctor-dashboard': () => import('./components/DoctorDashboardView.vue'),
+  'doctor-interpretation': () => import('./components/DoctorInterpretationView.vue'),
+  'doctor-consult': () => import('./components/DoctorConsultView.vue'),
+  'doctor-referral': () => import('./components/DoctorReferralView.vue'),
+  'doctor-followup': () => import('./components/DoctorFollowupView.vue'),
+  // 医院运营端
+  'ops-dashboard': () => import('./components/OpsDashboardView.vue'),
+  'ops-service-pack': () => import('./components/OpsServicePackView.vue'),
+  'ops-users': () => import('./components/OpsUsersView.vue'),
+  'ops-content': () => import('./components/OpsContentView.vue'),
+  'ops-referral-ledger': () => import('./components/OpsReferralLedgerView.vue'),
+  'ops-compliance': () => import('./components/OpsComplianceView.vue'),
 };
 
 // 各角色底部 tab 与常用子页（角色预取，配合下方全量预取双保险）
 const ROLE_TABS: Record<string, string[]> = {
-  student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar'],
+  student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'knowledge'],
   dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage'],
   coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload', 'activities-list'],
+  doctor: ['doctor-dashboard', 'doctor-interpretation', 'doctor-consult', 'doctor-referral', 'doctor-followup'],
+  ops: ['ops-dashboard', 'ops-referral-ledger', 'ops-service-pack', 'ops-users', 'ops-content', 'ops-compliance', 'account-manage', 'enterprise-report'],
 };
 let prefetchedRole = false;
 let prefetchedAll = false;
@@ -85,6 +108,8 @@ viewMap.login = Login;
 viewMap.dashboard = StudentDashboard;
 viewMap['dietitian-dashboard'] = DietitianDashboard;
 viewMap['coach-dashboard'] = CoachDashboard;
+viewMap['doctor-dashboard'] = DoctorDashboard;
+viewMap['ops-dashboard'] = OpsDashboard;
 viewMap.questionnaire = Questionnaire;
 
 const store = useAppStore();
