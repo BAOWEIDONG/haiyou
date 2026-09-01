@@ -15,9 +15,7 @@
  *  业务规则索引:
  *    - 当天打卡完成定义 → streak.ts → isDayComplete()
  *    - 连续打卡天数计算   → streak.ts → calculateStreak()
- *    - 奖励解锁/领取判定 → streak.ts → getProjectedRewardDates()
- *    - 饮食/运动积分计算  → scoring.ts → calculateDietScore() / calculateExerciseScore()
- *    - 学员排名           → scoring.ts → rankStudents()
+ *    - 饮食质量评分        → scoring.ts → calculateDietScore()
  * ============================================================================
  */
 
@@ -27,15 +25,10 @@ import type {
   ExerciseRecord,
   DietRecord,
   CoachActivityRecord,
-  RewardTier,
-  RewardClaim,
   MealTimeConfig,
   MetricConfig,
   Camp,
   Account,
-  PointProduct,
-  PointExchangeRecord,
-  ManualScoreRecord,
 } from '../types';
 import {
   MOCK_STUDENTS,
@@ -43,14 +36,10 @@ import {
   MOCK_WEIGHT_RECORDS,
   MOCK_EXERCISE_RECORDS,
   MOCK_COACH_ACTIVITIES,
-  MOCK_REWARD_TIERS,
-  MOCK_REWARD_CLAIMS,
   DEFAULT_MEAL_TIME_CONFIG,
   DEFAULT_METRIC_CONFIGS,
   MOCK_CAMPS,
   MOCK_ACCOUNTS,
-  MOCK_POINT_PRODUCTS,
-  MOCK_POINT_EXCHANGES,
 } from '../mock/data';
 
 // ============ 联调配置 ============
@@ -306,114 +295,6 @@ export async function deleteCoachActivity(id: string): Promise<{ success: boolea
   });
 }
 
-// ============ 奖励阶梯配置 ============
-
-/**
- * 获取所有奖励阶梯配置
- * GET /reward-tiers
- *
- * @returns RewardTier[] — 按 requiredDays 升序
- *
- * 业务规则: 营养师/管理员配置。每档包含名称、所需连续打卡天数、库存。
- *           学员连续打卡天数 >= requiredDays 时解锁该档奖励。
- */
-export async function getRewardTiers(): Promise<RewardTier[]> {
-  if (USE_MOCK) return MOCK_REWARD_TIERS;
-  return request<RewardTier[]>('/reward-tiers');
-}
-
-/**
- * 新增奖励阶梯
- * POST /reward-tiers
- *
- * @body  RewardTier — { id, name, requiredDays, imageUrl, stock, description? }
- * @returns RewardTier
- */
-export async function createRewardTier(tier: RewardTier): Promise<RewardTier> {
-  if (USE_MOCK) return tier;
-  return request<RewardTier>('/reward-tiers', {
-    method: 'POST',
-    body: JSON.stringify(tier),
-  });
-}
-
-/**
- * 更新奖励阶梯（修改名称/天数/库存等）
- * PATCH /reward-tiers/:id
- *
- * @body  Partial<RewardTier>
- * @returns RewardTier
- */
-export async function updateRewardTier(id: string, updates: Partial<RewardTier>): Promise<RewardTier> {
-  if (USE_MOCK) return { id, ...updates } as RewardTier;
-  return request<RewardTier>(`/reward-tiers/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-  });
-}
-
-/**
- * 删除奖励阶梯
- * DELETE /reward-tiers/:id
- */
-export async function deleteRewardTier(id: string): Promise<void> {
-  if (USE_MOCK) return;
-  return request<void>(`/reward-tiers/${id}`, { method: 'DELETE' });
-}
-
-// ============ 奖励领取记录 ============
-
-/**
- * 获取所有奖励领取记录
- * GET /reward-claims
- *
- * @returns RewardClaim[] — 包含所有学员的领取记录
- *
- * 业务规则: 管理员端用于发货管理。前端按 studentId 过滤当前用户的记录。
- */
-export async function getRewardClaims(): Promise<RewardClaim[]> {
-  if (USE_MOCK) return MOCK_REWARD_CLAIMS;
-  return request<RewardClaim[]>('/reward-claims');
-}
-
-/**
- * 创建奖励领取记录（学员领取奖品）
- * POST /reward-claims
- *
- * @body  RewardClaim — { id, tierId, studentId, studentName,
- *                        recipientName, recipientPhone, recipientAddress,
- *                        claimDate, status: 'pending' }
- * @returns RewardClaim
- *
- * 业务规则:
- *   1. 当前连续打卡天数 >= tier.requiredDays（前端已校验）
- *   2. 该阶梯未被当前用户领取过（前端已校验）
- *   3. 库存 > 0（前端已校验）
- *   4. 后端创建 claim 记录后，应同时扣减对应 tier 的 stock
- */
-export async function createRewardClaim(claim: RewardClaim): Promise<RewardClaim> {
-  if (USE_MOCK) return claim;
-  return request<RewardClaim>('/reward-claims', {
-    method: 'POST',
-    body: JSON.stringify(claim),
-  });
-}
-
-/**
- * 更新领取记录（管理员发货：填写快递单号）
- * PATCH /reward-claims/:id
- *
- * @body  Partial<RewardClaim> — 通常传 { status: 'shipped', trackingNumber, shipDate }
- * @returns RewardClaim
- */
-export async function updateRewardClaim(id: string, updates: Partial<RewardClaim>): Promise<RewardClaim> {
-  if (USE_MOCK) return { id, ...updates } as RewardClaim;
-  return request<RewardClaim>(`/reward-claims/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-  });
-}
-
 // ============ 健康指标配置 ============
 
 /**
@@ -584,129 +465,6 @@ export async function deleteAccount(id: string): Promise<void> {
   return request<void>(`/accounts/${id}`, { method: 'DELETE' });
 }
 
-// ============ 积分商城商品 ============
-
-/**
- * 获取所有积分商城商品
- * GET /point-products
- *
- * @returns PointProduct[] - 仅 active=true 的商品对学员可见
- */
-export async function getPointProducts(): Promise<PointProduct[]> {
-  if (USE_MOCK) return MOCK_POINT_PRODUCTS;
-  return request<PointProduct[]>('/point-products');
-}
-
-/**
- * 新增积分商城商品（营养师配置）
- * POST /point-products
- */
-export async function createPointProduct(product: PointProduct): Promise<PointProduct> {
-  if (USE_MOCK) return product;
-  return request<PointProduct>('/point-products', {
-    method: 'POST',
-    body: JSON.stringify(product),
-  });
-}
-
-/**
- * 更新积分商城商品（修改价格/库存/上下架等）
- * PATCH /point-products/:id
- */
-export async function updatePointProduct(id: string, updates: Partial<PointProduct>): Promise<PointProduct> {
-  if (USE_MOCK) return { id, ...updates } as PointProduct;
-  return request<PointProduct>(`/point-products/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-  });
-}
-
-/**
- * 删除积分商城商品
- * DELETE /point-products/:id
- */
-export async function deletePointProduct(id: string): Promise<void> {
-  if (USE_MOCK) return;
-  return request<void>(`/point-products/${id}`, { method: 'DELETE' });
-}
-
-// ============ 积分兑换记录 ============
-
-/**
- * 获取所有积分兑换记录
- * GET /point-exchanges
- *
- * @returns PointExchangeRecord[] - 前端按 studentId 过滤当前用户的记录
- */
-export async function getPointExchanges(): Promise<PointExchangeRecord[]> {
-  if (USE_MOCK) return MOCK_POINT_EXCHANGES;
-  return request<PointExchangeRecord[]>('/point-exchanges');
-}
-
-/**
- * 创建积分兑换记录（学员兑换商品）
- * POST /point-exchanges
- *
- * @body  PointExchangeRecord - { studentId, productId, pointsSpent, deliveryMethod, recipientInfo, status: 'pending' }
- * @returns PointExchangeRecord
- *
- * 业务规则:
- *   1. 学员可用积分 >= product.pointsRequired（前端已校验）
- *   2. 商品库存 > 0（前端已校验）
- *   3. 后端创建记录后，应同时扣减对应商品的 stock
- */
-export async function createPointExchange(record: PointExchangeRecord): Promise<PointExchangeRecord> {
-  if (USE_MOCK) return record;
-  return request<PointExchangeRecord>('/point-exchanges', {
-    method: 'POST',
-    body: JSON.stringify(record),
-  });
-}
-
-/**
- * 更新兑换记录（营养师发货 / 学员取消）
- * PATCH /point-exchanges/:id
- *
- * @body  Partial<PointExchangeRecord> - 发货传 { status: 'fulfilled', trackingNumber, shipDate }
- *        取消传 { status: 'cancelled' }，后端应恢复商品库存 + 返还积分
- */
-export async function updatePointExchange(id: string, updates: Partial<PointExchangeRecord>): Promise<PointExchangeRecord> {
-  if (USE_MOCK) return { id, ...updates } as PointExchangeRecord;
-  return request<PointExchangeRecord>(`/point-exchanges/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-  });
-}
-
-// ============ 活动配置（按营期） ============
-
-/**
- * 获取指定营期的趣味活动配置
- * GET /activity-config/:campId
- *
- * @returns ActivityConfig - { weightMilestone, weeklyChallenge, luckyDraw, pointsMall, ... }
- *
- * 业务规则: 营养师在配置页开关各活动；学员端按此展示对应活动入口。
- */
-export async function getActivityConfig(campId: string): Promise<Record<string, unknown>> {
-  if (USE_MOCK) return {};
-  return request<Record<string, unknown>>(`/activity-config/${campId}`);
-}
-
-/**
- * 更新指定营期的趣味活动配置
- * PUT /activity-config/:campId
- *
- * @body  ActivityConfig - 完整配置
- */
-export async function updateActivityConfigApi(campId: string, config: Record<string, unknown>): Promise<Record<string, unknown>> {
-  if (USE_MOCK) return config;
-  return request<Record<string, unknown>>(`/activity-config/${campId}`, {
-    method: 'PUT',
-    body: JSON.stringify(config),
-  });
-}
-
 // ============ 结营寄语 ============
 
 /**
@@ -760,30 +518,4 @@ export async function updateMealTimeConfigByCamp(campId: string, config: MealTim
     method: 'PUT',
     body: JSON.stringify(config),
   });
-}
-
-// ============ 营养师手动加减分 ============
-
-/**
- * 创建营养师手动加减分记录（补录线下打卡积分等）
- * POST /manual-score-records
- *
- * @body  ManualScoreRecord - { studentId, points, reason, dietitianName, campId }
- * @returns ManualScoreRecord
- */
-export async function createManualScoreRecord(record: ManualScoreRecord): Promise<ManualScoreRecord> {
-  if (USE_MOCK) return record;
-  return request<ManualScoreRecord>('/manual-score-records', {
-    method: 'POST',
-    body: JSON.stringify(record),
-  });
-}
-
-/**
- * 删除营养师手动加减分记录
- * DELETE /manual-score-records/:id
- */
-export async function deleteManualScoreRecord(id: string): Promise<void> {
-  if (USE_MOCK) return;
-  return request<void>(`/manual-score-records/${id}`, { method: 'DELETE' });
 }

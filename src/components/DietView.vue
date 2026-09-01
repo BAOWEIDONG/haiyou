@@ -2,8 +2,6 @@
 import { ref, computed, watch, onMounted, onActivated, nextTick } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
-import { celebrateCheckin, celebrateReward } from '../lib/confetti';
-import { calculateStreak } from '../lib/streak';
 import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { Checkbox as VanCheckbox, showToast } from 'vant';
@@ -43,7 +41,6 @@ const activeCampId = computed(() => {
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
-const campRewardTiers = computed(() => activeCampId.value ? store.getCampRewardTiers(activeCampId.value) : store.rewardTiers);
 
 const todayStr = computed(() => format(new Date(), 'yyyy-MM-dd'));
 const userDiets = computed(() => campDiet.value.filter((r) => r.studentId === store.user?.id));
@@ -128,9 +125,6 @@ const handleSubmit = () => {
   error.value = '';
   const submittedMeal = formData.value.meal;
 
-  // 打卡前连续天数
-  const streakBefore = calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id);
-
   store.addDietRecord({
     id: `diet_${Date.now()}`,
     studentId: store.user?.id || 's1',
@@ -148,21 +142,6 @@ const handleSubmit = () => {
   // reset form
   formData.value = { meal: '', description: '', isFasted: false, hasStaple: false, hasProtein: false, hasVegetable: false };
   photos.value = [];
-
-  // 仅当连续天数增长且匹配档位且未领取时，触发奖励庆祝
-  const streakAfter = calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id);
-  const tierMatched = streakAfter.currentStreak > streakBefore.currentStreak
-    ? campRewardTiers.value.find(t => t.requiredDays === streakAfter.currentStreak)
-    : undefined;
-  const claims = activeCampId.value ? store.getCampRewardClaims(activeCampId.value) : store.rewardClaims;
-  const alreadyClaimed = tierMatched
-    ? claims.some(c => c.tierId === tierMatched.id && c.studentId === store.user?.id)
-    : false;
-  if (tierMatched && !alreadyClaimed) {
-    celebrateReward(tierMatched.name);
-  } else {
-    celebrateCheckin(submittedMeal as 'breakfast' | 'lunch' | 'dinner' | 'snack');
-  }
 
   store.justCheckedIn = true;
 };
@@ -406,14 +385,11 @@ onActivated(processPendingDeepLink);
                 </div>
               </div>
 
-              <div v-if="record.dietitianComment || typeof record.dietitianScore === 'number'" class="bg-[#07C160]/5 p-4 relative">
+              <div v-if="record.dietitianComment" class="bg-[#07C160]/5 p-4 relative">
                 <div class="absolute top-0 left-0 w-1 min-h-full bg-[#07C160]"></div>
                 <div class="flex items-center justify-between mb-1">
                   <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-[#07C160]">{{ record.dietitianName || '营养师' }}批注</span>
-                    <span v-if="record.dietitianScore === 2" class="text-[10px] font-bold text-white bg-[#07C160] px-1.5 py-0.5 rounded">+2</span>
-                    <span v-else-if="record.dietitianScore === 1" class="text-[10px] font-bold text-white bg-[#FF976A] px-1.5 py-0.5 rounded">+1</span>
-                    <span v-else-if="record.dietitianScore === 0" class="text-[10px] font-bold text-white bg-gray-400 px-1.5 py-0.5 rounded">0</span>
                     <span v-if="record.dietitianComment && !record.commentRead" class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                   </div>
                   <span v-if="record.dietitianCommentDate" class="text-[10px] text-gray-500">{{ record.dietitianCommentDate }}</span>

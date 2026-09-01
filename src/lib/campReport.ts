@@ -37,7 +37,6 @@ import type {
   MetricChange,
   CheckinStats,
   WeightTrend,
-  Achievement,
   StudentCampReport,
   DietitianCampSummary,
   MetricAggregate,
@@ -345,222 +344,6 @@ export function computeWeightTrend(weightRecords: WeightRecord[]): WeightTrend {
 }
 
 /**
- * 成就定义及解锁条件
- *
- * 成就在 generateStudentReport 中根据数据自动判定 unlocked 状态。
- * 每个成就的解锁条件是独立的，不会互相影响。
- */
-const ACHIEVEMENT_DEFS: Array<{
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  check: (report: {
-    checkinStats: CheckinStats;
-    weightTrend: WeightTrend;
-    metricChanges: MetricChange[];
-  }) => boolean;
-}> = [
-  {
-    id: 'streak_7',
-    title: '连续打卡达人',
-    description: '连续7天完成全部打卡（三餐+运动）',
-    icon: '🏆',
-    check: (r) => r.checkinStats.longestStreak >= 7,
-  },
-  {
-    id: 'streak_14',
-    title: '坚持不懈',
-    description: '连续14天完成全部打卡',
-    icon: '🔥',
-    check: (r) => r.checkinStats.longestStreak >= 14,
-  },
-  {
-    id: 'streak_28',
-    title: '全勤先锋',
-    description: '连续完成全部打卡，完美全勤！',
-    icon: '🏅',
-    check: (r) => r.checkinStats.longestStreak >= 28,
-  },
-  {
-    id: 'weight_loss_3',
-    title: '减重之星',
-    description: '体重减少超过3公斤',
-    icon: '⚖️',
-    check: (r) => r.weightTrend.totalChange !== null && r.weightTrend.totalChange <= -3,
-  },
-  {
-    id: 'weight_loss_5',
-    title: '减重冠军',
-    description: '体重减少超过5公斤',
-    icon: '👑',
-    check: (r) => r.weightTrend.totalChange !== null && r.weightTrend.totalChange <= -5,
-  },
-  {
-    id: 'fat_loss',
-    title: '燃脂勇士',
-    description: '脂肪量减少超过2公斤',
-    icon: '🔥',
-    check: (r) => {
-      const fat = r.metricChanges.find((m) => m.name === '脂肪量');
-      return fat?.change !== null && fat?.change !== undefined && fat.change <= -2;
-    },
-  },
-  {
-    id: 'muscle_gain',
-    title: '肌肉增强',
-    description: '肌肉量增加',
-    icon: '💪',
-    check: (r) => {
-      const muscle = r.metricChanges.find((m) => m.name === '肌肉量');
-      return muscle?.change !== null && muscle?.change !== undefined && muscle.change > 0;
-    },
-  },
-  {
-    id: 'bmr_up',
-    title: '代谢提升',
-    description: '基础代谢率提升',
-    icon: '📈',
-    check: (r) => {
-      const bmr = r.metricChanges.find((m) => m.name === '基础代谢率');
-      return bmr?.change !== null && bmr?.change !== undefined && bmr.change > 0;
-    },
-  },
-  {
-    id: 'visceral_fat',
-    title: '内脏脂肪改善',
-    description: '内脏脂肪面积下降',
-    icon: '🫀',
-    check: (r) => {
-      const v = r.metricChanges.find((m) => m.name === '内脏脂肪面积');
-      return v?.change !== null && v?.change !== undefined && v.change < 0;
-    },
-  },
-  {
-    id: 'abnormal_improved',
-    title: '健康改善',
-    description: '异常指标数量减少',
-    icon: '🎯',
-    check: (r) => {
-      const beforeAbn = r.metricChanges.filter((m) => m.beforeAbnormal).length;
-      const afterAbn = r.metricChanges.filter((m) => m.afterAbnormal).length;
-      return afterAbn < beforeAbn;
-    },
-  },
-  {
-    id: 'abnormal_cleared',
-    title: '全部达标',
-    description: '所有异常指标恢复正常',
-    icon: '✅',
-    check: (r) => {
-      const beforeAbn = r.metricChanges.filter((m) => m.beforeAbnormal).length;
-      const afterAbn = r.metricChanges.filter((m) => m.afterAbnormal).length;
-      return beforeAbn > 0 && afterAbn === 0;
-    },
-  },
-  {
-    id: 'exercise_800',
-    title: '运动健将',
-    description: '累计运动时长超过800分钟',
-    icon: '🏃',
-    check: (r) => r.checkinStats.totalExerciseDuration >= 800,
-  },
-  {
-    id: 'diet_90',
-    title: '饮食自律',
-    description: '打卡天数达到营期的90%',
-    icon: '🥗',
-    check: (r) => r.checkinStats.completionRate >= 0.9,
-  },
-  {
-    id: 'perfect_transform',
-    title: '完美蜕变',
-    description: '体重下降 + 脂肪下降 + 肌肉增长',
-    icon: '🌟',
-    check: (r) => {
-      const weight = r.weightTrend.totalChange;
-      const fat = r.metricChanges.find((m) => m.name === '脂肪量')?.change;
-      const muscle = r.metricChanges.find((m) => m.name === '肌肉量')?.change;
-      return (
-        weight !== null && weight !== undefined && weight < 0 &&
-        fat !== null && fat !== undefined && fat < 0 &&
-        muscle !== null && muscle !== undefined && muscle > 0
-      );
-    },
-  },
-];
-
-/**
- * 计算成就列表
- */
-export function computeAchievements(
-  checkinStats: CheckinStats,
-  weightTrend: WeightTrend,
-  metricChanges: MetricChange[],
-  extra?: { exerciseRecords?: ExerciseRecord[] },
-): Achievement[] {
-  const ctx = { checkinStats, weightTrend, metricChanges };
-  const base = ACHIEVEMENT_DEFS.map((def) => ({
-    id: def.id,
-    title: def.title,
-    description: def.description,
-    icon: def.icon,
-    unlocked: def.check(ctx),
-  }));
-
-  // ---- 基于运动记录的行为勋章（不依赖体成分数据，学员更有获得感）----
-  const exerciseRecords = extra?.exerciseRecords || [];
-  const behavioral: Achievement[] = [];
-
-  if (exerciseRecords.length > 0) {
-    // 晨型人：累计 3 次在 9:00 前完成运动打卡
-    const earlyCount = exerciseRecords.filter((r) => {
-      const timePart = r.date.split(' ')[1] || '';
-      return timePart >= '05:00' && timePart < '09:00';
-    }).length;
-    behavioral.push({
-      id: 'early_bird',
-      title: '晨型人',
-      description: `累计 3 次在早上 9 点前完成运动打卡（当前 ${earlyCount}/3）`,
-      icon: '🌅',
-      unlocked: earlyCount >= 3,
-    });
-
-    // 耐力王：单次运动 ≥ 60 分钟
-    const maxSingle = Math.max(...exerciseRecords.map((r) => r.duration));
-    behavioral.push({
-      id: 'endurance_king',
-      title: '耐力王',
-      description: `单次运动达到 60 分钟（当前最长 ${maxSingle} 分钟）`,
-      icon: '🏅',
-      unlocked: maxSingle >= 60,
-    });
-
-    // 高强度挑战：单次主观强度拉满（Lv.5）
-    const hasMaxIntensity = exerciseRecords.some((r) => r.intensity >= 5);
-    behavioral.push({
-      id: 'high_intensity',
-      title: '极限挑战',
-      description: '完成一次 Lv.5 非常高强度的运动',
-      icon: '⚡',
-      unlocked: hasMaxIntensity,
-    });
-
-    // 多面手：尝试过 3 种以上运动类型
-    const typeSet = new Set(exerciseRecords.map((r) => r.type));
-    behavioral.push({
-      id: 'versatile',
-      title: '运动多面手',
-      description: `尝试过 3 种以上运动类型（当前 ${typeSet.size}/3 种）`,
-      icon: '🎽',
-      unlocked: typeSet.size >= 3,
-    });
-  }
-
-  return [...behavioral, ...base];
-}
-
-/**
  * 生成学员结营报告
  *
  * 这是学员端结营报告的唯一入口函数。
@@ -598,10 +381,7 @@ export function generateStudentReport(
   // 3. 指标变化
   const metricChanges = computeMetricChanges(metricConfigs, metricValues, student.gender);
 
-  // 4. 成就（传入运动记录以计算行为类勋章）
-  const achievements = computeAchievements(checkinStats, weightTrend, metricChanges, { exerciseRecords });
-
-  // 5. 核心摘要
+  // 4. 核心摘要
   const weightLossKg = weightTrend.totalChange !== null ? -weightTrend.totalChange : null;
   const weightLossPercent = weightTrend.changePercent !== null ? -weightTrend.changePercent : null;
 
@@ -621,7 +401,6 @@ export function generateStudentReport(
     checkinStats,
     weightTrend,
     metricChanges,
-    achievements,
     summary: {
       weightLossKg,
       weightLossPercent,

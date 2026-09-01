@@ -70,7 +70,7 @@ const allItems = computed<UnifiedItem[]>(() => {
 
   // 饮食待批注
   campDietRecords.value
-    .filter((r) => !r.dietitianComment && r.dietitianScore == null && !disabledStudentIds.value.has(r.studentId))
+    .filter((r) => !r.dietitianComment && !disabledStudentIds.value.has(r.studentId))
     .forEach((r: DietRecord) => {
       items.push({
         id: r.id,

@@ -221,9 +221,9 @@ export function computeDailyCheckins(
 /**
  * 计算每日饮食得分趋势
  *
- * 按日聚合饮食记录，每日得分 = min(Σ dietitianScore, 6)。
- * 未批注记录(dietitianScore=null/undefined)计 0 分，须营养师点评后才计分。
- * 仅返回有饮食记录的日期。
+ * 按日聚合饮食记录，每日得分 = 当日餐次结构分之和（主食/蛋白质/蔬菜各1分，
+ * 每日封顶6分，与 scoring.ts calculateDietScore 口径一致）。
+ * 未勾选任何结构标签的记录计 0 分。仅返回有饮食记录的日期。
  *
  * @param dietRecords 饮食记录
  * @param userId      学员ID
@@ -245,10 +245,9 @@ export function computeDailyDietScores(
     .sort()
     .map((date) => {
       const records = dayMap[date];
-      const rawScore = records.reduce((sum, r) => sum + (r.dietitianScore != null ? r.dietitianScore : 0), 0);
       return {
         date,
-        score: Math.min(rawScore, 6),
+        score: calculateDietScore(records),
         meals: records.length,
       };
     });
@@ -400,15 +399,13 @@ export function computeExerciseBreakdown(
  *       - 学员提交时 hasStaple 等默认为 false，但不计入统计
  *       - 数据来源：营养师在批注时设定餐次结构标签
  *
- *    3. 评分分 scoreRate = 营养师评分均值 ÷ 2，映射 0~2 -> 0~1
- *       - 只统计 dietitianScore != null 的记录
- *       - 无评分记录时为 0（不再默认 0.5）
+ *    3. 饮食质量分 dietQualityRate = 周日均结构分 ÷ 6（主食/蛋白质/蔬菜各1分，
+ *       与 scoring.ts calculateDietScore 同口径，替代原营养师数值评分）
+ *       - 未勾选任何结构标签的记录计 0 分
  *
  *  【营养师端交互影响】
- *    - 评分分直接来自营养师在学员详情页打出的 dietitianScore（2/1/0），
- *      营养师打分行为会实时影响学员端该图的趋势走向——批注越及时，
- *      学员看到的指数越新。未批注的记录不计分，所以营养师延迟批注
- *      只会让该周指数"暂时不完整"，不会产生错误分数。
+ *    - 饮食质量分基于餐次结构标签（hasStaple/hasProtein/hasVegetable）计算，
+ *      结构标签由学员提交、营养师批注时复核，随数据实时更新。
  *    - 结构标签（hasStaple/hasProtein/hasVegetable）学员勾选后，
  *      营养师在学员详情页可直接看到每条记录的结构标签，
  *      无需点开大图即可快速判断结构是否均衡，写批注更快。
@@ -417,8 +414,7 @@ export function computeExerciseBreakdown(
  *    - 学员端：store.dietRecords 本地新增后立即重算（同步可见）。
  *    - 营养师端：依赖 api.getDietRecords 拉取，学员打卡后需营养师端
  *      重新 init() 或轮询才可见（异步，取决于后端推送机制）。
- *    - dietitianScore 反向同步：营养师打分 → api.updateDietRecord →
- *      学员端下次拉取时评分分更新（异步）。
+ *    - 结构标签/批注随记录同步（学员提交 → 营养师复核/批注）。
  *
  *  【后端对接清单】
  *    DietRecord 需新增字段：hasStaple / hasProtein / hasVegetable（boolean）
@@ -502,31 +498,28 @@ export function computeDietScoreTrends(
     });
     const balanceRate = tagged.length > 0 ? balanced.length / tagged.length : 0;
 
-    // 评分分：营养师评分的日均值（0~2 映射到 0~1）
-    const evaluated = weekDiets.filter((r) => r.dietitianScore != null);
-    let avgDietitianScore: number | null = null;
-    let scoreRate = 0;
-    if (evaluated.length > 0) {
-      const rawAvg = evaluated.reduce((sum, r) => sum + (r.dietitianScore ?? 0), 0) / evaluated.length;
-      avgDietitianScore = rawAvg;
-      scoreRate = rawAvg / 2;
-    }
+    // 饮食质量分：基于餐次结构标签（hasStaple/hasProtein/hasVegetable，与 scoring.ts
+    // calculateDietScore 同口径），替代原营养师数值评分。周日均结构分归一化到 0~1。
+    const weekDietScore = calculateDietScore(weekDiets);
+    const dietQualityRate = checkinDays > 0 ? Math.min((weekDietScore / checkinDays) / 6, 1) : 0;
+    // 原营养师数值评分均分（dietitianScore）已随转型移除，置空（保留字段以满足类型）。
+    const avgDietitianScore: number | null = null;
 
     // 综合指数：动态权重
     // - 三餐规律始终参与（权重 30%）
     // - 结构均衡仅在有评定数据时参与（权重 40%）
-    // - 营养师评分仅在有评分数据时参与（权重 30%）
-    // 缺失的指标权重按比例分配给已参与的指标，避免”无评分=不及格”
+    // - 饮食质量分始终参与（权重 30%）
+    // 缺失的指标权重按比例分配给已参与的指标，避免“无评分=不及格”
     const w_reg = 0.3;
     const w_bal = 0.4;
     const w_sco = 0.3;
     const hasReg = checkinDays > 0;
     const hasBal = tagged.length > 0;
-    const hasSco = evaluated.length > 0;
+    const hasSco = weekDiets.length > 0;
     const activeWeight = (hasReg ? w_reg : 0) + (hasBal ? w_bal : 0) + (hasSco ? w_sco : 0);
     let score: number;
     if (activeWeight > 0) {
-      const raw = (hasReg ? regularityRate * w_reg : 0) + (hasBal ? balanceRate * w_bal : 0) + (hasSco ? scoreRate * w_sco : 0);
+      const raw = (hasReg ? regularityRate * w_reg : 0) + (hasBal ? balanceRate * w_bal : 0) + (hasSco ? dietQualityRate * w_sco : 0);
       score = Math.round((raw / activeWeight) * 100);
     } else {
       score = 0;

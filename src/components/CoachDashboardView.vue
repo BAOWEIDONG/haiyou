@@ -5,7 +5,6 @@ import { useDebounced } from '../composables/useDebounced';
 import { useCoachCounts } from '../lib/coachCounts';
 import { usePaged } from '../composables/usePaged';
 import { campDateRange } from '../lib/camps';
-import { rankStudents } from '../lib/scoring';
 import { Card } from './ui';
 import ActivityCard from './ActivityCard.vue';
 import type { CoachActivityRecord } from '../types';
@@ -52,15 +51,8 @@ const campExerciseRecords = computed(() =>
   activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords
 );
 
-const campDietRecords = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
-const campManualRecords = computed(() => activeCampId.value ? store.getCampManualScoreRecords(activeCampId.value) : store.manualScoreRecords);
 // 防抖镜像：打卡/批注高频变化时，首页重计算合并为 300ms 一次，避免提交即全量重排卡顿
-const dDietRecords = useDebounced(campDietRecords);
 const dExerciseRecords = useDebounced(campExerciseRecords);
-const dManualRecords = useDebounced(campManualRecords);
-const rankedStudents = computed(() =>
-  campStudents.value.length === 0 ? [] : rankStudents(campStudents.value, dDietRecords.value, dExerciseRecords.value, dManualRecords.value)
-);
 
 const _now = new Date();
 const todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
@@ -74,19 +66,15 @@ const studentsStatus = computed(() =>
 
     // 未批注的运动记录数
     const unannotatedExercises = dExerciseRecords.value.filter(
-      r => r.studentId === student.id && !r.coachComment && r.coachScore == null
+      r => r.studentId === student.id && !r.coachComment
     ).length;
-
-    const rankInfo = rankedStudents.value.find(r => r.studentId === student.id);
 
     return {
       ...student,
       hasExercise,
       unannotatedCount: unannotatedExercises,
-      totalScore: rankInfo?.totalScore || 0,
     };
   })
-    .sort((a, b) => b.totalScore - a.totalScore)
 );
 
 const completedStudents = computed(() => studentsStatus.value.filter(s => s.hasExercise));

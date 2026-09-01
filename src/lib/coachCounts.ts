@@ -4,7 +4,7 @@ import { latestOrFirstId } from './camps';
 
 /**
  * 教练端底部 Tabbar 角标（各教练页面共用，口径一致）：
- * - unannotatedCount：「批注」tab 的待批注运动记录数 = 当前营期下未批注(coachComment 为空且 coachScore 为 null)的运动记录数
+ * - unannotatedCount：「批注」tab 的待批注运动记录数 = 当前营期下未有文本批注(coachComment 为空)的运动记录数
  */
 export function useCoachCounts() {
   const store = useAppStore();
@@ -17,7 +17,7 @@ export function useCoachCounts() {
     if (!campId.value) return 0;
     return store
       .getCampExerciseRecords(campId.value)
-      .filter((r) => !r.coachComment && r.coachScore == null && !disabledStudentIds.value.has(r.studentId)).length;
+      .filter((r) => !r.coachComment && !disabledStudentIds.value.has(r.studentId)).length;
   });
 
   return { unannotatedCount };

@@ -3,28 +3,24 @@ import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { useDietitianCounts } from '../lib/dietitianCounts';
 import { Card } from './ui';
-import { Clock, Gift, Trophy, Activity, FileText, Users, ChevronRight, Settings, Package } from 'lucide-vue-next';
+import { Trophy, FileText, Users, ChevronRight, Settings } from 'lucide-vue-next';
 import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
 
 const store = useAppStore();
 
-// ─── 底部 Tabbar 角标：批注=待批注数，配置=发放中心待发货数（各营养师页面共用口径） ───
-const { unannotatedCount, fulfillmentPendingCount } = useDietitianCounts();
-const fulfillmentPending = fulfillmentPendingCount;
+// ─── 底部 Tabbar 角标：批注=待批注数（各营养师页面共用口径） ───
+const { unannotatedCount } = useDietitianCounts();
 
 interface ConfigItem {
   view: string;
   title: string;
   desc: string;
-  icon: typeof Clock;
+  icon: typeof FileText;
   color: string;
   badge?: number;
 }
 
 const configItems = computed<ConfigItem[]>(() => [
-  { view: 'reward-config', title: '奖品配置', desc: '连续打卡奖励阶梯与配置', icon: Gift, color: '#FF976A' },
-  { view: 'fulfillment-center', title: '发放中心', desc: '发货·发放·兑换记录', icon: Package, color: '#FF976A', badge: fulfillmentPending.value > 0 ? fulfillmentPending.value : undefined },
-  { view: 'activity-admin', title: '活动配置', desc: '连续打卡奖励与积分商城开关', icon: Activity, color: '#FF976A' },
   { view: 'metric-config', title: '指标配置', desc: '健康档案体检指标项', icon: FileText, color: '#FF976A' },
   { view: 'camp-summary', title: '结营统计', desc: '学员数据变化与打卡频率', icon: Trophy, color: '#FF976A' },
   { view: 'account-manage', title: '账户管理', desc: '各角色手机号与营期', icon: Users, color: '#FF976A' },
@@ -40,7 +36,7 @@ const configItems = computed<ConfigItem[]>(() => [
         </div>
         <div>
           <h2 class="text-lg font-bold text-gray-900">管理配置</h2>
-          <p class="text-xs text-gray-500 mt-0.5">营期配置、奖励管理、活动设置等</p>
+          <p class="text-xs text-gray-500 mt-0.5">营期配置与健康档案管理</p>
         </div>
       </div>
     </div>
@@ -82,7 +78,7 @@ const configItems = computed<ConfigItem[]>(() => [
         <template #icon><FileText class="h-6 w-6" /></template>
         批注
       </VanTabbarItem>
-      <VanTabbarItem :badge="fulfillmentPendingCount > 0 ? fulfillmentPendingCount : undefined">
+      <VanTabbarItem>
         <template #icon><Settings class="h-6 w-6" /></template>
         配置
       </VanTabbarItem>

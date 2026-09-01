@@ -2,8 +2,6 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
-import { celebrateCheckin, celebrateReward } from '../lib/confetti';
-import { calculateStreak } from '../lib/streak';
 import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { compressVideo } from '../lib/videoCompress';
@@ -57,7 +55,6 @@ const activeCampId = computed(() => {
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
-const campRewardTiers = computed(() => activeCampId.value ? store.getCampRewardTiers(activeCampId.value) : store.rewardTiers);
 
 const userExercises = computed(() => campEx.value.filter((r) => r.studentId === store.user?.id));
 
@@ -376,9 +373,7 @@ const handleSubmit = () => {
     return;
   }
 
-  // 打卡前连续天数（判断是否因本次打卡而增长）
-  const streakBefore = calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id);
-
+  // 打卡前连续天数
   activities.value.forEach((a, index) => {
     store.addExerciseRecord({
       id: `ex_${Date.now()}_${index}`,
@@ -394,20 +389,6 @@ const handleSubmit = () => {
     });
   });
 
-  // 仅当连续天数增长且匹配奖励档位且未领取时，触发奖励庆祝
-  const streakAfter = calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id);
-  const tierMatched = streakAfter.currentStreak > streakBefore.currentStreak
-    ? campRewardTiers.value.find(t => t.requiredDays === streakAfter.currentStreak)
-    : undefined;
-  const claims = activeCampId.value ? store.getCampRewardClaims(activeCampId.value) : store.rewardClaims;
-  const alreadyClaimed = tierMatched
-    ? claims.some(c => c.tierId === tierMatched.id && c.studentId === store.user?.id)
-    : false;
-  if (tierMatched && !alreadyClaimed) {
-    celebrateReward(tierMatched.name);
-  } else {
-    celebrateCheckin('exercise');
-  }
   store.justCheckedIn = true;
   activities.value = activities.value.map(a => ({ ...a, duration: '', customType: '' }));
   notes.value = '';
@@ -727,7 +708,7 @@ const handleSubmit = () => {
               <p><span class="font-bold text-gray-900">每日总时长：</span>该日所有运动记录的 duration 之和（分钟），同一日多次运动分别相加。</p>
               <p><span class="font-bold text-gray-900">平均强度：</span>该日记录 intensity 的算术平均值（RPE 1-5），无记录显示"--"。</p>
               <p><span class="font-bold text-gray-900">打卡次数：</span>该日运动记录条数，同一天多次运动分别计数。</p>
-              <p><span class="font-bold text-gray-900">达标（≥40min）：</span>单次运动时长≥40分钟的记录数。与积分规则一致--每日完成单次40分钟以上运动即可计分。</p>
+              <p><span class="font-bold text-gray-900">达标（≥40min）：</span>单次运动时长≥40分钟的记录数。</p>
               <p><span class="font-bold text-gray-900">交互：</span>点击某根柱形查看当天记录；在图上左右滑动可切换前一天/后一天。</p>
             </ChartRulePopup>
           </div>
@@ -848,9 +829,6 @@ const handleSubmit = () => {
                   <div class="flex items-center gap-1.5 mb-1">
                     <MessageCircle class="w-3 h-3 text-[#07C160]" />
                     <span class="text-[11px] font-bold text-[#07C160]">{{ record.coachName || '教练' }}批注</span>
-                    <span v-if="record.coachScore === 2" class="text-[10px] font-bold text-white bg-[#07C160] px-1.5 py-0.5 rounded">+2</span>
-                    <span v-else-if="record.coachScore === 1" class="text-[10px] font-bold text-white bg-[#FF976A] px-1.5 py-0.5 rounded">+1</span>
-                    <span v-else-if="record.coachScore === 0" class="text-[10px] font-bold text-white bg-gray-400 px-1.5 py-0.5 rounded">0</span>
                     <span v-if="!record.commentRead" class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                   </div>
                   <p class="text-xs text-gray-700 leading-relaxed">{{ record.coachComment }}</p>

@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- *  连续打卡 & 奖励解锁 - 业务规则计算引擎
+ *  连续打卡 - 业务规则计算引擎
  * ============================================================================
  *
  *  核心概念:
@@ -11,17 +11,13 @@
  *    从今天开始往前数，遇到第一个"未完成"的日期即停止。
  *    中断一天即归零，重新累计。
  *
- *  奖励解锁:
- *    streak >= tier.requiredDays 时解锁，可领取。
- *    已领取的奖励固定在领取日，不再随 streak 变化。
- *
  *  前端计算 vs 后端计算:
  *    当前由前端从打卡记录实时计算（无需额外接口）。
  *    后端如需预计算，可实现 GET /me/streak-status 返回相同结构。
  * ============================================================================
  */
 import { format, addDays } from 'date-fns';
-import type { ExerciseRecord, DietRecord, WeightRecord, RewardTier } from '../types';
+import type { ExerciseRecord, DietRecord, WeightRecord } from '../types';
 
 export interface StreakResult {
   /** 当前连续打卡天数（从今天往前数，遇到未完成即停） */
@@ -133,53 +129,14 @@ export function calculateStreak(
   return { currentStreak: streak, totalDays: total, streakStartDate };
 }
 
-export interface RewardClaimRef {
-  id: string;
-  tierId: string;
-  studentId: string;
-  claimDate: string;
-  status: string;
-  trackingNumber?: string;
-}
-
 /**
- * 检查从 startDate 到 endDate（含）的每一天是否都完成了全部打卡（五项）
+ * 计算营期区间内的最长连续完成天数（健康行为维度）
  *
- * 用于奖励领取前的二次校验：即使 streak 计算正确，
- * 也要确保从首次打卡日到奖励目标日之间没有缺卡的天数。
- */
-export function isRangeComplete(
-  startDate: string,
-  endDate: string,
-  exercises: ExerciseRecord[],
-  diets: DietRecord[],
-  weights: WeightRecord[],
-  userId?: string
-): boolean {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
-    const dStr = format(d, 'yyyy-MM-dd');
-    if (!isDayComplete(dStr, exercises, diets, weights, userId)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-/**
- * 计算营期区间内的最长连续完成天数（资格快照判定用）
+ * 在 [startDate, endDate]（含）区间内逐日判断"当天是否五项全完成"，
+ * 返回最大连续完成段的天数，用于评估用户在周期内的坚持度。
  *
- * 新版 PRD（version2）语义：
- *   "首次达到档位即创建不可逆资格快照" —— 一旦在该营期内任意时段连续满勤达到档位天数，
- *   这个"已解锁资格"就永远成立，后续断签不会让已解锁但未领取的奖励重新锁定（场景二反转）。
- *
- * 该函数在 [startDate, endDate]（含）区间内逐日判断"当天是否五项全完成"，
- * 返回最大连续完成段的天数。因为是一个最大值（单调不回退），天然等价于"历史是否曾达到过 N 天"，
- * 从而无需额外持久化一个资格快照数组 —— 只要 once 达到过，之后任意时刻该值都 >= N。
- *
- * @param startDate  区间起点（营期开营日 / 该营期该学员生效日）
- * @param endDate    区间终点（营期结营日，覆盖到 today 即可）
+ * @param startDate  区间起点
+ * @param endDate    区间终点
  */
 export function calculateLongestStreakInRange(
   startDate: string,
@@ -204,58 +161,4 @@ export function calculateLongestStreakInRange(
     }
   }
   return longest;
-}
-
-/**
- * 计算各奖励阶梯的日期与状态
- *
- * 三种状态:
- *   - claimed  (已领取): 该阶梯已被当前用户领取，日期 = 领取日
- *   - claimable(可领取): streak >= requiredDays 且未领取，日期 = streak 达到 requiredDays 的那一天
- *   - locked   (未解锁): streak < requiredDays，日期 = 预计解锁日 = today + (requiredDays - streak)
- *
- * 日期计算:
- *   - claimed:   claim.claimDate 的日期部分
- *   - claimable: streakStartDate + (requiredDays - 1)
- *     （即连续打卡段中第 requiredDays 天完成的日期，不超过今天）
- *   - locked:    today + (requiredDays - streak)
- *     （从今天起还需 (requiredDays - streak) 天即可解锁）
- *
- * @param streak          当前连续打卡天数
- * @param streakStartDate 当前连续段起始日期
- * @param tiers           奖励阶梯配置列表
- * @param claims          所有领取记录（按 studentId 过滤当前用户）
- * @param userId          当前用户 ID
- */
-export function getProjectedRewardDates(
-  streak: number,
-  streakStartDate: string | null,
-  tiers: RewardTier[],
-  claims: RewardClaimRef[] = [],
-  userId?: string
-): Array<{ tier: RewardTier; date: string | null; isUnlocked: boolean; isClaimed: boolean }> {
-  const myClaims = claims.filter(c => c.studentId === userId);
-  const todayStr = format(new Date(), 'yyyy-MM-dd');
-
-  return tiers.map(tier => {
-    const claim = myClaims.find(c => c.tierId === tier.id);
-    const isClaimed = !!claim;
-    const isUnlocked = streak >= tier.requiredDays;
-    let date: string | null = null;
-
-    if (isUnlocked && streakStartDate) {
-      // 已解锁（无论是否领取）：固定在连续段中第 requiredDays 天完成的日期
-      const targetDate = addDays(new Date(streakStartDate), tier.requiredDays - 1);
-      date = format(targetDate, 'yyyy-MM-dd');
-      if (date > todayStr) {
-        date = todayStr;
-      }
-    } else if (!isUnlocked && streakStartDate && streak > 0) {
-      // 未解锁：预计解锁日期
-      const targetDate = addDays(new Date(todayStr), tier.requiredDays - streak);
-      date = format(targetDate, 'yyyy-MM-dd');
-    }
-
-    return { tier, date, isUnlocked, isClaimed };
-  });
 }

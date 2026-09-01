@@ -4,8 +4,8 @@ import { latestOrFirstId } from './camps';
 
 /**
  * 营养师端底部 Tabbar 的角标数字（所有营养师页面共用，口径一致）：
- * - unannotatedCount  ：「批注」tab 的待批注数 = 当前营期下未批注的饮食 + 体重记录数
- * - fulfillmentPendingCount：「配置」tab 的发放中心"待发货"订单数 = 状态 pending 的奖励领取 + 积分兑换（跨营期，与 FulfillmentCenterView 一致）
+ * - unannotatedCount          ：「批注」tab 的待批注数 = 当前营期下未批注（无文本批注）的饮食 + 体重记录数
+ * - fulfillmentPendingCount   ：「配置」tab 的角标。奖励/积分发放体系已移除，恒为 0（保留导出供调用方解构）。
  */
 export function useDietitianCounts() {
   const store = useAppStore();
@@ -16,16 +16,13 @@ export function useDietitianCounts() {
 
   const unannotatedCount = computed(() => {
     if (!campId.value) return 0;
-    const diet = store.getCampDietRecords(campId.value).filter((r) => !r.dietitianComment && r.dietitianScore == null && !disabledStudentIds.value.has(r.studentId)).length;
+    const diet = store.getCampDietRecords(campId.value).filter((r) => !r.dietitianComment && !disabledStudentIds.value.has(r.studentId)).length;
     const weight = store.getCampWeightRecords(campId.value).filter((r) => !r.dietitianComment && !disabledStudentIds.value.has(r.studentId)).length;
     return diet + weight;
   });
 
-  const fulfillmentPendingCount = computed(() => {
-    const claims = store.rewardClaims.filter((c) => c.status === 'pending').length;
-    const exchanges = store.pointExchanges.filter((e) => e.status === 'pending').length;
-    return claims + exchanges;
-  });
+  // 奖励领取 / 积分兑换已随产品转型移除（无待发货订单），配置端角标恒为 0
+  const fulfillmentPendingCount = computed(() => 0);
 
   return { unannotatedCount, fulfillmentPendingCount };
 }

@@ -71,7 +71,6 @@ const {
 // 运动批注
 const exerciseCommentingId = ref<string | null>(null);
 const exerciseCommentText = ref('');
-const exerciseScore = ref<0 | 1 | 2>(1);
 
 const EXERCISE_TEMPLATES = [
   '运动强度很好，继续保持！',
@@ -84,20 +83,17 @@ const EXERCISE_TEMPLATES = [
 const startExerciseComment = (record: ExerciseRecord) => {
   exerciseCommentingId.value = record.id;
   exerciseCommentText.value = record.coachComment || '';
-  exerciseScore.value = (record.coachScore ?? 1) as 0 | 1 | 2;
 };
 const cancelExerciseComment = () => {
   exerciseCommentingId.value = null;
   exerciseCommentText.value = '';
-  exerciseScore.value = 1;
 };
 const handleSaveExerciseComment = (recordId: string) => {
   store.updateExerciseRecord(recordId, {
     coachComment: exerciseCommentText.value,
-    coachScore: exerciseScore.value,
     coachName: store.user?.name || '教练',
     coachCommentDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-    // 新批注/新评分需重置已读，学员端才会亮"新批注"并计入未读数（与营养师批注口径一致）
+    // 新批注需重置已读，学员端才会亮"新批注"并计入未读数（与营养师批注口径一致）
     commentRead: false,
   });
   cancelExerciseComment();
@@ -364,30 +360,6 @@ onActivated(consumePendingAnnotation);
               <!-- 教练批注区域 -->
               <div class="p-4 bg-gray-50/50">
                 <div v-if="exerciseCommentingId === record.id" class="space-y-3">
-                  <!-- 运动打分 -->
-                  <div class="flex items-center gap-3">
-                    <label class="text-sm text-gray-700 font-medium">运动评分:</label>
-                    <div class="flex items-center bg-gray-100 rounded-lg p-1">
-                      <button
-                        :class="['px-3 py-1 rounded-md text-xs font-bold transition-colors', exerciseScore === 2 ? 'bg-[#07C160] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900']"
-                        @click="exerciseScore = 2"
-                      >
-                        +2 (到位)
-                      </button>
-                      <button
-                        :class="['px-3 py-1 rounded-md text-xs font-bold transition-colors', exerciseScore === 1 ? 'bg-[#FF976A] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900']"
-                        @click="exerciseScore = 1"
-                      >
-                        +1 (尚可)
-                      </button>
-                      <button
-                        :class="['px-3 py-1 rounded-md text-xs font-bold transition-colors', exerciseScore === 0 ? 'bg-gray-400 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900']"
-                        @click="exerciseScore = 0"
-                      >
-                        0 (未达标)
-                      </button>
-                    </div>
-                  </div>
                   <!-- 快捷回复模板 -->
                   <div class="flex flex-wrap gap-1.5">
                     <button
@@ -411,13 +383,10 @@ onActivated(consumePendingAnnotation);
                     <Button class="bg-[#07C160] text-white" size="sm" @click="handleSaveExerciseComment(record.id)">保存</Button>
                   </div>
                 </div>
-                <div v-else-if="record.coachComment || typeof record.coachScore === 'number'" class="relative group">
+                <div v-else-if="record.coachComment" class="relative group">
                   <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-2">
                       <span class="text-xs font-bold text-[#07C160]">教练批注</span>
-                      <span v-if="typeof record.coachScore === 'number'" :class="['text-[10px] px-1.5 py-0.5 rounded font-bold', record.coachScore >= 2 ? 'bg-green-100 text-green-700' : record.coachScore === 1 ? 'bg-orange-100 text-orange-600' : 'bg-gray-200 text-gray-600']">
-                        +{{ record.coachScore }}
-                      </span>
                     </div>
                     <span v-if="record.coachCommentDate" class="text-[10px] text-gray-400">{{ record.coachCommentDate }}</span>
                   </div>

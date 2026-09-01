@@ -2,8 +2,6 @@
 import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
-import { celebrateCheckin, celebrateReward } from '../lib/confetti';
-import { calculateStreak } from '../lib/streak';
 import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { NavBar, Button, Card, ChartRulePopup } from './ui';
@@ -35,7 +33,6 @@ const activeCampId = computed(() => {
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
-const campRewardTiers = computed(() => activeCampId.value ? store.getCampRewardTiers(activeCampId.value) : store.rewardTiers);
 
 const weight = ref('');
 const photos = ref<string[]>([]);
@@ -111,9 +108,6 @@ const handleSubmit = () => {
 
   justSubmitted.value = true;
 
-  // 打卡前连续天数
-  const streakBefore = calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id);
-
   store.addWeightRecord({
     id: `w_${Date.now()}`,
     studentId: store.user?.id || 's1',
@@ -122,21 +116,6 @@ const handleSubmit = () => {
     weight: parseFloat(val.toFixed(1)),
     photos: photos.value.length > 0 ? photos.value : undefined,
   });
-
-  // 仅当连续天数增长且匹配档位且未领取时，触发奖励庆祝
-  const streakAfter = calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id);
-  const tierMatched = streakAfter.currentStreak > streakBefore.currentStreak
-    ? campRewardTiers.value.find(t => t.requiredDays === streakAfter.currentStreak)
-    : undefined;
-  const claims = activeCampId.value ? store.getCampRewardClaims(activeCampId.value) : store.rewardClaims;
-  const alreadyClaimed = tierMatched
-    ? claims.some(c => c.tierId === tierMatched.id && c.studentId === store.user?.id)
-    : false;
-  if (tierMatched && !alreadyClaimed) {
-    celebrateReward(tierMatched.name);
-  } else {
-    celebrateCheckin('weight');
-  }
 
   store.justCheckedIn = true;
   weight.value = '';

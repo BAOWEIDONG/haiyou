@@ -8,7 +8,6 @@ import { campDateRange } from '../lib/camps';
 import { Card } from './ui';
 import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, FileText, Settings, ChevronDown } from 'lucide-vue-next';
 import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem, Popup as VanPopup } from 'vant';
-import { rankStudents } from '../lib/scoring';
 
 const store = useAppStore();
 
@@ -41,23 +40,16 @@ const campStudents = computed(() => {
 const campDietRecords = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campWeightRecords = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
 const campExerciseRecords = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
-const campManualRecords = computed(() => activeCampId.value ? store.getCampManualScoreRecords(activeCampId.value) : store.manualScoreRecords);
 // 防抖镜像：学员打卡/批注高频变化时，首页重计算合并为 300ms 一次，避免提交即全量重排卡顿
 const dDietRecords = useDebounced(campDietRecords);
 const dExerciseRecords = useDebounced(campExerciseRecords);
-const dManualRecords = useDebounced(campManualRecords);
 const dWeightRecords = useDebounced(campWeightRecords);
 
-// 底部 Tabbar 角标：批注=待批注数，配置=发放中心待发货数（各营养师页面共用口径）
-const { unannotatedCount, fulfillmentPendingCount } = useDietitianCounts();
+// 底部 Tabbar 角标：批注=待批注数（各营养师页面共用口径）
+const { unannotatedCount } = useDietitianCounts();
 
 const _now = new Date();
 const todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
-
-const rankedStudents = computed(() => {
-  if (campStudents.value.length === 0) return [];
-  return rankStudents(campStudents.value, dDietRecords.value, dExerciseRecords.value, dManualRecords.value);
-});
 
 const studentsStatus = computed(() =>
   campStudents.value.map((student) => {
@@ -77,17 +69,12 @@ const studentsStatus = computed(() =>
     if (!hasWeight) missing.push('体重');
     if (!hasExercise) missing.push('运动');
 
-    const rankInfo = rankedStudents.value.find((r) => r.studentId === student.id);
-
     return {
       ...student,
       isCompleted: missing.length === 0,
       missingTags: missing,
-      totalScore: rankInfo?.totalScore || 0,
-      rank: rankInfo?.rank || 0,
     };
-  })
-    .sort((a, b) => b.totalScore - a.totalScore),
+  }),
 );
 
 const completedStudents = computed(() => studentsStatus.value.filter((s) => s.isCompleted));
@@ -143,7 +130,7 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
     </div>
 
     <div class="flex-1 px-5 space-y-4 relative -mt-2">
-      <!-- 营期切换 + 总排名入口 -->
+      <!-- 营期切换 -->
       <div class="flex items-center gap-2 mb-1">
         <button
           @click="showCampPicker = true"
@@ -153,12 +140,6 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
           <ChevronDown class="w-4 h-4 text-gray-400" />
         </button>
         <span class="text-xs text-gray-400">{{ campStudents.length }} 名学员</span>
-        <button
-          @click="store.setCurrentView('ranking')"
-          class="ml-auto text-xs font-medium text-[#FF976A] active:opacity-70"
-        >
-          总排名 ›
-        </button>
       </div>
 
         <div class="flex bg-white/55 backdrop-blur-md p-1 rounded-xl shadow-sm mb-3 border border-white/60">
@@ -209,12 +190,7 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
                   <UserCircle class="h-6 w-6" />
                 </div>
                 <div>
-                  <div class="text-sm font-bold text-gray-900 mb-1 flex items-center gap-2">
-                    {{ student.name || '未填写' }}
-                    <span class="text-[10px] font-medium bg-[#FF976A]/10 text-[#FF976A] px-1.5 py-0.5 rounded">
-                      总排名第{{ student.rank }}位 / {{ student.totalScore }}分
-                    </span>
-                  </div>
+                  <div class="text-sm font-bold text-gray-900 mb-1">{{ student.name || '未填写' }}</div>
                   <div class="text-[10px] text-gray-500 mb-1.5">
                     {{ student.gender === 'male' ? '男' : '女' }} · {{ student.age }}岁 · {{ maskPhone(student.phone) }}
                   </div>
@@ -246,7 +222,7 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
         <template #icon><FileText class="h-6 w-6" /></template>
         批注
       </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('dietitian-config')" :badge="fulfillmentPendingCount > 0 ? fulfillmentPendingCount : undefined">
+      <VanTabbarItem @click="store.setCurrentView('dietitian-config')">
         <template #icon><Settings class="h-6 w-6" /></template>
         配置
       </VanTabbarItem>

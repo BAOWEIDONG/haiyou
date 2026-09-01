@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onActivated, watch } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
-import { campDateRange, campDaysOf } from '../lib/camps';
+import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Calendar, Scale, PlayCircle, LogOut, Medal, Gift, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame } from 'lucide-vue-next';
+import { Activity, Coffee, Calendar, Scale, PlayCircle, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
-import { getTodayQuote } from '../lib/motivationalQuotes';
 import { calculateStreak } from '../lib/streak';
-import { computeWeightMilestones, computeWeeklyChallenges, computeLuckyDraw } from '../lib/campActivities';
-import type { RewardTier } from '../types';
 
 const store = useAppStore();
 
@@ -84,7 +81,6 @@ const studentDisabled = computed(() => {
 });
 // 本营期可正常参与/主动弹通知（未开始、已结束、退营、禁用状态均不主动弹出）
 const campActiveForStudent = computed(() => activeCamp.value?.status === 'active' && !studentDisabled.value);
-const campDays = computed(() => campDaysOf(activeCamp.value));
 const showCampSwitcher = computed(() => availableCamps.value.length > 1);
 const showCampPicker = ref(false);
 const handleCampSelect = (campId: string) => {
@@ -101,9 +97,6 @@ const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(ac
 const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
 );
-
-// 排名重计算防抖：开放模型无排行榜，正常打卡后（今日刚完成）按个人口径即时反映
-const todayQuote = getTodayQuote();
 
 const streakData = computed(() => calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id));
 const currentStreak = computed(() => streakData.value.currentStreak);
@@ -139,84 +132,6 @@ function guardCheckin(view: View) {
   }
   store.setCurrentView(view);
 }
-
-// 活动配置（按营期独立配置，取代旧的全局 activityConfig）
-const activityConfig = computed(() => store.getActivityConfig(activeCampId.value));
-
-// ---- 趣味活动入口（营养师开关 + 学员有打卡记录才显示） ----
-const hasAnyCheckin = computed(() => {
-  if (!store.user) return false;
-  return campDiet.value.some(isMine) || campEx.value.some(isMine) || campWt.value.some(isMine);
-});
-const hasActivityEnabled = computed(() =>
-  activityConfig.value.weightMilestone || activityConfig.value.weeklyChallenge || activityConfig.value.luckyDraw
-);
-const showActivitiesEntry = computed(() => hasActivityEnabled.value && hasAnyCheckin.value);
-
-// 活动预览数据（用于首页入口卡片展示摘要，与趣味活动页数据口径一致：按当前营期过滤）
-const activityPreview = computed(() => {
-  const items: { label: string; progress: string; color: string }[] = [];
-  const camp = activeCamp.value;
-  const campStart = camp?.startDate || null;
-  const cDiet = campDiet.value;
-  const cEx = campEx.value;
-  const cWt = campWt.value;
-
-  if (activityConfig.value.weightMilestone) {
-    const myWeights = cWt.filter(isMine).sort((a, b) => a.date.localeCompare(b.date));
-    const startW = myWeights.length > 0 ? myWeights[0].weight : null;
-    const milestones = computeWeightMilestones(myWeights, startW);
-    const topMilestone = milestones.find(m => !m.achieved) || milestones[milestones.length - 1];
-    items.push({
-      label: topMilestone.achieved ? topMilestone.label + ' ✓' : '达标 ' + Math.round(topMilestone.threshold * 100) + '%',
-      progress: topMilestone.achieved ? '已达标' : Math.round(topMilestone.progress * 100) + '%',
-      color: '#FF976A',
-    });
-  }
-  if (activityConfig.value.weeklyChallenge) {
-    const challenges = computeWeeklyChallenges(cDiet, cEx, cWt, store.user?.id, {
-      challengeStartDate: activityConfig.value.weeklyChallengeStartDate,
-      challengeWeeks: activityConfig.value.weeklyChallengeWeeks,
-      campStartDate: campStart || undefined,
-    });
-    const completed = challenges.filter(c => c.completed).length;
-    const current = challenges.find(c => c.isCurrent);
-    const notStarted = challenges.length > 0 && challenges.every(c => c.status === 'locked');
-    items.push({
-      label: notStarted ? '挑战未开始' : current ? current.title : '每周挑战',
-      progress: notStarted ? (activityConfig.value.weeklyChallengeStartDate || '待定') : completed + '/' + challenges.length + ' 周',
-      color: '#1677FF',
-    });
-  }
-  if (activityConfig.value.luckyDraw) {
-    const lucky = computeLuckyDraw(cDiet, cEx, cWt, store.user?.id, campDays.value);
-    items.push({
-      label: '全勤抽奖',
-      progress: lucky.eligible ? '已入围 ✓' : Math.round(lucky.completionRate * 100) + '%',
-      color: '#07C160',
-    });
-  }
-  return items;
-});
-
-// 每周挑战主题预览（用于首页入口卡片展示 8 周主题缩略）
-const weeklyChallengePreview = computed(() => {
-  if (!activityConfig.value.weeklyChallenge) return [];
-  const challenges = computeWeeklyChallenges(campDiet.value, campEx.value, campWt.value, store.user?.id, {
-    challengeStartDate: activityConfig.value.weeklyChallengeStartDate,
-    challengeWeeks: activityConfig.value.weeklyChallengeWeeks,
-    campStartDate: activeCamp.value?.startDate,
-  });
-  const notStarted = challenges.length > 0 && challenges.every(c => c.status === 'locked');
-  return challenges.map(c => ({
-    icon: c.icon,
-    title: c.title,
-    completed: c.completed,
-    isCurrent: c.isCurrent,
-    status: c.status,
-    notStarted,
-  }));
-});
 
 // ---- 昨日小结卡（今天首次打开时展示） ----
 const yesterdayStr = format(new Date(Date.now() - 86400000), 'yyyy-MM-dd');
@@ -301,146 +216,11 @@ const todayDietLabel = computed(() => {
 // 卡片入场动画
 const visibleCards = ref<number[]>([]);
 
-
-// 监听打卡记录变化（从子页面打卡后返回首页时触发）
-const checkinRecordCount = computed(() => ({
-  diet: campDiet.value.filter(isMine).length,
-  exercise: campEx.value.filter(isMine).length,
-  weight: campWt.value.filter(isMine).length,
-}));
-
-watch(checkinRecordCount, (newVal, oldVal) => {
-  // 只在记录数增加时检测（说明完成了新打卡）
-  const increased = newVal.diet > (oldVal?.diet ?? 0) ||
-    newVal.exercise > (oldVal?.exercise ?? 0) ||
-    newVal.weight > (oldVal?.weight ?? 0);
-  if (!increased) return;
-  // 延迟检测，避免与昨日小结弹窗冲突
-  const tryCheck = () => {
-    if (showDailySummary.value) {
-      // 昨日小结还在展示，等它关闭后再检测
-      setTimeout(tryCheck, 600);
-      return;
-    }
-    checkNewRewardUnlocks();
-  };
-  setTimeout(tryCheck, 800);
-});
-
-// 监听昨日小结关闭后，若有待展示的连续打卡奖励弹窗，则继续展示（避免多个弹层叠加）
-watch(showDailySummary, () => {
-  flushPendingRewards();
-});
-
-// ---- 连续打卡奖励解锁通知（打卡完成后弹窗，提示去领取） ----
-const newRewards = ref<RewardTier[]>([]);
-const showRewardNotify = ref(false);
-// 已通知过的档位 id（防重复弹窗）
-const shownRewardTiers = ref<Set<string>>(new Set());
-// 昨日小结/成就弹窗占位时暂存的待展示奖励
-const pendingRewards = ref<RewardTier[]>([]);
-const rewardSeenKey = () => `seen_streak_reward_v2_${store.user?.id || 'anon'}`;
-
-// 连续打卡奖励档位（排除趣味活动 source=activity，按 requiredDays 升序）
-const streakRewardTiers = computed(() => {
-  const campId = activeCampId.value;
-  const tiers = campId ? store.getCampRewardTiers(campId) : store.rewardTiers;
-  return [...tiers].filter((t) => t.source !== 'activity').sort((a, b) => a.requiredDays - b.requiredDays);
-});
-
-// 当前「已解锁且未领取」的连续打卡档位
-function unlockedUnclaimedRewards(): RewardTier[] {
-  if (!store.user) return [];
-  const myClaims = store.rewardClaims.filter((c) => c.studentId === store.user!.id);
-  return streakRewardTiers.value
-    .filter((t) => t.requiredDays > 0 && currentStreak.value >= t.requiredDays)
-    .filter((t) => !myClaims.some((c) => c.tierId === t.id));
-}
-
-function persistShownRewards() {
-  try { localStorage.setItem(rewardSeenKey(), JSON.stringify([...shownRewardTiers.value])); } catch { /* */ }
-}
-
-// 检测新解锁的连续打卡奖励（打卡记录增加后由 watch 触发）
-// 未开始/已结束/退营/禁用不主动弹出，直接返回
-function checkNewRewardUnlocks() {
-  if (!store.user) return;
-  if (!campActiveForStudent.value) return;
-  // 开放模型无激励：连续打卡奖励开关关闭则不弹（activityConfigByCamp 默认全关）
-  if (!activityConfig.value.checkinStreak) return;
-  const fresh = unlockedUnclaimedRewards().filter((t) => !shownRewardTiers.value.has(t.id));
-  if (fresh.length === 0) return;
-  fresh.forEach((t) => shownRewardTiers.value.add(t.id));
-  persistShownRewards();
-  // 与昨日小结弹层协调，避免多个弹层叠加
-  if (showDailySummary.value) {
-    pendingRewards.value = fresh;
-  } else {
-    newRewards.value = fresh;
-    showRewardNotify.value = true;
-  }
-}
-
-// 当最外层弹窗（昨日小结）关闭时，放行暂存的奖励弹窗
-function flushPendingRewards() {
-  if (!campActiveForStudent.value) { pendingRewards.value = []; return; }
-  if (showDailySummary.value) return;
-  if (pendingRewards.value.length === 0) return;
-  newRewards.value = pendingRewards.value;
-  pendingRewards.value = [];
-  showRewardNotify.value = true;
-}
-
-const dismissRewardNotify = () => { showRewardNotify.value = false; persistShownRewards(); };
-const goClaimRewards = () => { showRewardNotify.value = false; persistShownRewards(); store.setCurrentView('reward'); };
-
-// 同步连续打卡奖励「已通知」基线，并在每次进入首页时重扫新解锁档位（弹通知提示领取）
-// 注：App.vue 已改为 KeepAlive 缓存（不再以 currentView 为 key 整体重挂载），
-// 故把重扫逻辑抽成函数，由 onMounted（首次）与 onActivated（返回再进）共同调用，
-// 保证「打卡页解锁 → 返回首页弹通知」行为与改造前一致。
-const scanRewardNotify = () => {
-  if (!store.user) return;
-  // 未开始/已结束/退营/禁用不主动弹出（version2 PRD 2.1.2）
-  if (!campActiveForStudent.value) return;
-  // 开放模型无激励：连续打卡奖励开关关闭则不弹（activityConfigByCamp 默认全关）
-  if (!activityConfig.value.checkinStreak) return;
-  let seenRewards: string[] = [];
-  try { seenRewards = JSON.parse(localStorage.getItem(rewardSeenKey()) || '[]'); } catch { /* */ }
-  if (seenRewards.length > 0) {
-    shownRewardTiers.value = new Set(seenRewards);
-    const fresh = unlockedUnclaimedRewards().filter((t) => !shownRewardTiers.value.has(t.id));
-    if (fresh.length > 0) {
-      fresh.forEach((t) => shownRewardTiers.value.add(t.id));
-      persistShownRewards();
-      if (showDailySummary.value) {
-        pendingRewards.value = fresh;
-      } else {
-        newRewards.value = fresh;
-        showRewardNotify.value = true;
-      }
-    }
-  } else {
-    shownRewardTiers.value = new Set(unlockedUnclaimedRewards().map((t) => t.id));
-    persistShownRewards();
-  }
-};
-
 onMounted(() => {
   const delays = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
   delays.forEach((delay, idx) => {
     setTimeout(() => visibleCards.value.push(idx), delay);
   });
-
-  // 首次进入时重扫新解锁的连续打卡奖励档位（打卡成功后返回首页弹通知提示领取）
-  scanRewardNotify();
-});
-
-// KeepAlive 缓存下，从子页返回首页时不会重挂载，改用 onActivated 再次重扫新解锁档位
-// （与 onMounted 内首次基线初始化行为保持一致，见 has keep-alive 说明）
-onActivated(() => {
-  if (store.user) {
-    scanRewardNotify();
-  }
 });
 </script>
 
@@ -474,7 +254,6 @@ onActivated(() => {
           <h2 class="text-2xl font-black text-white tracking-tight truncate">你好，{{ store.user?.name || '学员' }}</h2>
           <div class="flex items-start gap-2 mt-2">
             <span class="text-[11px] font-bold text-[#07C160] bg-white px-2 py-0.5 rounded-full tracking-wide shrink-0 mt-0.5">DAY {{ campDay }}</span>
-            <span class="text-xs text-white/95 font-medium tracking-wide leading-snug min-h-[36px] break-words break-all">{{ todayQuote }}</span>
           </div>
         </div>
         <!-- 今日五项打卡环形进度 -->
@@ -718,36 +497,6 @@ onActivated(() => {
             <button @click="dismissDailySummary" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#07C160] to-[#06b558] text-white text-sm font-bold active:scale-[0.98] transition-transform shadow-lg shadow-[#07C160]/20">
               开启今天 ->
             </button>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
-
-    <!-- 连续打卡奖励解锁通知弹层 -->
-    <Teleport to="body">
-      <Transition name="summary-fade">
-        <div v-if="showRewardNotify" class="fixed inset-0 z-[997] bg-black/40 flex items-center justify-center px-8" @click.self="dismissRewardNotify">
-          <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center summary-slide-up">
-            <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center mb-3">
-              <Gift class="w-8 h-8 text-[#FF976A]" />
-            </div>
-            <h3 class="text-base font-black text-gray-900 mb-1">恭喜解锁连续打卡奖励！</h3>
-            <p class="text-xs text-gray-400 mb-4">
-              完成打卡解锁了{{ newRewards.length > 1 ? `${newRewards.length}份奖励` : '一份打卡奖励' }}，快去打卡奖励页领取吧
-            </p>
-            <div class="space-y-3 mb-5">
-              <div v-for="rw in newRewards" :key="rw.id" class="flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-3 text-left">
-                <img loading="lazy" decoding="async" :src="rw.imageUrl" class="w-11 h-11 rounded-xl object-cover shrink-0" :alt="rw.name" />
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-bold text-gray-900 truncate">{{ rw.name }}</div>
-                  <div class="text-[10px] text-orange-600">连续打卡 {{ rw.requiredDays }} 天解锁，可前往领取</div>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-2">
-              <button @click="dismissRewardNotify" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-bold active:scale-[0.98] transition-transform">稍后再说</button>
-              <button @click="goClaimRewards" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#FF976A] to-[#F7941D] text-white text-sm font-bold active:scale-[0.98] transition-transform shadow-lg shadow-orange-500/20">去领取 →</button>
-            </div>
           </div>
         </div>
       </Transition>

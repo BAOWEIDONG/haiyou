@@ -30,10 +30,10 @@ const campExerciseRecords = computed(() => store.getCampExerciseRecords(currentC
 // 退营学员与看板 active-only 口径一致：待批注列表排除
 const disabledStudentIds = computed(() => new Set(store.accounts.filter((a) => a.role === 'student' && a.active === false).map((a) => a.id)));
 
-// 未批注的运动记录（coachComment 空 且 coachScore 未评）
+// 未批注的运动记录（coachComment 空）
 const unannotatedItems = computed(() =>
   campExerciseRecords.value
-    .filter((r) => !r.coachComment && r.coachScore == null)
+    .filter((r) => !r.coachComment)
     .filter((r) => !disabledStudentIds.value.has(r.studentId))
     .filter((r) => {
       const kw = searchKeyword.value.trim();

@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, onUnmounted } from 'vue';
+import { computed, ref } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import { NavBar, StudentTabbar } from './ui';
-import { MessageCircle, Gift, Trophy, Bell, ChevronRight, Activity, RefreshCw } from 'lucide-vue-next';
+import { MessageCircle, Bell, ChevronRight, Activity, RefreshCw } from 'lucide-vue-next';
 import { useTabSwipe } from '../lib/useTabSwipe';
 import { usePaged } from '../composables/usePaged';
 import { useDebounced } from '../composables/useDebounced';
-import { rankStudents } from '../lib/scoring';
-import { loadMsgSeenState, saveMsgSeenState, systemMsgUnread, type MsgSeenState } from '../lib/messageSeen';
 
 const store = useAppStore();
 const isMine = (r: { studentId?: string }) => r.studentId === store.user?.id;
@@ -24,28 +22,6 @@ function showToast(text: string) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { toastVisible.value = false; }, 2500);
 }
-
-// ─── 消息已读追踪：系统通知(奖励/兑换)用「最近查看时刻」时间戳模型，排名用变动检测 ───
-// 持久化结构见 lib/messageSeen：{ [userId]: { ranks, lastSystemSeenAt } }。
-// lastSystemSeenAt 在离开消息中心时更新；晚于该时刻产生的系统通知在下次进入时标记未读。
-const seenState = ref<MsgSeenState>(loadMsgSeenState(store.user?.id || ''));
-
-function saveSeenState() {
-  if (!store.user) return;
-  const uid = store.user.id;
-  const campKey = activeCampId.value || 'default';
-  let rank = 0;
-  const cs = campKey !== 'default' ? store.getStudentsByCamp(campKey) : [];
-  if (cs.length > 0) {
-    const ranked = rankStudents(cs, campDietRecs.value, campExRecs.value, campManualRecs.value);
-    const me = ranked.find(s => s.studentId === uid);
-    if (me) rank = me.rank;
-  }
-  // 记下当前排名，并刷新「最近查看时刻」——下次进入时晚于此刻的系统通知未读
-  saveMsgSeenState(uid, { ranks: { ...seenState.value.ranks, [campKey]: rank }, lastSystemSeenAt: Date.now() });
-}
-
-onUnmounted(() => saveSeenState());
 
 async function handleRefresh() {
   if (isRefreshing.value) return;
@@ -74,19 +50,16 @@ const activeCampId = computed(() => {
 });
 const campDietRecs = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campExRecs = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
-const campManualRecs = computed(() => activeCampId.value ? store.getCampManualScoreRecords(activeCampId.value) : store.manualScoreRecords);
 const campWtRecs = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
-const campClaims = computed(() => activeCampId.value ? store.getCampRewardClaims(activeCampId.value) : store.rewardClaims);
-const campTiers = computed(() => activeCampId.value ? store.getCampRewardTiers(activeCampId.value) : store.rewardTiers);
 
 interface MessageItem {
   id: string;
-  type: 'dietitian' | 'coach' | 'reward' | 'rank';
+  type: 'dietitian' | 'coach';
   date: string; // yyyy-MM-dd HH:mm:ss
   title: string;
   body: string;
   unread: boolean;
-  targetView: 'diet' | 'exercise' | 'weight-checkin' | 'reward' | 'ranking' | 'camp-activities' | 'points-mall';
+  targetView: 'diet' | 'exercise' | 'weight-checkin';
   targetDate?: string; // yyyy-MM-dd for scroll-to-record
 }
 
@@ -119,97 +92,11 @@ const commentMessages = computed<MessageItem[]>(() => {
   ];
 });
 
-// ---- 奖励消息（领取/审核/发货/线下发放，计入「系统通知」未读） ----
-const rewardMessages = computed<MessageItem[]>(() => {
-  return campClaims.value
-    .filter((c) => c.studentId === store.user?.id)
-    .map((c) => {
-      const tier = campTiers.value.find((t) => t.id === c.tierId);
-      const shipped = c.status === 'shipped';
-      const inPerson = c.status === 'in-person';
-      const confirmed = c.status === 'confirmed';
-      const date = (shipped && c.shipDate) || (inPerson && c.deliveredAt) || c.claimDate;
-      return {
-        id: `reward-${c.id}`,
-        type: 'reward' as const,
-        date,
-        title: confirmed ? '活动奖励已审核通过' : shipped ? '你的奖励已发货' : inPerson ? '奖励已线下领取' : '奖励领取成功',
-        body: confirmed
-          ? `${tier?.name || '奖励'} 已审核通过，请前往趣味活动页面领取`
-          : shipped
-            ? `${tier?.name || '奖励'} 已寄出${c.trackingNumber ? `，快递单号 ${c.trackingNumber}` : ''}，请注意查收`
-            : inPerson
-              ? `${tier?.name || '奖励'} 已线下发放，请向教练确认领取`
-              : c.deliveryMethod === 'in-person'
-                ? `恭喜达成「${tier?.name || '奖励'}」，已为你安排线下领取，请等待营养师联系`
-                : `恭喜达成「${tier?.name || '奖励'}」，礼品将尽快寄出`,
-        unread: systemMsgUnread(seenState.value, date),
-        targetView: confirmed ? 'camp-activities' : 'reward',
-      };
-    });
-});
-
-// ---- 积分商城兑换消息（含发货） ----
-const exchangeMessages = computed<MessageItem[]>(() => {
-  if (!store.user) return [];
-  const mine = store.getStudentExchanges(store.user.id)
-    .filter((e) => !activeCampId.value || e.campId === activeCampId.value);
-  return mine
-    .map((e): MessageItem => {
-      const fulfilled = e.status === 'fulfilled';
-      const date = (fulfilled && e.shipDate) || e.exchangeDate;
-      return {
-        id: `exch-${e.id}`,
-        type: 'reward',
-        date,
-        title: fulfilled ? '积分兑换已发货' : '积分兑换成功',
-        body: fulfilled
-          ? `「${e.productName}」已寄出${e.trackingNumber ? `，快递单号 ${e.trackingNumber}` : ''}，请注意查收`
-          : `你使用 ${e.pointsSpent} 积分兑换了「${e.productName}」，礼品将尽快寄出`,
-        unread: systemMsgUnread(seenState.value, date),
-        targetView: 'points-mall',
-      };
-    });
-});
-
-// ---- 排名变动（与昨日对比） ----
-const rankMessage = computed<MessageItem[]>(() => {
-  if (!store.user) return [];
-  const campId = activeCampId.value;
-  const campStudents = campId ? store.getStudentsByCamp(campId) : [];
-  const ranked = rankStudents(campStudents, campDietRecs.value, campExRecs.value, campManualRecs.value);
-  const me = ranked.find((s) => s.studentId === store.user!.id);
-  if (!me) return [];
-  if (me.rank === 1) {
-    const secondScore = ranked[1]?.totalScore ?? me.totalScore;
-    return [{
-      id: 'rank-top',
-      type: 'rank',
-      date: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-      title: '你现在是第 1 名',
-      body: `总分 ${me.totalScore} 分，继续保持，第二名距你 ${Math.max(0, me.totalScore - secondScore)} 分`,
-      unread: seenState.value.ranks[activeCampId.value || 'default'] !== undefined && seenState.value.ranks[activeCampId.value || 'default'] !== me.rank,
-      targetView: 'ranking',
-    }];
-  }
-  const ahead = ranked.filter((s) => s.totalScore > me.totalScore).sort((a, b) => a.totalScore - b.totalScore)[0];
-  if (!ahead) return [];
-  return [{
-    id: 'rank-gap',
-    type: 'rank',
-    date: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-    title: `当前排名第 ${me.rank} 位`,
-    body: `距前一名还差 ${ahead.totalScore - me.totalScore} 分，今天完成打卡就能缩小差距`,
-    unread: seenState.value.ranks[activeCampId.value || 'default'] !== undefined && seenState.value.ranks[activeCampId.value || 'default'] !== me.rank,
-    targetView: 'ranking',
-  }];
-});
-
 // ---- 汇总排序 ----
-// 同一时间按优先级：批注 > 奖励/兑换 > 排名（version2 PRD 2.9）
-const typePriority: Record<string, number> = { dietitian: 0, coach: 0, reward: 1, rank: 2 };
+// 批注类消息按时间倒序；同一时间按优先级：营养师批注 > 教练批注
+const typePriority: Record<string, number> = { dietitian: 0, coach: 1 };
 const allMessages = computed<MessageItem[]>(() =>
-  [...commentMessages.value, ...rewardMessages.value, ...exchangeMessages.value, ...rankMessage.value]
+  [...commentMessages.value]
     .sort((a, b) => {
       const dc = b.date.localeCompare(a.date);
       if (dc !== 0) return dc;
@@ -217,26 +104,24 @@ const allMessages = computed<MessageItem[]>(() =>
     }),
 );
 
-// ---- 分类筛选：营养师批注 / 教练批注 / 系统通知 ----
+// ---- 分类筛选：营养师批注 / 教练批注 ----
 const filters = [
   { key: 'all', label: '全部' },
   { key: 'dietitian', label: '营养师批注' },
   { key: 'coach', label: '教练批注' },
-  { key: 'reward', label: '系统通知' },
 ];
 const activeFilter = ref<string>('all');
 const sheetRoot = ref<HTMLElement | null>(null);
-useTabSwipe(sheetRoot, activeFilter, ['all', 'dietitian', 'coach', 'reward']);
+useTabSwipe(sheetRoot, activeFilter, ['all', 'dietitian', 'coach']);
 const messages = computed<MessageItem[]>(() =>
   activeFilter.value === 'all'
     ? allMessages.value
     : allMessages.value.filter((m) => m.type === activeFilter.value),
 );
 
-// 未读数 = 批注(营养师+教练) + 系统通知(奖励/兑换)，与各学员页底部「消息」Tab 角标口径一致
-// （共享 store.getStudentMsgUnreadCount / lib/messageSeen）。排名动态不进入角标。
+// 未读数 = 批注(营养师+教练)，与各学员页底部「消息」Tab 角标口径一致。
 const unreadCount = computed(() =>
-  allMessages.value.filter((m) => m.unread && (m.type === 'dietitian' || m.type === 'coach' || m.type === 'reward')).length,
+  allMessages.value.filter((m) => m.unread && (m.type === 'dietitian' || m.type === 'coach')).length,
 );
 // 长列表分页 + 防抖：默认只渲染前 20 条；打卡/批注等高频变化时列表重建合并为一次
 const debouncedMessages = useDebounced(messages, 300);
@@ -254,11 +139,7 @@ const sheetUnread = computed(() => tabUnread(activeFilter.value));
 const typeMeta = (type: MessageItem['type']) =>
   type === 'dietitian'
     ? { icon: MessageCircle, cls: 'bg-[#07C160]/10 text-[#07C160]', tag: '营养师批注', tagCls: 'bg-[#07C160]/10 text-[#07C160]' }
-    : type === 'coach'
-      ? { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '教练批注', tagCls: 'bg-sky-50 text-sky-500' }
-      : type === 'reward'
-        ? { icon: Gift, cls: 'bg-orange-50 text-orange-500', tag: '系统通知', tagCls: 'bg-orange-50 text-orange-500' }
-        : { icon: Trophy, cls: 'bg-yellow-50 text-yellow-600', tag: '排名动态', tagCls: 'bg-yellow-50 text-yellow-600' };
+    : { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '教练批注', tagCls: 'bg-sky-50 text-sky-500' };
 
 const openMessage = (m: MessageItem) => {
   if (m.targetDate) {
@@ -335,7 +216,7 @@ const fmtDate = (d: string) => {
           <Bell class="w-8 h-8 text-gray-300" />
         </div>
         <div class="text-sm font-bold text-gray-600 mb-1">暂无消息</div>
-        <div class="text-xs text-gray-400">营养师/教练的批注和系统通知会出现在这里</div>
+        <div class="text-xs text-gray-400">营养师/教练的批注反馈会出现在这里</div>
       </div>
 
       <!-- 消息列表 -->

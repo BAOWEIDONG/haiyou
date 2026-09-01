@@ -36,31 +36,21 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
   'dietitian-dashboard': () => import('./components/DietitianDashboardView.vue'),
   'dietitian-student-detail': () => import('./components/DietitianStudentDetailView.vue'),
   'dietitian-unannotated-list': () => import('./components/DietitianUnannotatedListView.vue'),
-  ranking: () => import('./components/RankingView.vue'),
-  pointsDetail: () => import('./components/PointsDetailView.vue'),
-  reward: () => import('./components/RewardView.vue'),
-  'reward-config': () => import('./components/RewardConfigView.vue'),
   'meal-time-config': () => import('./components/MealTimeConfigView.vue'),
   'metric-config': () => import('./components/MetricConfigView.vue'),
   'camp-summary': () => import('./components/DietitianCampSummaryView.vue'),
   'enterprise-report': () => import('./components/EnterpriseReportView.vue'),
   'camp-report': () => import('./components/CampReportView.vue'),
-  'camp-activities': () => import('./components/CampActivitiesView.vue'),
-  'activity-admin': () => import('./components/ActivityAdminView.vue'),
   'personal-journey': () => import('./components/PersonalJourneyView.vue'),
   messages: () => import('./components/MessagesView.vue'),
   'account-manage': () => import('./components/AccountManageView.vue'),
   'dietitian-config': () => import('./components/DietitianConfigView.vue'),
-  'activity-hub': () => import('./components/ActivityHubView.vue'),
-  'points-mall': () => import('./components/PointsMallView.vue'),
-  'fulfillment-center': () => import('./components/FulfillmentCenterView.vue'),
-  'my-rewards': () => import('./components/MyRewardsView.vue'),
 };
 
 // 各角色底部 tab 与常用子页（角色预取，配合下方全量预取双保险）
 const ROLE_TABS: Record<string, string[]> = {
-  student: ['dashboard', 'activity-hub', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'points-mall', 'calendar', 'reward'],
-  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'fulfillment-center', 'reward-config', 'dietitian-student-detail', 'account-manage'],
+  student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar'],
+  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage'],
   coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload', 'activities-list'],
 };
 let prefetchedRole = false;
