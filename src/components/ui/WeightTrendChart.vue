@@ -172,15 +172,15 @@ onUnmounted(() => {
   <Card class="p-4">
     <div class="flex items-center justify-between mb-3">
       <h3 class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
-        <Scale class="w-4 h-4 text-[#07C160]" />
+        <Scale class="w-4 h-4 text-[#0EA5E9]" />
         体重趋势
       </h3>
       <div v-if="weightStats" class="flex items-center gap-1 text-xs">
         <component
           :is="weightStats.change < 0 ? TrendingDown : weightStats.change > 0 ? TrendingUp : Minus"
-          :class="['w-3.5 h-3.5', weightStats.change < 0 ? 'text-[#07C160]' : weightStats.change > 0 ? 'text-orange-500' : 'text-gray-400']"
+          :class="['w-3.5 h-3.5', weightStats.change < 0 ? 'text-[#0EA5E9]' : weightStats.change > 0 ? 'text-orange-500' : 'text-gray-400']"
         />
-        <span :class="weightStats.change < 0 ? 'text-[#07C160]' : weightStats.change > 0 ? 'text-orange-500' : 'text-gray-400'">
+        <span :class="weightStats.change < 0 ? 'text-[#0EA5E9]' : weightStats.change > 0 ? 'text-orange-500' : 'text-gray-400'">
           {{ weightStats.change > 0 ? '+' : '' }}{{ weightStats.change }}kg
           <span v-if="weightStats.changePercent !== null" class="text-gray-400 ml-0.5">({{ weightStats.changePercent > 0 ? '+' : '' }}{{ weightStats.changePercent }}%)</span>
         </span>
@@ -194,8 +194,8 @@ onUnmounted(() => {
            ref="chartSvgRef">
         <defs>
           <linearGradient :id="gradientId" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#07C160" stop-opacity="0.2" />
-            <stop offset="100%" stop-color="#07C160" stop-opacity="0" />
+            <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0" />
           </linearGradient>
         </defs>
 
@@ -209,20 +209,20 @@ onUnmounted(() => {
         <path v-if="areaPath" :d="areaPath" :fill="`url(#${gradientId})`" />
 
         <!-- Line -->
-        <path v-if="linePath" :d="linePath" fill="none" stroke="#07C160" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+        <path v-if="linePath" :d="linePath" fill="none" stroke="#0EA5E9" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
 
         <!-- Vertical guide line (active point) -->
         <line v-if="activeIdx !== null && chartPoints[activeIdx]"
               :x1="chartPoints[activeIdx].x" :y1="consts.PT"
               :x2="chartPoints[activeIdx].x" :y2="consts.PT + consts.PH"
-              stroke="#07C160" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" />
+              stroke="#0EA5E9" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" />
 
         <!-- Data points -->
         <circle v-for="(pt, i) in chartPoints" :key="`pt-${i}`"
                 :cx="pt.x" :cy="pt.y"
                 :r="activeIdx === i ? 5.5 : 3"
-                :fill="activeIdx === i ? '#07C160' : '#fff'"
-                stroke="#07C160" stroke-width="1.5"
+                :fill="activeIdx === i ? '#0EA5E9' : '#fff'"
+                stroke="#0EA5E9" stroke-width="1.5"
                 class="cursor-pointer transition-all"
                 @mouseenter="hoveredIdx = i"
                 @mouseleave="hoveredIdx = null" />
@@ -250,18 +250,18 @@ onUnmounted(() => {
     </div>
 
     <!-- Selected point detail card -->
-    <div v-if="selectedPoint" class="mt-3 p-3 rounded-xl bg-[#07C160]/5 border border-[#07C160]/10 flex items-center justify-between">
+    <div v-if="selectedPoint" class="mt-3 p-3 rounded-xl bg-[#0EA5E9]/5 border border-[#0EA5E9]/10 flex items-center justify-between">
       <div>
         <div class="text-[10px] text-gray-500 mb-0.5">打卡时间</div>
         <div class="text-xs font-medium text-gray-700">{{ selectedPoint.fullDate }}</div>
       </div>
       <div class="text-right">
         <div class="text-[10px] text-gray-500 mb-0.5">体重</div>
-        <div class="text-sm font-bold text-[#07C160]">{{ selectedPoint.weight }} kg</div>
+        <div class="text-sm font-bold text-[#0EA5E9]">{{ selectedPoint.weight }} kg</div>
       </div>
       <div v-if="selectedPoint.change !== null" class="text-right">
         <div class="text-[10px] text-gray-500 mb-0.5">较上次</div>
-        <div :class="['text-sm font-bold', selectedPoint.change < 0 ? 'text-[#07C160]' : selectedPoint.change > 0 ? 'text-orange-500' : 'text-gray-500']">
+        <div :class="['text-sm font-bold', selectedPoint.change < 0 ? 'text-[#0EA5E9]' : selectedPoint.change > 0 ? 'text-orange-500' : 'text-gray-500']">
           {{ selectedPoint.change > 0 ? '+' : '' }}{{ selectedPoint.change }} kg
         </div>
       </div>

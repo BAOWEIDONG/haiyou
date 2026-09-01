@@ -61,7 +61,7 @@ const submitContact = () => {
         >
           <button @click="toggle(t.id)" class="w-full p-4 text-left">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="h-10 w-10 rounded-full bg-[#07C160]/10 text-[#07C160] flex items-center justify-center shrink-0">
+              <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] flex items-center justify-center shrink-0">
                 <MessageSquareText class="h-5 w-5" />
               </div>
               <div class="min-w-0">
@@ -82,7 +82,7 @@ const submitContact = () => {
               <div
                 v-for="(r, i) in t.replies"
                 :key="i"
-                :class="['p-3 rounded-xl text-[13px] leading-relaxed', r.side === 'staff' ? 'bg-[#07C160]/8 ml-6' : 'bg-gray-100 mr-6']"
+                :class="['p-3 rounded-xl text-[13px] leading-relaxed', r.side === 'staff' ? 'bg-[#0EA5E9]/8 ml-6' : 'bg-gray-100 mr-6']"
               >
                 <div class="text-[10px] text-gray-400 mb-1">{{ r.authorName }} · {{ r.createdAt.slice(5, 16) }}</div>
                 {{ r.text }}
@@ -104,12 +104,12 @@ const submitContact = () => {
               v-model="draft"
               rows="2"
               placeholder="输入回复（如需线下跟进，先在此备注，再用下方按钮登记凭证）…"
-              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] focus:outline-none resize-none"
+              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none resize-none"
             />
             <div class="flex gap-2">
               <button
                 @click="reply(t.id)"
-                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#07C160] to-[#059669] text-white text-sm font-bold active:opacity-90"
+                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90"
               >
                 <Send class="w-4 h-4" /> 回复
               </button>
@@ -131,20 +131,20 @@ const submitContact = () => {
         <h3 class="text-base font-bold text-gray-900 mb-4 text-center">登记私域跟进凭证</h3>
         <div class="flex gap-2 mb-4">
           <button
-            :class="['flex-1 py-2.5 rounded-xl text-sm font-bold border-2', contactType === 'phone' ? 'border-[#07C160] text-[#07C160]' : 'border-gray-200 text-gray-500']"
+            :class="['flex-1 py-2.5 rounded-xl text-sm font-bold border-2', contactType === 'phone' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-gray-200 text-gray-500']"
             @click="contactType = 'phone'"
           >电话</button>
           <button
-            :class="['flex-1 py-2.5 rounded-xl text-sm font-bold border-2', contactType === 'wechat' ? 'border-[#07C160] text-[#07C160]' : 'border-gray-200 text-gray-500']"
+            :class="['flex-1 py-2.5 rounded-xl text-sm font-bold border-2', contactType === 'wechat' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-gray-200 text-gray-500']"
             @click="contactType = 'wechat'"
           >微信</button>
         </div>
         <input
           v-model="contactValue"
           placeholder="填写线下医院/HCP 联系方式"
-          class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] focus:outline-none mb-4"
+          class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none mb-4"
         />
-        <button @click="submitContact" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#07C160] to-[#059669] text-white text-sm font-bold active:opacity-90">
+        <button @click="submitContact" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90">
           确认登记
         </button>
       </div>

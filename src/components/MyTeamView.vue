@@ -26,7 +26,7 @@ const nextFollowup = computed(() =>
 
 const services = [
   { key: 'interpretation-result', title: '报告健康解读', desc: '勾指标请医生解读、看结论、追问', icon: FileSearch, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
-  { key: 'consult', title: '健康答疑', desc: '给健康顾问留言，索取电话/微信', icon: MessageSquareText, tone: 'text-[#07C160] bg-[#07C160]/8' },
+  { key: 'consult', title: '健康答疑', desc: '给健康顾问留言，索取电话/微信', icon: MessageSquareText, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
   { key: 'knowledge', title: '健康知识订阅', desc: '医生/营养师/教练科普图文视频', icon: Newspaper, tone: 'text-purple-600 bg-purple-50' },
 ];
 </script>

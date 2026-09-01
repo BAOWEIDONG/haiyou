@@ -175,7 +175,7 @@ const openRecord = (item: UnifiedItem) => {
 
 const typeConfig: Record<ItemType, { label: string; bg: string; text: string; icon: typeof Activity }> = {
   diet: { label: '饮食', bg: 'bg-[#FF976A]/10', text: 'text-[#FF976A]', icon: Coffee },
-  weight: { label: '体重', bg: 'bg-[#07C160]/10', text: 'text-[#07C160]', icon: Scale },
+  weight: { label: '体重', bg: 'bg-[#0EA5E9]/10', text: 'text-[#0EA5E9]', icon: Scale },
 };
 </script>
 
@@ -207,10 +207,10 @@ const typeConfig: Record<ItemType, { label: string; bg: string; text: string; ic
           <div class="text-[10px] text-gray-500">饮食待批注</div>
         </div>
         <div
-          :class="['rounded-xl p-3 text-center border transition-all cursor-pointer', activeFilter === 'weight' ? 'border-[#07C160] bg-[#07C160]/5' : 'border-gray-100 bg-white']"
+          :class="['rounded-xl p-3 text-center border transition-all cursor-pointer', activeFilter === 'weight' ? 'border-[#0EA5E9] bg-[#0EA5E9]/5' : 'border-gray-100 bg-white']"
           @click="activeFilter = activeFilter === 'weight' ? 'all' : 'weight'"
         >
-          <div class="text-lg font-bold text-[#07C160]">{{ countByType.weight }}</div>
+          <div class="text-lg font-bold text-[#0EA5E9]">{{ countByType.weight }}</div>
           <div class="text-[10px] text-gray-500">体重待批注</div>
         </div>
       </div>
@@ -260,8 +260,8 @@ const typeConfig: Record<ItemType, { label: string; bg: string; text: string; ic
                 </template>
                 <template v-else-if="item.type === 'weight'">
                   <img loading="lazy" decoding="async" v-if="item.photos && item.photos.length > 0" :src="item.photos[0]" alt="体重打卡" class="w-full h-full object-cover" />
-                  <div v-else class="w-full h-full bg-[#07C160]/8 flex items-center justify-center">
-                    <Scale class="w-5 h-5 text-[#07C160]" />
+                  <div v-else class="w-full h-full bg-[#0EA5E9]/8 flex items-center justify-center">
+                    <Scale class="w-5 h-5 text-[#0EA5E9]" />
                   </div>
                 </template>
                 <template v-else>

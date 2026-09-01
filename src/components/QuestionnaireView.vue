@@ -90,7 +90,7 @@ const bmiInfo = computed(() => {
   const v = bmi.value;
   // 中国成人 BMI 分级标准（WS/T 428-2013《成人体重判定》）
   if (v < 18.5) return { text: '体重过低', color: 'text-[#1677FF]', bg: 'bg-[#1677FF]/10', tip: '你的体重偏轻，营养师会帮你科学增肌、均衡营养', range: '< 18.5' };
-  if (v < 24) return { text: '体重正常', color: 'text-[#07C160]', bg: 'bg-[#07C160]/10', tip: '体型很标准！和营养师一起，练出更好的状态', range: '18.5 ~ 23.9' };
+  if (v < 24) return { text: '体重正常', color: 'text-[#0EA5E9]', bg: 'bg-[#0EA5E9]/10', tip: '体型很标准！和营养师一起，练出更好的状态', range: '18.5 ~ 23.9' };
   if (v < 28) return { text: '超重', color: 'text-[#FF976A]', bg: 'bg-[#FF976A]/10', tip: '略有富余，28 天科学饮食 + 运动，一起回到最佳状态', range: '24.0 ~ 27.9' };
   return { text: '肥胖', color: 'text-red-500', bg: 'bg-red-50', tip: '别担心，北医康复医院的营养师团队会全程陪你科学管理体重', range: '≥ 28.0' };
 });
@@ -245,15 +245,15 @@ const steps = [
 
 // 选项大按钮（有/无、是/否）
 const yesNoOptions = [
-  { label: '没有', value: '无', activeClass: 'bg-[#07C160] text-white border-[#07C160]' },
+  { label: '没有', value: '无', activeClass: 'bg-[#0EA5E9] text-white border-[#0EA5E9]' },
   { label: '有', value: '有', activeClass: 'bg-[#FF976A] text-white border-[#FF976A]' },
 ];
 const ynOptions = [
-  { label: '否', value: '否', activeClass: 'bg-[#07C160] text-white border-[#07C160]' },
+  { label: '否', value: '否', activeClass: 'bg-[#0EA5E9] text-white border-[#0EA5E9]' },
   { label: '是', value: '是', activeClass: 'bg-[#FF976A] text-white border-[#FF976A]' },
 ];
 const freqOptions = [
-  { label: '从不', value: '从不', activeClass: 'bg-[#07C160] text-white border-[#07C160]' },
+  { label: '从不', value: '从不', activeClass: 'bg-[#0EA5E9] text-white border-[#0EA5E9]' },
   { label: '偶尔', value: '偶尔', activeClass: 'bg-[#FF976A] text-white border-[#FF976A]' },
   { label: '经常', value: '经常', activeClass: 'bg-red-500 text-white border-red-500' },
 ];
@@ -294,7 +294,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
         <div>
           <div class="text-xs text-gray-400">花 2 分钟，让营养师更懂你</div>
         </div>
-        <div class="text-xs font-bold text-[#07C160]">{{ step }}/{{ steps.length }}</div>
+        <div class="text-xs font-bold text-[#0EA5E9]">{{ step }}/{{ steps.length }}</div>
       </div>
 
       <!-- 动画进度条 -->
@@ -303,14 +303,14 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
           <div
             v-for="(s, idx) in steps"
             :key="s.key"
-            :class="['flex-1 text-center transition-colors duration-300', step === idx + 1 ? 'font-bold text-[#07C160]' : step > idx + 1 ? 'text-[#07C160]' : '']"
+            :class="['flex-1 text-center transition-colors duration-300', step === idx + 1 ? 'font-bold text-[#0EA5E9]' : step > idx + 1 ? 'text-[#0EA5E9]' : '']"
           >
             {{ s.label }}
           </div>
         </div>
         <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div
-            class="h-full bg-gradient-to-r from-[#07C160] to-[#06b558] rounded-full transition-all duration-500 ease-out"
+            class="h-full bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-full transition-all duration-500 ease-out"
             :style="{ width: `${progressPercent}%` }"
           ></div>
         </div>
@@ -327,7 +327,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
         <div class="space-y-4">
           <div>
             <label class="text-sm font-medium text-gray-700 block mb-1.5">怎么称呼你 <span class="text-red-500">*</span></label>
-            <input type="text" placeholder="请输入真实姓名" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#07C160] focus:outline-none focus:ring-2 focus:ring-[#07C160]/10 transition-all" :value="formData.name" @input="formData.name = ($event.target as HTMLInputElement).value; error = ''" />
+            <input type="text" placeholder="请输入真实姓名" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#0EA5E9] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/10 transition-all" :value="formData.name" @input="formData.name = ($event.target as HTMLInputElement).value; error = ''" />
           </div>
 
           <!-- 性别大卡片 -->
@@ -336,7 +336,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <div class="grid grid-cols-2 gap-3">
               <button
                 @click="formData.gender = 'male'; error = ''"
-                :class="['py-4 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all active:scale-95', formData.gender === 'male' ? 'bg-[#07C160]/10 border-[#07C160] text-[#07C160]' : 'bg-white border-gray-200 text-gray-500']"
+                :class="['py-4 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all active:scale-95', formData.gender === 'male' ? 'bg-[#0EA5E9]/10 border-[#0EA5E9] text-[#0EA5E9]' : 'bg-white border-gray-200 text-gray-500']"
               >
                 <span class="text-3xl">👨</span>
                 <span class="text-sm font-bold">男</span>
@@ -353,17 +353,17 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
 
           <div>
             <label class="text-sm font-medium text-gray-700 block mb-1.5">年龄 <span class="text-red-500">*</span></label>
-            <input type="number" inputmode="numeric" placeholder="例如: 32" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#07C160] focus:outline-none focus:ring-2 focus:ring-[#07C160]/10 transition-all" :value="formData.age" @input="formData.age = ($event.target as HTMLInputElement).value; error = ''" />
+            <input type="number" inputmode="numeric" placeholder="例如: 32" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#0EA5E9] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/10 transition-all" :value="formData.age" @input="formData.age = ($event.target as HTMLInputElement).value; error = ''" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-sm font-medium text-gray-700 block mb-1.5">身高 (cm) <span class="text-red-500">*</span></label>
-              <input type="number" inputmode="decimal" placeholder="170" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#07C160] focus:outline-none focus:ring-2 focus:ring-[#07C160]/10 transition-all" :value="formData.height" @input="formData.height = ($event.target as HTMLInputElement).value; error = ''" />
+              <input type="number" inputmode="decimal" placeholder="170" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#0EA5E9] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/10 transition-all" :value="formData.height" @input="formData.height = ($event.target as HTMLInputElement).value; error = ''" />
             </div>
             <div>
               <label class="text-sm font-medium text-gray-700 block mb-1.5">体重 (kg) <span class="text-red-500">*</span></label>
-              <input type="number" inputmode="decimal" placeholder="65.5" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#07C160] focus:outline-none focus:ring-2 focus:ring-[#07C160]/10 transition-all" :value="formData.weight" @input="formData.weight = ($event.target as HTMLInputElement).value; error = ''" />
+              <input type="number" inputmode="decimal" placeholder="65.5" class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#0EA5E9] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/10 transition-all" :value="formData.weight" @input="formData.weight = ($event.target as HTMLInputElement).value; error = ''" />
             </div>
           </div>
 
@@ -380,7 +380,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
                 <!-- 中国成人 BMI 参考范围 -->
                 <div class="flex gap-1.5 text-[10px] flex-wrap">
                   <span class="px-1.5 py-0.5 rounded bg-white/70" :class="bmiInfo.text === '体重过低' ? 'font-bold text-[#1677FF]' : 'text-gray-400'">过低 &lt;18.5</span>
-                  <span class="px-1.5 py-0.5 rounded bg-white/70" :class="bmiInfo.text === '体重正常' ? 'font-bold text-[#07C160]' : 'text-gray-400'">正常 18.5~23.9</span>
+                  <span class="px-1.5 py-0.5 rounded bg-white/70" :class="bmiInfo.text === '体重正常' ? 'font-bold text-[#0EA5E9]' : 'text-gray-400'">正常 18.5~23.9</span>
                   <span class="px-1.5 py-0.5 rounded bg-white/70" :class="bmiInfo.text === '超重' ? 'font-bold text-[#FF976A]' : 'text-gray-400'">超重 24.0~27.9</span>
                   <span class="px-1.5 py-0.5 rounded bg-white/70" :class="bmiInfo.text === '肥胖' ? 'font-bold text-red-500' : 'text-gray-400'">肥胖 ≥28.0</span>
                 </div>
@@ -423,7 +423,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
               v-if="(formData as any)[q.key] === '有'"
               type="text"
               :placeholder="q.placeholder"
-              class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#07C160] focus:outline-none focus:ring-2 focus:ring-[#07C160]/10"
+              class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#0EA5E9] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/10"
               :value="(formData as any)[q.detailKey]"
               @input="(formData as any)[q.detailKey] = ($event.target as HTMLInputElement).value; error = ''"
             />
@@ -442,7 +442,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
           <div class="min-w-0">
             <label class="text-sm font-medium text-gray-700 block mb-1.5">几点起床 <span class="text-red-500">*</span></label>
             <button type="button" @click="openTimePicker('wakeTime')"
-              class="w-full px-2 py-2 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] outline-none flex items-center justify-between">
+              class="w-full px-2 py-2 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none flex items-center justify-between">
               <span :class="formData.wakeTime ? 'text-gray-900' : 'text-gray-400'">{{ formData.wakeTime || '选择时间' }}</span>
               <ChevronRight class="w-3.5 h-3.5 text-gray-400 shrink-0" />
             </button>
@@ -450,7 +450,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
           <div class="min-w-0">
             <label class="text-sm font-medium text-gray-700 block mb-1.5">几点睡觉 <span class="text-red-500">*</span></label>
             <button type="button" @click="openTimePicker('sleepTime')"
-              class="w-full px-2 py-2 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] outline-none flex items-center justify-between">
+              class="w-full px-2 py-2 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none flex items-center justify-between">
               <span :class="formData.sleepTime ? 'text-gray-900' : 'text-gray-400'">{{ formData.sleepTime || '选择时间' }}</span>
               <ChevronRight class="w-3.5 h-3.5 text-gray-400 shrink-0" />
             </button>
@@ -471,7 +471,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
                 v-model="formData.sleepDuration"
                 @blur="stopEdit"
                 v-focus
-                class="w-24 text-3xl font-black text-gray-900 text-center bg-white rounded-lg border border-[#07C160] focus:outline-none py-1"
+                class="w-24 text-3xl font-black text-gray-900 text-center bg-white rounded-lg border border-[#0EA5E9] focus:outline-none py-1"
               />
               <template v-else>
                 <span class="text-3xl font-black text-gray-900">{{ formData.sleepDuration }}</span>
@@ -552,10 +552,10 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
                 v-model="formData.exerciseFrequency"
                 @blur="stopEdit"
                 v-focus
-                class="w-24 text-3xl font-black text-[#07C160] text-center bg-white rounded-lg border border-[#07C160] focus:outline-none py-1"
+                class="w-24 text-3xl font-black text-[#0EA5E9] text-center bg-white rounded-lg border border-[#0EA5E9] focus:outline-none py-1"
               />
               <template v-else>
-                <span class="text-3xl font-black text-[#07C160]">{{ formData.exerciseFrequency }}</span>
+                <span class="text-3xl font-black text-[#0EA5E9]">{{ formData.exerciseFrequency }}</span>
                 <span class="text-sm text-gray-400 ml-1">次/周</span>
               </template>
             </div>
@@ -600,7 +600,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
               v-for="opt in EXERCISE_OPTIONS"
               :key="opt.label"
               @click="toggleMulti(opt.label)"
-              :class="['py-3.5 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all active:scale-95', formData.exerciseTypes.includes(opt.label) || (opt.label === '其他' && formData.exerciseTypes.some((x) => !EXERCISE_OPTIONS.some((o) => o.label === x))) ? 'bg-[#07C160]/10 border-[#07C160] text-[#07C160]' : 'bg-white border-gray-200 text-gray-500']"
+              :class="['py-3.5 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all active:scale-95', formData.exerciseTypes.includes(opt.label) || (opt.label === '其他' && formData.exerciseTypes.some((x) => !EXERCISE_OPTIONS.some((o) => o.label === x))) ? 'bg-[#0EA5E9]/10 border-[#0EA5E9] text-[#0EA5E9]' : 'bg-white border-gray-200 text-gray-500']"
             >
               <component :is="opt.icon" class="w-6 h-6" />
               <span class="text-xs font-bold">{{ opt.label }}</span>
@@ -614,7 +614,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
                 v-model="customExercise"
                 @input="error = ''"
                 placeholder="请输入具体运动名称，如：爬山、普拉提、羽毛球"
-                class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#07C160] focus:outline-none focus:ring-2 focus:ring-[#07C160]/10"
+                class="w-full rounded-xl border border-gray-200 p-3.5 focus:border-[#0EA5E9] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/10"
               />
               <p class="text-[10px] text-gray-400 mt-1.5">填写后会显示在你的个人档案里</p>
             </div>
@@ -625,9 +625,9 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
       <!-- ============ Step 5: 给营养师的小助手 + 画像摘要 ============ -->
       <div v-else-if="step === 5" key="s5" class="space-y-5 flex-1">
         <!-- 健康画像摘要 -->
-        <Card class="bg-gradient-to-br from-[#07C160]/5 to-teal-50 border-[#07C160]/20">
+        <Card class="bg-gradient-to-br from-[#0EA5E9]/5 to-teal-50 border-[#0EA5E9]/20">
           <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <Sparkles class="w-4 h-4 text-[#07C160]" />
+            <Sparkles class="w-4 h-4 text-[#0EA5E9]" />
             你的健康画像
           </h3>
           <div class="space-y-2 text-sm">
@@ -656,7 +656,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
               class="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 group cursor-pointer"
               @click="openReport(r)"
             >
-              <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#07C160]">
+              <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0EA5E9]">
                 <FileText class="w-8 h-8 mb-1" />
                 <span class="text-[10px] text-gray-500 truncate px-1">{{ r.name || 'PDF报告' }}</span>
               </div>
@@ -672,7 +672,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <button
               v-if="formData.medicalReports.length < 5"
               @click="reportInputRef?.click()"
-              class="aspect-[3/4] flex flex-col items-center justify-center rounded-lg border border-dashed border-[#07C160]/40 bg-[#07C160]/5 text-[#07C160] hover:bg-[#07C160]/10 transition-colors"
+              class="aspect-[3/4] flex flex-col items-center justify-center rounded-lg border border-dashed border-[#0EA5E9]/40 bg-[#0EA5E9]/5 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 transition-colors"
             >
               <UploadCloud class="w-6 h-6 mb-1" />
               <span class="text-[10px]">添加文件</span>
@@ -693,7 +693,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
         <Button v-if="step > 1" class="flex-1 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50" @click="handlePrev">
           上一步
         </Button>
-        <Button class="flex-1 bg-[#07C160] hover:bg-[#07C160]/90 text-white" @click="handleNext">
+        <Button class="flex-1 bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 text-white" @click="handleNext">
           {{ step === 5 ? '完成，开启我的健康之旅' : '下一步' }}
         </Button>
       </div>

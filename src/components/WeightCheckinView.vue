@@ -517,7 +517,7 @@ function handleChartTouchMove(e: TouchEvent) {
             <span class="text-[11px] text-gray-400">{{ weightStats.first }} → {{ weightStats.last }}kg</span>
             <span :class="[
               'text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5',
-              weightStats.change < 0 ? 'text-[#07C160] bg-green-50' :
+              weightStats.change < 0 ? 'text-[#0EA5E9] bg-green-50' :
               weightStats.change > 0 ? 'text-orange-500 bg-orange-50' : 'text-gray-400 bg-gray-50'
             ]">
               <TrendingDown v-if="weightStats.change < 0" class="w-3 h-3" />
@@ -630,7 +630,7 @@ function handleChartTouchMove(e: TouchEvent) {
             </div>
             <div v-if="selectedPoint.change !== null" class="text-right">
               <div class="text-[10px] text-gray-500 mb-0.5">较上次</div>
-              <div :class="['text-sm font-bold', selectedPoint.change < 0 ? 'text-[#07C160]' : selectedPoint.change > 0 ? 'text-orange-500' : 'text-gray-500']">
+              <div :class="['text-sm font-bold', selectedPoint.change < 0 ? 'text-[#0EA5E9]' : selectedPoint.change > 0 ? 'text-orange-500' : 'text-gray-500']">
                 {{ selectedPoint.change > 0 ? '+' : '' }}{{ selectedPoint.change }} kg
               </div>
             </div>

@@ -56,7 +56,7 @@ const handleExport = () => {
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-24 font-sans">
     <NavBar title="企业汇报版" :on-back="store.goBack">
       <template #right>
-        <button class="text-[#07C160] hover:bg-green-50 p-2 rounded-full transition-colors" @click="handleExport">
+        <button class="text-[#0EA5E9] hover:bg-green-50 p-2 rounded-full transition-colors" @click="handleExport">
           <Download class="h-5 w-5" />
         </button>
       </template>
@@ -68,7 +68,7 @@ const handleExport = () => {
         <div class="text-xs text-gray-500">当前营期</div>
         <div class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '未选择' }}</div>
       </div>
-      <button class="text-xs text-[#07C160] border border-[#07C160] px-3 py-1.5 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
+      <button class="text-xs text-[#0EA5E9] border border-[#0EA5E9] px-3 py-1.5 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
         切换营期
       </button>
     </div>
@@ -83,15 +83,15 @@ const handleExport = () => {
 
     <div v-if="summaryReady" ref="exportRef" class="p-4 space-y-4">
       <!-- 隐私提示（导出时隐藏） -->
-      <div class="flex items-start gap-2 bg-[#07C160]/5 border border-[#07C160]/15 rounded-xl px-3 py-2.5" data-html2canvas-ignore>
-        <ShieldCheck class="w-4 h-4 text-[#07C160] shrink-0 mt-0.5" />
+      <div class="flex items-start gap-2 bg-[#0EA5E9]/5 border border-[#0EA5E9]/15 rounded-xl px-3 py-2.5" data-html2canvas-ignore>
+        <ShieldCheck class="w-4 h-4 text-[#0EA5E9] shrink-0 mt-0.5" />
         <p class="text-[11px] text-gray-500 leading-relaxed">
           本页仅含匿名聚合数据，无任何学员个人健康信息，可放心导出发送给企业 HR。
         </p>
       </div>
 
       <!-- 顶部品牌卡片 -->
-      <div class="bg-gradient-to-br from-[#07C160] to-[#06A952] rounded-2xl p-5 text-white shadow-lg">
+      <div class="bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] rounded-2xl p-5 text-white shadow-lg">
         <div class="flex items-center gap-2 mb-1">
           <Building2 class="w-5 h-5" />
           <h2 class="text-lg font-bold">健康训练营 · 结营汇报</h2>
@@ -117,7 +117,7 @@ const handleExport = () => {
         </h3>
         <div class="space-y-2.5">
           <div v-for="(h, i) in report.highlights" :key="i" class="flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-[#07C160]/10 text-[#07C160] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{{ i + 1 }}</span>
+            <span class="w-5 h-5 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{{ i + 1 }}</span>
             <p class="text-sm text-gray-700 leading-relaxed">{{ h }}</p>
           </div>
         </div>
@@ -152,7 +152,7 @@ const handleExport = () => {
           <div class="flex items-center gap-2">
             <span class="text-xs text-gray-500 w-16 shrink-0">饮食打卡</span>
             <div class="flex-1 bg-gray-100 rounded-full h-2.5 relative overflow-hidden">
-              <div class="absolute left-0 top-0 h-full rounded-full bg-[#07C160]" :style="{ width: `${Math.min((report.avgDietCheckinDays ?? 0) / Math.max(report.campDays, 1) * 100, 100)}%` }"></div>
+              <div class="absolute left-0 top-0 h-full rounded-full bg-[#0EA5E9]" :style="{ width: `${Math.min((report.avgDietCheckinDays ?? 0) / Math.max(report.campDays, 1) * 100, 100)}%` }"></div>
             </div>
             <span class="text-xs text-gray-600 w-14 text-right shrink-0">{{ fmt(report.avgDietCheckinDays, 0) }}天</span>
           </div>
@@ -169,14 +169,14 @@ const handleExport = () => {
       <!-- 健康改善成果 -->
       <Card>
         <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2 border-b pb-2">
-          <HeartPulse class="h-4 w-4 text-[#07C160]" />
+          <HeartPulse class="h-4 w-4 text-[#0EA5E9]" />
           健康改善成果
         </h3>
         <div class="flex items-center justify-between py-2 border-b border-gray-50">
           <span class="text-sm text-gray-500">减重≥3kg 人数</span>
           <span class="text-sm font-bold text-gray-900">
             {{ report.weightGoalCount }} 人
-            <span v-if="report.weightGoalRate !== null" class="text-xs text-[#07C160]">（{{ fmtPct(report.weightGoalRate) }}）</span>
+            <span v-if="report.weightGoalRate !== null" class="text-xs text-[#0EA5E9]">（{{ fmtPct(report.weightGoalRate) }}）</span>
           </span>
         </div>
         <div class="flex items-center justify-between py-2 border-b border-gray-50">
@@ -187,7 +187,7 @@ const handleExport = () => {
           <span class="text-sm text-gray-500">体脂肪下降的学员</span>
           <span class="text-sm font-bold text-gray-900">
             {{ report.bodyFatLossCount }}/{{ report.bodyFatRecordCount }} 人
-            <span v-if="report.bodyFatRecordCount > 0" class="text-xs text-[#07C160]">（{{ fmtPct(report.bodyFatLossCount / report.bodyFatRecordCount) }}）</span>
+            <span v-if="report.bodyFatRecordCount > 0" class="text-xs text-[#0EA5E9]">（{{ fmtPct(report.bodyFatLossCount / report.bodyFatRecordCount) }}）</span>
           </span>
         </div>
         <div class="flex items-center justify-between py-2 border-b border-gray-50">
@@ -239,7 +239,7 @@ const handleExport = () => {
             :class="[
               'w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all',
               selectedCampId === camp.id
-                ? 'border-[#07C160] bg-green-50 text-[#07C160]'
+                ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]'
                 : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50',
             ]"
           >

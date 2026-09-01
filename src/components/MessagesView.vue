@@ -138,7 +138,7 @@ const sheetUnread = computed(() => tabUnread(activeFilter.value));
 
 const typeMeta = (type: MessageItem['type']) =>
   type === 'dietitian'
-    ? { icon: MessageCircle, cls: 'bg-[#07C160]/10 text-[#07C160]', tag: '营养师批注', tagCls: 'bg-[#07C160]/10 text-[#07C160]' }
+    ? { icon: MessageCircle, cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]', tag: '营养师批注', tagCls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]' }
     : { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '教练批注', tagCls: 'bg-sky-50 text-sky-500' };
 
 const openMessage = (m: MessageItem) => {
@@ -169,7 +169,7 @@ const fmtDate = (d: string) => {
           :disabled="isRefreshing"
           class="p-2 rounded-full hover:bg-gray-100 active:scale-90 transition-all disabled:opacity-50"
         >
-          <RefreshCw class="w-4 h-4 text-[#07C160]" :class="{ 'animate-spin': isRefreshing }" />
+          <RefreshCw class="w-4 h-4 text-[#0EA5E9]" :class="{ 'animate-spin': isRefreshing }" />
         </button>
       </template>
     </NavBar>
@@ -191,7 +191,7 @@ const fmtDate = (d: string) => {
           v-for="f in filters"
           :key="f.key"
           @click="activeFilter = f.key"
-          :class="['flex-1 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center justify-center gap-1 min-w-0', activeFilter === f.key ? 'bg-[#07C160] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700']"
+          :class="['flex-1 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center justify-center gap-1 min-w-0', activeFilter === f.key ? 'bg-[#0EA5E9] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700']"
         >
           <span class="truncate">{{ f.label }}</span>
           <span
@@ -205,9 +205,9 @@ const fmtDate = (d: string) => {
 
     <div class="p-4 space-y-3">
       <!-- 顶部摘要：未读数随当前 sheet 联动 -->
-      <div v-if="sheetUnread > 0" class="flex items-center gap-2 px-4 py-3 bg-[#07C160]/5 border border-[#07C160]/15 rounded-xl">
-        <Bell class="w-4 h-4 text-[#07C160] shrink-0" />
-        <span class="text-xs text-gray-700">你有 <span class="font-bold text-[#07C160]">{{ sheetUnread }}</span> 条未读消息</span>
+      <div v-if="sheetUnread > 0" class="flex items-center gap-2 px-4 py-3 bg-[#0EA5E9]/5 border border-[#0EA5E9]/15 rounded-xl">
+        <Bell class="w-4 h-4 text-[#0EA5E9] shrink-0" />
+        <span class="text-xs text-gray-700">你有 <span class="font-bold text-[#0EA5E9]">{{ sheetUnread }}</span> 条未读消息</span>
       </div>
 
       <!-- 空态 -->
@@ -224,7 +224,7 @@ const fmtDate = (d: string) => {
         v-for="m in pagedMessages"
         :key="m.id"
         @click="openMessage(m)"
-        :class="['w-full text-left bg-white rounded-2xl p-4 flex items-start gap-3 active:scale-[0.98] transition-all shadow-sm hover:shadow-md', m.type === 'dietitian' || m.type === 'coach' ? 'border border-[#07C160]/15' : 'border border-gray-100']"
+        :class="['w-full text-left bg-white rounded-2xl p-4 flex items-start gap-3 active:scale-[0.98] transition-all shadow-sm hover:shadow-md', m.type === 'dietitian' || m.type === 'coach' ? 'border border-[#0EA5E9]/15' : 'border border-gray-100']"
       >
         <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', typeMeta(m.type).cls]">
           <component :is="typeMeta(m.type).icon" class="w-5 h-5" />
@@ -240,7 +240,7 @@ const fmtDate = (d: string) => {
         </div>
         <ChevronRight class="w-4 h-4 text-gray-300 shrink-0 mt-1" />
       </button>
-      <button v-if="hasMore" @click="loadMore" class="w-full py-2.5 mt-2 text-xs font-bold text-[#07C160] bg-white border border-[#07C160]/30 rounded-xl active:bg-green-50">
+      <button v-if="hasMore" @click="loadMore" class="w-full py-2.5 mt-2 text-xs font-bold text-[#0EA5E9] bg-white border border-[#0EA5E9]/30 rounded-xl active:bg-green-50">
         加载更多（还有 {{ remaining }} 条）
       </button>
     </div>

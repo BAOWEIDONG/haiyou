@@ -181,8 +181,8 @@ const consumePendingAnnotation = () => {
       const el = document.getElementById(`record-${recordId}`);
       if (el) {
         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        el.classList.add('ring-2', 'ring-[#07C160]');
-        setTimeout(() => el.classList.remove('ring-2', 'ring-[#07C160]'), 2000);
+        el.classList.add('ring-2', 'ring-[#0EA5E9]');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-[#0EA5E9]'), 2000);
       }
     }
     store.setPendingAnnotation(null);
@@ -206,9 +206,9 @@ onActivated(consumePendingAnnotation);
 
     <!-- 学员信息 + 营期切换 -->
     <div class="bg-white px-4 pt-4 border-b border-gray-200 space-y-4">
-      <Card class="flex items-center justify-between p-4 bg-[#07C160]/5 border-[#07C160]/20">
+      <Card class="flex items-center justify-between p-4 bg-[#0EA5E9]/5 border-[#0EA5E9]/20">
         <div class="flex items-center space-x-3">
-          <div class="h-10 w-10 rounded-full bg-[#07C160]/10 flex items-center justify-center text-[#07C160]">
+          <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center text-[#0EA5E9]">
             <UserCircle class="h-6 w-6" />
           </div>
           <div>
@@ -226,7 +226,7 @@ onActivated(consumePendingAnnotation);
           <span class="text-xs text-gray-500">当前营期：</span>
           <span class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '全部营期' }}</span>
         </div>
-        <button class="text-xs text-[#07C160] border border-[#07C160] px-2.5 py-1 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
+        <button class="text-xs text-[#0EA5E9] border border-[#0EA5E9] px-2.5 py-1 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
           切换
         </button>
       </div>
@@ -236,25 +236,25 @@ onActivated(consumePendingAnnotation);
     <div class="bg-white px-4 border-b border-gray-200 sticky top-14 z-10">
       <div class="flex gap-4 overflow-x-auto whitespace-nowrap py-1 no-scrollbar">
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'exercise' ? 'border-[#07C160] text-[#07C160]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'exercise' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'exercise'"
         >
           运动打卡
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'weight' ? 'border-[#07C160] text-[#07C160]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'weight' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'weight'"
         >
           体重趋势
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'medical' ? 'border-[#07C160] text-[#07C160]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'medical' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'medical'"
         >
           基础医疗
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'questionnaire' ? 'border-[#07C160] text-[#07C160]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'questionnaire' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'questionnaire'"
         >
           自查问卷
@@ -269,7 +269,7 @@ onActivated(consumePendingAnnotation);
         <Card class="space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
-              <TrendingUp class="h-4 w-4 text-[#07C160]" />
+              <TrendingUp class="h-4 w-4 text-[#0EA5E9]" />
               每日运动趋势
             </h3>
             <div class="flex items-center gap-2">
@@ -288,8 +288,8 @@ onActivated(consumePendingAnnotation);
       </div>
 
       <div v-if="studentExercises.length === 0" class="text-center py-10 bg-white rounded-2xl border border-gray-100 mx-4 mt-4">
-        <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#07C160]/10 flex items-center justify-center">
-          <Activity class="w-7 h-7 text-[#07C160]" />
+        <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center">
+          <Activity class="w-7 h-7 text-[#0EA5E9]" />
         </div>
         <div class="text-sm font-bold text-gray-700">该学员暂无运动打卡记录</div>
       </div>
@@ -298,7 +298,7 @@ onActivated(consumePendingAnnotation);
         <div v-for="group in groupedExerciseRecords" :key="group.date">
           <!-- Date header -->
           <div @click="toggleExerciseDate(group.date)" class="flex items-center gap-2 px-1 py-2 cursor-pointer select-none">
-            <div class="w-1 h-4 bg-[#07C160] rounded-full"></div>
+            <div class="w-1 h-4 bg-[#0EA5E9] rounded-full"></div>
             <span class="text-sm font-bold text-gray-900">{{ group.label }}</span>
             <span class="text-[10px] text-gray-400">{{ group.records.length }} 条</span>
             <ChevronDown :class="['ml-auto w-4 h-4 text-gray-400 transition-transform duration-300', !isExerciseExpanded(group.date) ? '-rotate-90' : '']" />
@@ -308,7 +308,7 @@ onActivated(consumePendingAnnotation);
               <div class="p-4 border-b border-gray-50">
                 <div class="flex justify-between items-center mb-3">
                   <span class="text-xs text-gray-500 font-medium">{{ formatDateTime(record.date) }}</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded text-[#07C160] bg-[#07C160]/10 font-bold uppercase flex items-center gap-1">
+                  <span class="text-[10px] px-2 py-0.5 rounded text-[#0EA5E9] bg-[#0EA5E9]/10 font-bold uppercase flex items-center gap-1">
                     <Activity class="w-3 h-3" />
                     {{ record.type }}
                   </span>
@@ -322,7 +322,7 @@ onActivated(consumePendingAnnotation);
                   <div>
                     <div class="text-[10px] text-gray-500 mb-0.5">强度 (1-5)</div>
                     <div class="text-sm font-bold text-gray-900 flex gap-1">
-                      <div v-for="v in 5" :key="v" :class="['w-2 h-3 rounded-full', v <= record.intensity ? 'bg-[#07C160]' : 'bg-gray-200']" />
+                      <div v-for="v in 5" :key="v" :class="['w-2 h-3 rounded-full', v <= record.intensity ? 'bg-[#0EA5E9]' : 'bg-gray-200']" />
                     </div>
                   </div>
                 </div>
@@ -366,13 +366,13 @@ onActivated(consumePendingAnnotation);
                       v-for="tpl in EXERCISE_TEMPLATES"
                       :key="tpl"
                       @click="exerciseCommentText = exerciseCommentText ? exerciseCommentText + '，' + tpl : tpl"
-                      class="text-[10px] px-2 py-1 rounded-full bg-[#07C160]/10 text-[#07C160] font-medium active:scale-95 transition-transform"
+                      class="text-[10px] px-2 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium active:scale-95 transition-transform"
                     >
                       {{ tpl }}
                     </button>
                   </div>
                   <textarea
-                    class="w-full rounded-lg border border-gray-200 p-2 text-sm focus:outline-none focus:border-[#07C160]"
+                    class="w-full rounded-lg border border-gray-200 p-2 text-sm focus:outline-none focus:border-[#0EA5E9]"
                     rows="3"
                     placeholder="输入运动批注..."
                     :value="exerciseCommentText"
@@ -380,23 +380,23 @@ onActivated(consumePendingAnnotation);
                   />
                   <div class="flex justify-end gap-2">
                     <Button variant="outline" size="sm" @click="cancelExerciseComment">取消</Button>
-                    <Button class="bg-[#07C160] text-white" size="sm" @click="handleSaveExerciseComment(record.id)">保存</Button>
+                    <Button class="bg-[#0EA5E9] text-white" size="sm" @click="handleSaveExerciseComment(record.id)">保存</Button>
                   </div>
                 </div>
                 <div v-else-if="record.coachComment" class="relative group">
                   <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-[#07C160]">教练批注</span>
+                      <span class="text-xs font-bold text-[#0EA5E9]">教练批注</span>
                     </div>
                     <span v-if="record.coachCommentDate" class="text-[10px] text-gray-400">{{ record.coachCommentDate }}</span>
                   </div>
                   <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ record.coachComment }}</p>
                   <div class="flex items-center gap-2 mt-1">
-                    <button @click="startExerciseComment(record)" class="text-xs text-[#07C160]">编辑</button>
+                    <button @click="startExerciseComment(record)" class="text-xs text-[#0EA5E9]">编辑</button>
                     <span v-if="record.coachName" class="text-[10px] text-gray-400">批注人：{{ record.coachName }}</span>
                   </div>
                 </div>
-                <button v-else @click="startExerciseComment(record)" class="flex items-center gap-1 text-sm text-[#07C160] font-medium">
+                <button v-else @click="startExerciseComment(record)" class="flex items-center gap-1 text-sm text-[#0EA5E9] font-medium">
                   <MessageCircle class="w-4 h-4" />
                   添加批注
                 </button>
@@ -427,9 +427,9 @@ onActivated(consumePendingAnnotation);
             <div class="text-[10px] text-gray-500 mb-1">最新体重</div>
             <div class="text-base font-bold text-gray-900">{{ weightStats?.last }}<span class="text-[10px] font-normal text-gray-400 ml-0.5">kg</span></div>
           </div>
-          <div :class="['rounded-xl p-3 text-center border', (weightStats?.change ?? 0) < 0 ? 'bg-[#07C160]/5 border-[#07C160]/20' : 'bg-orange-50 border-orange-200']">
+          <div :class="['rounded-xl p-3 text-center border', (weightStats?.change ?? 0) < 0 ? 'bg-[#0EA5E9]/5 border-[#0EA5E9]/20' : 'bg-orange-50 border-orange-200']">
             <div class="text-[10px] text-gray-500 mb-1">总变化</div>
-            <div :class="['text-base font-bold', (weightStats?.change ?? 0) < 0 ? 'text-[#07C160]' : 'text-orange-500']">
+            <div :class="['text-base font-bold', (weightStats?.change ?? 0) < 0 ? 'text-[#0EA5E9]' : 'text-orange-500']">
               {{ weightStats && weightStats.change > 0 ? '+' : '' }}{{ weightStats?.change }}<span class="text-[10px] font-normal ml-0.5">kg</span>
             </div>
           </div>
@@ -445,7 +445,7 @@ onActivated(consumePendingAnnotation);
         <!-- Weight record history (read-only) -->
         <Card class="p-0 overflow-hidden">
           <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center gap-2">
-            <Scale class="w-4 h-4 text-[#07C160]" />
+            <Scale class="w-4 h-4 text-[#0EA5E9]" />
             <h3 class="font-bold text-gray-900 text-sm">体重记录</h3>
             <span class="text-[10px] text-gray-400 ml-auto">共 {{ studentWeights.length }} 条记录</span>
           </div>
@@ -465,7 +465,7 @@ onActivated(consumePendingAnnotation);
                 >
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-[#07C160]/8 flex items-center justify-center text-[#07C160] shrink-0">
+                      <div class="w-8 h-8 rounded-full bg-[#0EA5E9]/8 flex items-center justify-center text-[#0EA5E9] shrink-0">
                         <Scale class="w-4 h-4" />
                       </div>
                       <div>
@@ -474,7 +474,7 @@ onActivated(consumePendingAnnotation);
                       </div>
                     </div>
                     <div v-if="getPrevWeight(rec) !== null" class="text-right">
-                      <div :class="['text-xs font-bold', (rec.weight - getPrevWeight(rec)!) < 0 ? 'text-[#07C160]' : 'text-orange-500']">
+                      <div :class="['text-xs font-bold', (rec.weight - getPrevWeight(rec)!) < 0 ? 'text-[#0EA5E9]' : 'text-orange-500']">
                         {{ (rec.weight - getPrevWeight(rec)!) > 0 ? '+' : '' }}{{ (rec.weight - getPrevWeight(rec)!).toFixed(1) }} kg
                       </div>
                       <div class="text-[10px] text-gray-400">较上次</div>
@@ -497,7 +497,7 @@ onActivated(consumePendingAnnotation);
 
                   <div v-if="rec.dietitianComment" class="mt-2 ml-11">
                     <div class="flex items-center gap-2 mb-1">
-                      <span class="text-xs font-bold text-[#07C160]">营养师批注</span>
+                      <span class="text-xs font-bold text-[#0EA5E9]">营养师批注</span>
                       <span v-if="rec.dietitianCommentDate" class="text-[10px] text-gray-400">{{ rec.dietitianCommentDate }}</span>
                     </div>
                     <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ rec.dietitianComment }}</p>
@@ -546,8 +546,8 @@ onActivated(consumePendingAnnotation);
                     <span v-if="item.beforeValue !== null && item.unit" class="text-[10px] text-gray-500 ml-1">{{ item.unit }}</span>
                   </div>
                 </div>
-                <div class="bg-[#07C160]/5 p-2 rounded flex flex-col justify-center items-center border border-[#07C160]/10">
-                  <span class="text-[10px] text-[#07C160] font-medium mb-1">结营后</span>
+                <div class="bg-[#0EA5E9]/5 p-2 rounded flex flex-col justify-center items-center border border-[#0EA5E9]/10">
+                  <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结营后</span>
                   <div class="text-sm w-full flex justify-center">
                     <span :class="item.isAfterOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">
                       <span v-if="item.afterValue === null" class="text-gray-400 font-normal">-- 待更新</span>
@@ -568,7 +568,7 @@ onActivated(consumePendingAnnotation);
       <div class="p-4 space-y-4">
         <Card>
           <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-            <FileText class="h-4 w-4 text-[#07C160]" />
+            <FileText class="h-4 w-4 text-[#0EA5E9]" />
             学员体检报告
           </h3>
           <div class="grid grid-cols-2 gap-3">
@@ -576,10 +576,10 @@ onActivated(consumePendingAnnotation);
               <div
                 v-for="(r, idx) in qData.medicalReports"
                 :key="idx"
-                class="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-[#07C160]"
+                class="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-[#0EA5E9]"
                 @click="openReport(r)"
               >
-                <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#07C160]">
+                <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0EA5E9]">
                   <FileText class="w-8 h-8 mb-1" />
                   <span class="text-[10px] text-gray-500 truncate px-1">{{ r.name || 'PDF报告' }}</span>
                 </div>
@@ -597,7 +597,7 @@ onActivated(consumePendingAnnotation);
 
         <Card>
           <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-            <ClipboardList class="h-4 w-4 text-[#07C160]" />
+            <ClipboardList class="h-4 w-4 text-[#0EA5E9]" />
             基础与健康信息
           </h3>
           <div class="space-y-3 text-sm">
@@ -611,7 +611,7 @@ onActivated(consumePendingAnnotation);
 
         <Card>
           <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-            <AlertCircle class="h-4 w-4 text-[#07C160]" />
+            <AlertCircle class="h-4 w-4 text-[#0EA5E9]" />
             生活与运动习惯
           </h3>
           <div class="space-y-3 text-sm">
@@ -633,7 +633,7 @@ onActivated(consumePendingAnnotation);
         <div class="space-y-2">
           <button
             @click="selectedCampId = ''; showCampPicker = false"
-            :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', !selectedCampId ? 'border-[#07C160] bg-green-50 text-[#07C160]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
+            :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', !selectedCampId ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
           >
             <span class="font-medium">全部营期</span>
             <span class="text-xs text-gray-400">合并显示</span>
@@ -642,7 +642,7 @@ onActivated(consumePendingAnnotation);
             v-for="camp in studentCamps"
             :key="camp.id"
             @click="selectedCampId = camp.id; showCampPicker = false"
-            :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', selectedCampId === camp.id ? 'border-[#07C160] bg-green-50 text-[#07C160]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
+            :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', selectedCampId === camp.id ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
           >
             <div class="flex-1 text-left min-w-0"><span class="font-medium">{{ camp.name }}</span><div class="text-[10px] text-gray-400 mt-0.5">{{ campDateRange(camp) }}</div></div>
             <span v-if="camp.status === 'active'" class="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">进行中</span>

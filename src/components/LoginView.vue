@@ -80,7 +80,7 @@ const handlePhoneSubmit = () => {
     <NavBar title="授权登录" />
     <div class="flex flex-1 flex-col items-center justify-center p-6 space-y-10">
       <div class="flex flex-col items-center space-y-4 mt-4">
-        <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#07C160] to-[#04a551] shadow-lg shadow-[#07C160]/30">
+        <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] shadow-lg shadow-[#0EA5E9]/30">
           <Activity class="h-12 w-12 text-white" />
         </div>
         <h1 class="text-[26px] font-bold tracking-tight text-gray-900">健康训练营</h1>
@@ -91,12 +91,12 @@ const handlePhoneSubmit = () => {
         <div class="grid grid-cols-3 gap-3 mb-8">
           <button
             @click="role = 'student'"
-            :class="['flex flex-col items-center justify-center py-4 rounded-2xl border-2 transition-all', role === 'student' ? 'border-[#07C160] bg-[#07C160]/5' : 'border-gray-100 bg-white hover:border-[#07C160]/30']"
+            :class="['flex flex-col items-center justify-center py-4 rounded-2xl border-2 transition-all', role === 'student' ? 'border-[#0EA5E9] bg-[#0EA5E9]/5' : 'border-gray-100 bg-white hover:border-[#0EA5E9]/30']"
           >
-            <div :class="['p-2 rounded-full mb-2', role === 'student' ? 'bg-[#07C160] text-white' : 'bg-gray-100 text-gray-500']">
+            <div :class="['p-2 rounded-full mb-2', role === 'student' ? 'bg-[#0EA5E9] text-white' : 'bg-gray-100 text-gray-500']">
               <UserCircle class="w-6 h-6" />
             </div>
-            <span :class="['text-sm font-bold', role === 'student' ? 'text-[#07C160]' : 'text-gray-600']">学员</span>
+            <span :class="['text-sm font-bold', role === 'student' ? 'text-[#0EA5E9]' : 'text-gray-600']">学员</span>
           </button>
           <button
             @click="role = 'coach'"
@@ -163,14 +163,14 @@ const handlePhoneSubmit = () => {
           <input
             type="tel"
             placeholder="请输入11位手机号"
-            class="w-full border-b border-gray-200 py-4 px-2 text-lg focus:border-[#07C160] focus:outline-none transition-colors bg-transparent placeholder-gray-300"
+            class="w-full border-b border-gray-200 py-4 px-2 text-lg focus:border-[#0EA5E9] focus:outline-none transition-colors bg-transparent placeholder-gray-300"
             :value="phone"
             @input="phone = ($event.target as HTMLInputElement).value; error = ''"
             maxlength="11"
           />
         </div>
 
-        <div class="space-y-1 relative flex items-center border-b border-gray-200 focus-within:border-[#07C160] transition-colors">
+        <div class="space-y-1 relative flex items-center border-b border-gray-200 focus-within:border-[#0EA5E9] transition-colors">
           <input
             type="number"
             inputmode="numeric"
@@ -181,7 +181,7 @@ const handlePhoneSubmit = () => {
             maxlength="6"
           />
           <button
-            class="text-[#07C160] font-medium text-sm px-4 whitespace-nowrap active:opacity-70 transition-opacity"
+            class="text-[#0EA5E9] font-medium text-sm px-4 whitespace-nowrap active:opacity-70 transition-opacity"
             @click="code = '123456'; error = ''"
           >
             获取验证码
@@ -192,13 +192,13 @@ const handlePhoneSubmit = () => {
       <div v-if="error" class="text-red-500 text-sm mt-4">{{ error }}</div>
 
       <div class="mt-12">
-        <Button class="w-full h-12 text-base font-medium rounded-full shadow-lg shadow-[#07C160]/20" @click="handlePhoneSubmit">
+        <Button class="w-full h-12 text-base font-medium rounded-full shadow-lg shadow-[#0EA5E9]/20" @click="handlePhoneSubmit">
           确认绑定
         </Button>
         <div class="flex justify-center mt-6">
           <VanCheckbox :model-value="agreed" @update:model-value="(v: boolean) => { agreed = v; error = ''; }" class="custom-checkbox">
             <p class="text-[10px] text-gray-400 text-center">
-              我已阅读并同意<a href="#" class="text-[#07C160] hover:underline" @click.prevent="showAgreement">《服务协议》</a>与<a href="#" class="text-[#07C160] hover:underline" @click.prevent="showPrivacy">《隐私政策》</a>
+              我已阅读并同意<a href="#" class="text-[#0EA5E9] hover:underline" @click.prevent="showAgreement">《服务协议》</a>与<a href="#" class="text-[#0EA5E9] hover:underline" @click.prevent="showPrivacy">《隐私政策》</a>
             </p>
           </VanCheckbox>
         </div>

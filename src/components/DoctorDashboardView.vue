@@ -32,8 +32,8 @@ const queues = computed(() => [
     label: '待回复答疑',
     desc: '异步健康留言（非实时）',
     count: pendingThreads.value.length,
-    tone: 'from-[#07C160] to-[#059669]',
-    bar: 'text-[#07C160]',
+    tone: 'from-[#0EA5E9] to-[#0284C7]',
+    bar: 'text-[#0EA5E9]',
     target: 'doctor-consult',
   },
   {
@@ -106,7 +106,7 @@ const open = (target: string) => store.setCurrentView(target as never);
         <div class="text-sm font-bold text-gray-900 mb-2">团队协同分工</div>
         <ul class="space-y-2 text-[12px] text-gray-600 leading-relaxed">
           <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">医生 ·</span>报告健康解读、异步答疑、异常预警处置、随访、科普</li>
-          <li class="flex gap-2"><span class="text-[#07C160] font-bold">营养师 ·</span>饮食方案 + 饮食执行反馈</li>
+          <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">营养师 ·</span>饮食方案 + 饮食执行反馈</li>
           <li class="flex gap-2"><span class="text-[#FF976A] font-bold">康复教练 ·</span>运动/康复处方 + 执行反馈 + 康复教学</li>
         </ul>
         <div class="mt-3 rounded-xl bg-blue-50 border border-blue-100 p-3 text-[11px] text-gray-500 leading-relaxed">

@@ -385,11 +385,11 @@ onActivated(processPendingDeepLink);
                 </div>
               </div>
 
-              <div v-if="record.dietitianComment" class="bg-[#07C160]/5 p-4 relative">
-                <div class="absolute top-0 left-0 w-1 min-h-full bg-[#07C160]"></div>
+              <div v-if="record.dietitianComment" class="bg-[#0EA5E9]/5 p-4 relative">
+                <div class="absolute top-0 left-0 w-1 min-h-full bg-[#0EA5E9]"></div>
                 <div class="flex items-center justify-between mb-1">
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-[#07C160]">{{ record.dietitianName || '营养师' }}批注</span>
+                    <span class="text-xs font-bold text-[#0EA5E9]">{{ record.dietitianName || '营养师' }}批注</span>
                     <span v-if="record.dietitianComment && !record.commentRead" class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                   </div>
                   <span v-if="record.dietitianCommentDate" class="text-[10px] text-gray-500">{{ record.dietitianCommentDate }}</span>

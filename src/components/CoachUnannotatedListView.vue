@@ -105,13 +105,13 @@ const intentLabel = (intensity: number) =>
       <div class="relative">
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input v-model="searchKeyword" type="text" placeholder="搜索学员姓名或手机号"
-          class="w-full pl-9 pr-3 py-2.5 bg-white rounded-xl border border-gray-100 text-sm focus:outline-none focus:border-[#07C160]/40 shadow-sm placeholder:text-gray-300" />
+          class="w-full pl-9 pr-3 py-2.5 bg-white rounded-xl border border-gray-100 text-sm focus:outline-none focus:border-[#0EA5E9]/40 shadow-sm placeholder:text-gray-300" />
       </div>
       <div class="flex justify-between items-center">
         <span class="text-[11px] text-gray-400">{{ studentGroups.length }} 名学员待批注</span>
         <div class="flex gap-2">
-          <button @click="expandAll" class="text-[11px] font-bold text-[#07C160] bg-white border border-[#07C160]/30 px-2.5 py-1 rounded-full active:bg-green-50">全部展开</button>
-          <button @click="collapseAll" class="text-[11px] font-bold text-[#07C160] bg-white border border-[#07C160]/30 px-2.5 py-1 rounded-full active:bg-green-50">全部收起</button>
+          <button @click="expandAll" class="text-[11px] font-bold text-[#0EA5E9] bg-white border border-[#0EA5E9]/30 px-2.5 py-1 rounded-full active:bg-green-50">全部展开</button>
+          <button @click="collapseAll" class="text-[11px] font-bold text-[#0EA5E9] bg-white border border-[#0EA5E9]/30 px-2.5 py-1 rounded-full active:bg-green-50">全部收起</button>
         </div>
       </div>
     </div>
@@ -120,7 +120,7 @@ const intentLabel = (intensity: number) =>
       <template v-if="studentGroups.length > 0">
         <div v-for="group in pagedGroups" :key="group.studentId" class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
           <button @click="toggleExpanded(group.studentId)"
-            class="w-full flex items-center justify-between px-4 py-3 bg-[#07C160]/5 active:bg-[#07C160]/10 transition-colors">
+            class="w-full flex items-center justify-between px-4 py-3 bg-[#0EA5E9]/5 active:bg-[#0EA5E9]/10 transition-colors">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                 <UserCircle class="w-6 h-6 text-gray-400" />
@@ -129,7 +129,7 @@ const intentLabel = (intensity: number) =>
                 <span class="text-sm font-bold text-gray-900 block truncate">{{ group.studentName }}</span>
                 <span class="text-[10px] text-gray-400">{{ group.studentPhone || '' }}</span>
               </div>
-              <span class="text-[10px] text-[#07C160] bg-[#07C160]/10 px-1.5 py-0.5 rounded-full font-bold shrink-0">{{ group.records.length }}条待批注</span>
+              <span class="text-[10px] text-[#0EA5E9] bg-[#0EA5E9]/10 px-1.5 py-0.5 rounded-full font-bold shrink-0">{{ group.records.length }}条待批注</span>
             </div>
             <ChevronDown class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isExpanded(group.studentId) }" />
           </button>
@@ -142,15 +142,15 @@ const intentLabel = (intensity: number) =>
                 <div v-else-if="r.videoUrls && r.videoUrls.length > 0" class="w-full h-full bg-black flex items-center justify-center">
                   <Dumbbell class="w-5 h-5 text-white" />
                 </div>
-                <div v-else class="w-full h-full bg-[#07C160]/8 flex items-center justify-center">
-                  <Dumbbell class="w-5 h-5 text-[#07C160]" />
+                <div v-else class="w-full h-full bg-[#0EA5E9]/8 flex items-center justify-center">
+                  <Dumbbell class="w-5 h-5 text-[#0EA5E9]" />
                 </div>
               </div>
               <!-- 内容 -->
               <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-center mb-0.5">
                   <div class="flex items-center gap-1.5">
-                    <span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-[#07C160]/10 text-[#07C160]">运动</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-[#0EA5E9]/10 text-[#0EA5E9]">运动</span>
                     <span class="text-[10px] text-gray-500">{{ r.type }}</span>
                   </div>
                   <span class="text-[10px] text-gray-400">{{ fmtShortDate(r.date.split(' ')[0]) }}</span>
@@ -161,7 +161,7 @@ const intentLabel = (intensity: number) =>
             </div>
           </div>
         </div>
-        <button v-if="hasMore" @click="loadMore" class="w-full py-2.5 mt-2 text-xs font-bold text-[#07C160] bg-white border border-[#07C160]/30 rounded-xl active:bg-green-50">
+        <button v-if="hasMore" @click="loadMore" class="w-full py-2.5 mt-2 text-xs font-bold text-[#0EA5E9] bg-white border border-[#0EA5E9]/30 rounded-xl active:bg-green-50">
           加载更多（还有 {{ remaining }} 名学员）
         </button>
       </template>

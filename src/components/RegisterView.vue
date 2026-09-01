@@ -83,7 +83,7 @@ const handleSubmit = () => {
         <div class="space-y-1">
           <label class="text-sm font-medium text-gray-700">既往病史 (选填)</label>
           <textarea
-            class="w-full rounded-lg border border-gray-100 p-3 text-base focus:outline-none focus:border-[#07C160]"
+            class="w-full rounded-lg border border-gray-100 p-3 text-base focus:outline-none focus:border-[#0EA5E9]"
             rows="3"
             placeholder="如高血压、糖尿病等"
             :value="formData.medicalHistory"
@@ -94,7 +94,7 @@ const handleSubmit = () => {
         <div class="space-y-1">
           <label class="text-sm font-medium text-gray-700">过敏史 (选填)</label>
           <textarea
-            class="w-full rounded-lg border border-gray-100 p-3 text-base focus:outline-none focus:border-[#07C160]"
+            class="w-full rounded-lg border border-gray-100 p-3 text-base focus:outline-none focus:border-[#0EA5E9]"
             rows="3"
             placeholder="如海鲜过敏、青霉素过敏等"
             :value="formData.allergies"

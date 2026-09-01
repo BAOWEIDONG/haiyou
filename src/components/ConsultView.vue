@@ -47,7 +47,7 @@ const doNew = () => {
   <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#EDF9F1] to-[#FBFFFC]">
     <NavBar title="健康答疑" :on-back="() => store.goBack()">
       <template #right>
-        <button @click="showNew = true" class="flex items-center gap-1 text-sm font-bold text-[#07C160]"><Plus class="w-4 h-4" /> 提问</button>
+        <button @click="showNew = true" class="flex items-center gap-1 text-sm font-bold text-[#0EA5E9]"><Plus class="w-4 h-4" /> 提问</button>
       </template>
     </NavBar>
     <div class="flex-1 px-4 py-4 space-y-3">
@@ -59,7 +59,7 @@ const doNew = () => {
         <div v-for="t in list" :key="t.id" class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm overflow-hidden">
           <button @click="toggle(t.id)" class="w-full p-4 text-left">
             <div class="flex items-center gap-3">
-              <div class="h-10 w-10 rounded-full bg-[#07C160]/10 text-[#07C160] flex items-center justify-center shrink-0"><MessageSquareText class="h-5 w-5" /></div>
+              <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] flex items-center justify-center shrink-0"><MessageSquareText class="h-5 w-5" /></div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="text-[13px] font-bold text-gray-800">{{ t.topic }}</span>
@@ -79,7 +79,7 @@ const doNew = () => {
               <div
                 v-for="(r, i) in t.replies"
                 :key="i"
-                :class="['p-3 rounded-xl text-[13px] leading-relaxed', r.side === 'staff' ? 'bg-[#07C160]/8 mr-10' : 'bg-gray-100 ml-10']"
+                :class="['p-3 rounded-xl text-[13px] leading-relaxed', r.side === 'staff' ? 'bg-[#0EA5E9]/8 mr-10' : 'bg-gray-100 ml-10']"
               >
                 <div class="text-[10px] text-gray-400 mb-1">{{ r.authorName }} · {{ r.createdAt.slice(5, 16) }}</div>
                 {{ r.text }}
@@ -95,10 +95,10 @@ const doNew = () => {
               v-model="draft"
               rows="2"
               placeholder="继续留言…"
-              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] focus:outline-none resize-none"
+              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none resize-none"
             />
             <div class="flex gap-2">
-              <button @click="ask(t.id)" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#07C160] to-[#059669] text-white text-sm font-bold active:opacity-90">
+              <button @click="ask(t.id)" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90">
                 <Send class="w-4 h-4" /> 发送
               </button>
               <button @click="requestContact(t.id)" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-purple-200 text-purple-600 text-sm font-bold active:bg-purple-50">
@@ -114,9 +114,9 @@ const doNew = () => {
     <VanPopup v-model:show="showNew" position="bottom" round class="custom-popup">
       <div class="p-5 space-y-3">
         <h3 class="text-base font-bold text-gray-900 mb-1 text-center">发起健康提问</h3>
-        <input v-model="newTopic" placeholder="主题（如：外食怎么吃）" class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] focus:outline-none" />
-        <textarea v-model="newQuestion" rows="3" placeholder="描述你的问题…" class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#07C160] focus:outline-none resize-none" />
-        <button @click="doNew" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#07C160] to-[#059669] text-white text-sm font-bold active:opacity-90">提交提问</button>
+        <input v-model="newTopic" placeholder="主题（如：外食怎么吃）" class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none" />
+        <textarea v-model="newQuestion" rows="3" placeholder="描述你的问题…" class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none resize-none" />
+        <button @click="doNew" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90">提交提问</button>
       </div>
     </VanPopup>
   </div>

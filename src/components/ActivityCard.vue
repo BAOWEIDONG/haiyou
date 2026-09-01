@@ -107,7 +107,7 @@ const handleMediaClick = (item: { url: string; type: 'video' | 'image' }) => {
           <div
             v-for="(_, idx) in mediaItems"
             :key="idx"
-            :class="['h-1.5 rounded-full transition-all', idx === currentIndex ? 'w-4 bg-[#07C160] shadow-sm' : 'w-1.5 bg-white/70 backdrop-blur-sm']"
+            :class="['h-1.5 rounded-full transition-all', idx === currentIndex ? 'w-4 bg-[#0EA5E9] shadow-sm' : 'w-1.5 bg-white/70 backdrop-blur-sm']"
           />
         </div>
       </template>
@@ -118,7 +118,7 @@ const handleMediaClick = (item: { url: string; type: 'video' | 'image' }) => {
       <div class="flex items-center gap-2 mb-2">
         <h3 class="font-bold text-gray-900 text-lg">{{ activity.title }}</h3>
         <template v-if="campLabels.length > 0">
-          <span v-for="label in campLabels" :key="label" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#07C160]/10 text-[#07C160] shrink-0">{{ label }}</span>
+          <span v-for="label in campLabels" :key="label" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] shrink-0">{{ label }}</span>
         </template>
         <span v-else class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 shrink-0">全部营期</span>
       </div>
@@ -126,7 +126,7 @@ const handleMediaClick = (item: { url: string; type: 'video' | 'image' }) => {
       <button
         v-if="isLongText"
         @click="expanded = !expanded"
-        class="flex items-center gap-0.5 text-xs text-[#07C160] font-medium mb-3 active:scale-95 transition-transform"
+        class="flex items-center gap-0.5 text-xs text-[#0EA5E9] font-medium mb-3 active:scale-95 transition-transform"
       >
         {{ expanded ? '收起' : '展开全文' }}
         <ChevronDown :class="['w-3.5 h-3.5 transition-transform', expanded ? 'rotate-180' : '']" />

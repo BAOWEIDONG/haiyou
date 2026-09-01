@@ -8,7 +8,7 @@ const store = useAppStore();
 
 const menus = [
   { key: 'account-manage', title: '团队与账号', desc: '上收建号：医生/营养师/教练', icon: Users, tone: 'bg-[#0EA5E9]/10 text-[#0EA5E9]' },
-  { key: 'ops-service-pack', title: '服务包与权益', desc: '权益批次/有效期/服务范围', icon: Package, tone: 'bg-[#07C160]/10 text-[#07C160]' },
+  { key: 'ops-service-pack', title: '服务包与权益', desc: '权益批次/有效期/服务范围', icon: Package, tone: 'bg-[#0EA5E9]/10 text-[#0EA5E9]' },
   { key: 'ops-users', title: '用户管理', desc: '激活/服务中/失效·异常标记', icon: UserCheck, tone: 'bg-[#FF976A]/10 text-[#FF976A]' },
   { key: 'enterprise-report', title: '企业履约看板', desc: '脱敏聚合：参与/活跃/达标', icon: BarChart3, tone: 'bg-[#8B5CF6]/10 text-[#8B5CF6]' },
   { key: 'ops-content', title: '内容管理', desc: '知识库·发布与订阅', icon: Newspaper, tone: 'bg-purple-100 text-purple-600' },

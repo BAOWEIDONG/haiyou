@@ -131,18 +131,18 @@ const fmtChange = (v: number | null, unit = ''): string => {
     <div v-if="summaryReady" ref="exportRef" class="p-4 space-y-4">
       <!-- 企业汇报版入口 -->
       <Card
-        class="bg-gradient-to-r from-[#07C160]/10 to-[#07C160]/5 border-[#07C160]/20 cursor-pointer hover:shadow-md transition-shadow"
+        class="bg-gradient-to-r from-[#0EA5E9]/10 to-[#0EA5E9]/5 border-[#0EA5E9]/20 cursor-pointer hover:shadow-md transition-shadow"
         @click="store.setCurrentView('enterprise-report')"
       >
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-[#07C160]/15 flex items-center justify-center shrink-0">
-            <Building2 class="w-5 h-5 text-[#07C160]" />
+          <div class="w-10 h-10 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center shrink-0">
+            <Building2 class="w-5 h-5 text-[#0EA5E9]" />
           </div>
           <div class="flex-1">
             <div class="font-bold text-gray-900 text-sm">企业汇报版</div>
             <div class="text-xs text-gray-500 mt-0.5">匿名聚合数据 + 本期亮点，可直接导出发给 HR</div>
           </div>
-          <ChevronRight class="w-4 h-4 text-[#07C160]" />
+          <ChevronRight class="w-4 h-4 text-[#0EA5E9]" />
         </div>
       </Card>
 
@@ -157,16 +157,16 @@ const fmtChange = (v: number | null, unit = ''): string => {
         </Card>
         <Card class="p-4 text-center">
           <div class="flex items-center justify-center mb-2">
-            <UserCheck class="w-5 h-5 text-[#07C160] mr-1" />
+            <UserCheck class="w-5 h-5 text-[#0EA5E9] mr-1" />
           </div>
-          <div class="text-2xl font-bold text-[#07C160]">{{ summary.validStudentCount }}</div>
+          <div class="text-2xl font-bold text-[#0EA5E9]">{{ summary.validStudentCount }}</div>
           <div class="text-xs text-gray-500 mt-1">有效人数<span class="text-[10px] text-gray-400">（有前后体成分数据）</span></div>
         </Card>
         <Card class="p-4 text-center">
           <div class="flex items-center justify-center mb-2">
-            <TrendingDown class="w-5 h-5 text-[#07C160] mr-1" />
+            <TrendingDown class="w-5 h-5 text-[#0EA5E9] mr-1" />
           </div>
-          <div class="text-2xl font-bold text-[#07C160]">{{ fmtChange(summary.avgWeightChange, 'kg') }}</div>
+          <div class="text-2xl font-bold text-[#0EA5E9]">{{ fmtChange(summary.avgWeightChange, 'kg') }}</div>
           <div class="text-xs text-gray-500 mt-1">平均体重变化<span class="text-[10px] text-gray-400">（按有体重记录）</span></div>
         </Card>
         <Card class="p-4 text-center">
@@ -211,12 +211,12 @@ const fmtChange = (v: number | null, unit = ''): string => {
                 <span class="text-[10px] text-gray-500">{{ report.gender === 'male' ? '男' : '女' }}</span>
                 <span
                   v-if="report.metricChanges.filter(m => m.category === '身体测量数据' && typeof m.beforeValue === 'number' && typeof m.afterValue === 'number').length > 0"
-                  class="text-[9px] bg-[#07C160]/10 text-[#07C160] px-1.5 py-0.5 rounded font-medium"
+                  class="text-[9px] bg-[#0EA5E9]/10 text-[#0EA5E9] px-1.5 py-0.5 rounded font-medium"
                 >有效</span>
               </div>
               <div class="flex flex-wrap gap-2 text-[10px] text-gray-500">
                 <span class="flex items-center gap-0.5">
-                  <TrendingDown class="w-3 h-3" :class="report.summary.weightLossKg !== null && report.summary.weightLossKg > 0 ? 'text-[#07C160]' : 'text-gray-400'" />
+                  <TrendingDown class="w-3 h-3" :class="report.summary.weightLossKg !== null && report.summary.weightLossKg > 0 ? 'text-[#0EA5E9]' : 'text-gray-400'" />
                   {{ report.summary.weightLossKg !== null ? `${fmt(report.summary.weightLossKg)}kg` : '--' }}
                 </span>
                 <span>完成率 {{ fmtPct(report.checkinStats.completionRate) }}</span>
@@ -263,7 +263,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
                   {{ m.avgAfter !== null ? m.avgAfter.toFixed(1) : '--' }}
                   <span class="text-gray-400">{{ m.unit }}</span>
                 </td>
-                <td class="py-2 text-right font-medium" :class="m.avgChange !== null && m.avgChange < 0 ? 'text-[#07C160]' : m.avgChange !== null && m.avgChange > 0 ? 'text-orange-500' : 'text-gray-400'">
+                <td class="py-2 text-right font-medium" :class="m.avgChange !== null && m.avgChange < 0 ? 'text-[#0EA5E9]' : m.avgChange !== null && m.avgChange > 0 ? 'text-orange-500' : 'text-gray-400'">
                   {{ fmtChange(m.avgChange) }}
                 </td>
               </tr>
@@ -288,7 +288,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
             <div class="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
               <div
                 class="absolute left-0 top-0 h-full rounded-full transition-all"
-                :class="report.checkinStats.completionRate >= 0.8 ? 'bg-[#07C160]' : report.checkinStats.completionRate >= 0.5 ? 'bg-[#FF976A]' : 'bg-gray-300'"
+                :class="report.checkinStats.completionRate >= 0.8 ? 'bg-[#0EA5E9]' : report.checkinStats.completionRate >= 0.5 ? 'bg-[#FF976A]' : 'bg-gray-300'"
                 :style="{ width: `${Math.min(report.checkinStats.completionRate * 100, 100)}%` }"
               ></div>
             </div>

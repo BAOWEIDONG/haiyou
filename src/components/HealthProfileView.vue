@@ -217,13 +217,13 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
         <h3 class="font-bold text-gray-900 mb-3">上传个人医疗报告</h3>
         <p class="text-xs text-gray-500 mb-3">可上传体检报告图片或 PDF，支持拍照或本地选择。</p>
         <input ref="uploadInputRef" type="file" accept="image/*,application/pdf" multiple class="hidden" @change="handleModalFileSelect" />
-        <button @click="uploadInputRef?.click()" class="w-full py-6 border-2 border-dashed border-[#07C160]/40 bg-[#07C160]/5 rounded-xl text-[#07C160] flex flex-col items-center gap-1 hover:bg-[#07C160]/10 transition-colors">
+        <button @click="uploadInputRef?.click()" class="w-full py-6 border-2 border-dashed border-[#0EA5E9]/40 bg-[#0EA5E9]/5 rounded-xl text-[#0EA5E9] flex flex-col items-center gap-1 hover:bg-[#0EA5E9]/10 transition-colors">
           <UploadCloud class="w-6 h-6" />
           <span class="text-xs">点击选择文件 / 拍照</span>
         </button>
         <div v-if="pendingReports.length > 0" class="grid grid-cols-3 gap-2 mt-3">
           <div v-for="(r, idx) in pendingReports" :key="idx" class="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200">
-            <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#07C160]">
+            <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0EA5E9]">
               <FileText class="w-6 h-6 mb-1" />
               <span class="text-[9px] text-gray-500 truncate px-1">{{ r.name || 'PDF' }}</span>
             </div>
@@ -233,7 +233,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
         </div>
         <div class="flex gap-2 mt-4">
           <button @click="showUploadModal = false; pendingReports = []" class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm">取消</button>
-          <button @click="handleConfirmUpload" :disabled="pendingReports.length === 0" class="flex-1 py-2 rounded-lg bg-[#07C160] text-white text-sm disabled:opacity-50">确定上传</button>
+          <button @click="handleConfirmUpload" :disabled="pendingReports.length === 0" class="flex-1 py-2 rounded-lg bg-[#0EA5E9] text-white text-sm disabled:opacity-50">确定上传</button>
         </div>
       </div>
     </VanPopup>
@@ -248,55 +248,55 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <label class="text-sm text-gray-500 mb-1 block">性别</label>
             <div class="flex gap-2">
               <button v-for="opt in [{ v: 'male', l: '男' }, { v: 'female', l: '女' }]" :key="opt.v" @click="editForm.gender = opt.v"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.gender === opt.v ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt.l }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.gender === opt.v ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt.l }}</button>
             </div>
           </div>
           <!-- 身高 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">身高 (cm)</label>
             <input v-model="editForm.height" type="number" inputmode="decimal" placeholder="请输入身高"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] focus:ring-1 focus:ring-[#07C160]/20 outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none" />
           </div>
           <!-- 体重 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">体重 (kg)</label>
             <input v-model="editForm.weight" type="number" inputmode="decimal" placeholder="请输入体重"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] focus:ring-1 focus:ring-[#07C160]/20 outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none" />
           </div>
           <!-- 疾病史 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">疾病史 / 慢性疾病</label>
             <div class="flex gap-2 mb-2">
               <button v-for="opt in ['无', '有']" :key="opt" @click="editForm.hasChronic = opt"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.hasChronic === opt ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.hasChronic === opt ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
             </div>
             <input v-if="editForm.hasChronic === '有'" v-model="editForm.chronicDetails" type="text" placeholder="请描述疾病详情"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] focus:ring-1 focus:ring-[#07C160]/20 outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none" />
           </div>
           <!-- 特殊饮食 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">特殊饮食</label>
             <div class="flex gap-2 mb-2">
               <button v-for="opt in ['无', '有']" :key="opt" @click="editForm.hasSpecialDiet = opt"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.hasSpecialDiet === opt ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.hasSpecialDiet === opt ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
             </div>
             <input v-if="editForm.hasSpecialDiet === '有'" v-model="editForm.specialDietDetails" type="text" placeholder="请描述特殊饮食要求"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] focus:ring-1 focus:ring-[#07C160]/20 outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none" />
           </div>
           <!-- 过敏史 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">过敏史 / 食物过敏</label>
             <div class="flex gap-2 mb-2">
               <button v-for="opt in ['无', '有']" :key="opt" @click="editForm.hasFoodAllergy = opt"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.hasFoodAllergy === opt ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.hasFoodAllergy === opt ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
             </div>
             <input v-if="editForm.hasFoodAllergy === '有'" v-model="editForm.foodAllergyDetails" type="text" placeholder="请描述过敏源"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] focus:ring-1 focus:ring-[#07C160]/20 outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none" />
           </div>
         </div>
         <div class="flex gap-3 mt-6">
           <button @click="showEditBasic = false" class="flex-1 py-2.5 rounded-lg border border-gray-200 text-gray-600 text-sm">取消</button>
-          <button @click="saveBasic" class="flex-1 py-2.5 rounded-lg bg-[#07C160] text-white text-sm font-medium">保存</button>
+          <button @click="saveBasic" class="flex-1 py-2.5 rounded-lg bg-[#0EA5E9] text-white text-sm font-medium">保存</button>
         </div>
       </div>
     </VanPopup>
@@ -311,7 +311,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <div>
               <label class="text-sm text-gray-500 mb-1 block">就寝</label>
               <button type="button" @click="openTimePicker('sleepTime')"
-                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none flex items-center justify-between">
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none flex items-center justify-between">
                 <span :class="editForm.sleepTime ? 'text-gray-900' : 'text-gray-400'">{{ editForm.sleepTime || '选择时间' }}</span>
                 <ChevronRight class="w-3.5 h-3.5 text-gray-400" />
               </button>
@@ -319,7 +319,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <div>
               <label class="text-sm text-gray-500 mb-1 block">起床</label>
               <button type="button" @click="openTimePicker('wakeTime')"
-                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none flex items-center justify-between">
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none flex items-center justify-between">
                 <span :class="editForm.wakeTime ? 'text-gray-900' : 'text-gray-400'">{{ editForm.wakeTime || '选择时间' }}</span>
                 <ChevronRight class="w-3.5 h-3.5 text-gray-400" />
               </button>
@@ -327,7 +327,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <div>
               <label class="text-sm text-gray-500 mb-1 block">时长(h)</label>
               <input v-model="editForm.sleepDuration" type="number" inputmode="decimal" placeholder="如 8"
-                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none" />
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none" />
             </div>
           </div>
           <!-- 饮酒 -->
@@ -335,7 +335,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <label class="text-sm text-gray-500 mb-1 block">饮酒</label>
             <div class="flex gap-2">
               <button v-for="opt in ['从不', '偶尔', '经常']" :key="opt" @click="editForm.drinkAlcohol = opt"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.drinkAlcohol === opt ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.drinkAlcohol === opt ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
             </div>
           </div>
           <!-- 吸烟 -->
@@ -343,7 +343,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <label class="text-sm text-gray-500 mb-1 block">吸烟</label>
             <div class="flex gap-2">
               <button v-for="opt in ['从不', '偶尔', '经常', '已戒']" :key="opt" @click="editForm.smoke = opt"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.smoke === opt ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.smoke === opt ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
             </div>
           </div>
           <!-- 零食 -->
@@ -351,38 +351,38 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             <label class="text-sm text-gray-500 mb-1 block">经常吃零食</label>
             <div class="flex gap-2">
               <button v-for="opt in ['否', '是']" :key="opt" @click="editForm.snack = opt"
-                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.snack === opt ? 'border-[#07C160] bg-[#07C160]/10 text-[#07C160] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
+                :class="['flex-1 py-2 rounded-lg text-sm border transition-colors', editForm.snack === opt ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium' : 'border-gray-200 text-gray-600']">{{ opt }}</button>
             </div>
           </div>
           <!-- 日饮水量 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">日饮水量 (ml)</label>
             <input v-model="editForm.dailyWater" type="number" inputmode="numeric" placeholder="如 2000"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none" />
           </div>
           <!-- 运动频率和时长 -->
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-sm text-gray-500 mb-1 block">每周运动次数</label>
               <input v-model="editForm.exerciseFrequency" type="number" inputmode="numeric" placeholder="如 3"
-                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none" />
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none" />
             </div>
             <div>
               <label class="text-sm text-gray-500 mb-1 block">每次时长(分钟)</label>
               <input v-model="editForm.exerciseDuration" type="number" inputmode="numeric" placeholder="如 30"
-                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none" />
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none" />
             </div>
           </div>
           <!-- 运动类型 -->
           <div>
             <label class="text-sm text-gray-500 mb-1 block">运动类型 (逗号分隔)</label>
             <input v-model="editForm.exerciseTypesStr" type="text" placeholder="如 跑步, 游泳, 瑜伽"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#07C160] outline-none" />
+              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] outline-none" />
           </div>
         </div>
         <div class="flex gap-3 mt-6">
           <button @click="showEditLifestyle = false" class="flex-1 py-2.5 rounded-lg border border-gray-200 text-gray-600 text-sm">取消</button>
-          <button @click="saveLifestyle" class="flex-1 py-2.5 rounded-lg bg-[#07C160] text-white text-sm font-medium">保存</button>
+          <button @click="saveLifestyle" class="flex-1 py-2.5 rounded-lg bg-[#0EA5E9] text-white text-sm font-medium">保存</button>
         </div>
       </div>
     </VanPopup>
@@ -390,7 +390,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
     <NavBar title="健康档案" :on-back="store.goBack">
       <template #right>
         <div class="flex items-center gap-1">
-          <button class="text-[#07C160] hover:bg-green-50 p-2 rounded-full transition-colors" @click="handleUploadReport">
+          <button class="text-[#0EA5E9] hover:bg-green-50 p-2 rounded-full transition-colors" @click="handleUploadReport">
             <UploadCloud class="h-5 w-5" />
           </button>
         </div>
@@ -404,9 +404,9 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
       <template v-else>
         <Card>
           <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-            <ClipboardList class="h-4 w-4 text-[#07C160]" />
+            <ClipboardList class="h-4 w-4 text-[#0EA5E9]" />
             基础与健康信息
-            <button @click="openEditBasic" class="ml-auto text-[#07C160] hover:bg-green-50 p-1.5 rounded-full transition-colors">
+            <button @click="openEditBasic" class="ml-auto text-[#0EA5E9] hover:bg-green-50 p-1.5 rounded-full transition-colors">
               <Pencil class="h-3.5 w-3.5" />
             </button>
           </h3>
@@ -422,9 +422,9 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
 
         <Card>
           <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-            <Activity class="h-4 w-4 text-[#07C160]" />
+            <Activity class="h-4 w-4 text-[#0EA5E9]" />
             生活与运动习惯
-            <button @click="openEditLifestyle" class="ml-auto text-[#07C160] hover:bg-green-50 p-1.5 rounded-full transition-colors">
+            <button @click="openEditLifestyle" class="ml-auto text-[#0EA5E9] hover:bg-green-50 p-1.5 rounded-full transition-colors">
               <Pencil class="h-3.5 w-3.5" />
             </button>
           </h3>
@@ -471,8 +471,8 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
                   <span v-if="item.beforeValue !== null && item.beforeValue !== undefined && item.beforeValue !== '' && item.unit" class="text-[10px] text-gray-500 ml-1">{{ item.unit }}</span>
                 </div>
               </div>
-              <div class="bg-[#07C160]/5 p-2 rounded-lg flex flex-col justify-center items-center border border-[#07C160]/10">
-                <span class="text-[10px] text-[#07C160] font-bold mb-1">结营后</span>
+              <div class="bg-[#0EA5E9]/5 p-2 rounded-lg flex flex-col justify-center items-center border border-[#0EA5E9]/10">
+                <span class="text-[10px] text-[#0EA5E9] font-bold mb-1">结营后</span>
                 <div class="text-sm">
                   <template v-if="item.afterValue === null"><span class="text-gray-400">-- 待更新</span></template>
                   <template v-else-if="item.afterValue === undefined || item.afterValue === ''"><span class="text-gray-400">-- 未检测</span></template>
@@ -487,7 +487,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
 
       <Card v-if="qData?.medicalReports && qData.medicalReports.length > 0">
         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-          <FileText class="h-4 w-4 text-[#07C160]" />
+          <FileText class="h-4 w-4 text-[#0EA5E9]" />
           个人医疗报告
         </h3>
         <div class="grid grid-cols-2 gap-3">
@@ -497,7 +497,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
             class="relative rounded-lg overflow-hidden border border-gray-100 shadow-sm aspect-[3/4] cursor-pointer hover:opacity-90 transition-opacity"
             @click="openReport(r)"
           >
-            <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#07C160]">
+            <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0EA5E9]">
               <FileText class="w-8 h-8 mb-1" />
               <span class="text-[10px] text-gray-500 truncate px-1">{{ r.name || 'PDF报告' }}</span>
             </div>

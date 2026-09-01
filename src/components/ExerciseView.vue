@@ -416,15 +416,15 @@ const handleSubmit = () => {
     <!-- ══════════ Tab 1: 打卡 ══════════ -->
     <div v-show="activeTab === 'checkin'" class="p-4 space-y-4 pb-32">
       <!-- 今日已达上限提示 -->
-      <div v-if="hasReachedDailyLimit" class="rounded-xl bg-[#07C160]/8 border border-[#07C160]/20 p-3 flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-[#07C160]/15 flex items-center justify-center shrink-0">
-          <Dumbbell class="w-4 h-4 text-[#07C160]" />
+      <div v-if="hasReachedDailyLimit" class="rounded-xl bg-[#0EA5E9]/8 border border-[#0EA5E9]/20 p-3 flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center shrink-0">
+          <Dumbbell class="w-4 h-4 text-[#0EA5E9]" />
         </div>
         <div class="flex-1">
-          <div class="text-sm font-bold text-[#07C160]">今日运动打卡已达上限</div>
+          <div class="text-sm font-bold text-[#0EA5E9]">今日运动打卡已达上限</div>
           <div class="text-[11px] text-gray-500">每天最多 {{ MAX_DAILY_EXERCISE }} 次运动打卡，明天再来吧</div>
         </div>
-        <button @click="activeTab = 'records'" class="text-xs font-bold text-[#07C160] bg-white px-3 py-1.5 rounded-full active:scale-95 transition-transform shrink-0">查看记录</button>
+        <button @click="activeTab = 'records'" class="text-xs font-bold text-[#0EA5E9] bg-white px-3 py-1.5 rounded-full active:scale-95 transition-transform shrink-0">查看记录</button>
       </div>
       <div v-if="hasReachedDailyLimit" class="h-0"></div>
 
@@ -437,7 +437,7 @@ const handleSubmit = () => {
           <X class="w-5 h-5" />
         </button>
 
-        <div class="absolute top-0 left-0 bg-[#07C160]/10 text-[#07C160] px-3 py-1 rounded-br-lg font-bold text-xs">
+        <div class="absolute top-0 left-0 bg-[#0EA5E9]/10 text-[#0EA5E9] px-3 py-1 rounded-br-lg font-bold text-xs">
           运动项 {{ index + 1 }}
         </div>
 
@@ -448,7 +448,7 @@ const handleSubmit = () => {
               v-for="type in EXERCISE_TYPES"
               :key="type"
               @click="updateActivity(activity.id, 'type', type)"
-              :class="['px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-95', activity.type === type ? 'bg-[#07C160] text-white shadow-sm scale-105' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              :class="['px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-95', activity.type === type ? 'bg-[#0EA5E9] text-white shadow-sm scale-105' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
             >
               {{ type }}
             </button>
@@ -473,7 +473,7 @@ const handleSubmit = () => {
               v-for="d in [15, 30, 45, 60]"
               :key="d"
               @click="updateActivity(activity.id, 'duration', String(d))"
-              :class="['flex-1 py-2 rounded-lg text-sm font-bold transition-all active:scale-95', activity.duration === String(d) ? 'bg-[#07C160] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              :class="['flex-1 py-2 rounded-lg text-sm font-bold transition-all active:scale-95', activity.duration === String(d) ? 'bg-[#0EA5E9] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
             >
               {{ d }}
             </button>
@@ -578,7 +578,7 @@ const handleSubmit = () => {
 
       <button
         @click="handleAddActivity"
-        class="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 flex items-center justify-center gap-2 hover:border-[#07C160] hover:text-[#07C160] transition-all font-medium bg-white active:scale-[0.98]"
+        class="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 flex items-center justify-center gap-2 hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-all font-medium bg-white active:scale-[0.98]"
       >
         <Plus class="w-5 h-5" />
         添加运动项
@@ -590,14 +590,14 @@ const handleSubmit = () => {
           <div class="flex gap-2 mb-3">
             <button
               @click="switchMediaType('photo')"
-              :class="['flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95', mediaType === 'photo' ? 'bg-[#07C160] text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']"
+              :class="['flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95', mediaType === 'photo' ? 'bg-[#0EA5E9] text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']"
             >
               <Camera class="w-4 h-4" />
               图片打卡
             </button>
             <button
               @click="switchMediaType('video')"
-              :class="['flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95', mediaType === 'video' ? 'bg-[#07C160] text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']"
+              :class="['flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95', mediaType === 'video' ? 'bg-[#0EA5E9] text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200']"
             >
               <Video class="w-4 h-4" />
               视频打卡
@@ -636,9 +636,9 @@ const handleSubmit = () => {
           <label class="text-sm font-bold text-gray-900 block mb-2">运动视频 (最多 {{ MAX_VIDEOS }} 个)</label>
           <input ref="videoInputRef" type="file" accept="video/*" multiple class="hidden" @change="handleVideoSelect" />
 
-          <div v-if="videoCompressing" class="aspect-video rounded-xl border-2 border-[#07C160]/30 bg-[#07C160]/5 flex flex-col items-center justify-center gap-3">
-            <Loader class="h-8 w-8 text-[#07C160] animate-spin" />
-            <span class="text-sm text-[#07C160] font-medium">正在处理视频 {{ compressProgress }}%</span>
+          <div v-if="videoCompressing" class="aspect-video rounded-xl border-2 border-[#0EA5E9]/30 bg-[#0EA5E9]/5 flex flex-col items-center justify-center gap-3">
+            <Loader class="h-8 w-8 text-[#0EA5E9] animate-spin" />
+            <span class="text-sm text-[#0EA5E9] font-medium">正在处理视频 {{ compressProgress }}%</span>
             <span class="text-[10px] text-gray-400">请耐心等待</span>
           </div>
 
@@ -672,7 +672,7 @@ const handleSubmit = () => {
               @click="videoInputRef?.click()"
               class="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors active:scale-95"
             >
-              <Video class="h-6 w-6 text-[#07C160] mb-1" />
+              <Video class="h-6 w-6 text-[#0EA5E9] mb-1" />
               <span class="text-[10px] text-gray-400">上传视频</span>
             </div>
           </div>
@@ -683,7 +683,7 @@ const handleSubmit = () => {
         <div class="space-y-2">
           <label class="text-sm font-bold text-gray-900 block">综合备注 (选填)</label>
           <textarea
-            class="w-full rounded-lg border border-gray-200 p-3 text-sm focus:outline-none focus:border-[#07C160] bg-gray-50 focus:bg-white transition-colors"
+            class="w-full rounded-lg border border-gray-200 p-3 text-sm focus:outline-none focus:border-[#0EA5E9] bg-gray-50 focus:bg-white transition-colors"
             rows="3"
             placeholder="记录一下今天整体的运动感受吧~"
             :value="notes"
@@ -699,7 +699,7 @@ const handleSubmit = () => {
       <Card v-if="exerciseTrends.length > 0" class="space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
-            <TrendingUp class="h-4 w-4 text-[#07C160]" />
+            <TrendingUp class="h-4 w-4 text-[#0EA5E9]" />
             每日运动趋势
           </h3>
           <div class="flex items-center gap-2">
@@ -724,8 +724,8 @@ const handleSubmit = () => {
               <div class="text-sm font-bold text-gray-900">{{ totalExerciseCount }}</div>
               <div class="text-[9px] text-gray-500">总次数</div>
             </div>
-            <div class="bg-[#07C160]/5 rounded-lg py-2">
-              <div class="text-sm font-bold text-[#07C160]">{{ totalExerciseDuration }}</div>
+            <div class="bg-[#0EA5E9]/5 rounded-lg py-2">
+              <div class="text-sm font-bold text-[#0EA5E9]">{{ totalExerciseDuration }}</div>
               <div class="text-[9px] text-gray-500">总时长(分)</div>
             </div>
             <div class="bg-[#FF976A]/5 rounded-lg py-2">
@@ -740,8 +740,8 @@ const handleSubmit = () => {
         </div>
       </Card>
       <div v-else class="text-center py-10 bg-white rounded-2xl border border-gray-100">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-[#07C160]/10 flex items-center justify-center">
-          <TrendingUp class="w-8 h-8 text-[#07C160]" />
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center">
+          <TrendingUp class="w-8 h-8 text-[#0EA5E9]" />
         </div>
         <div class="text-sm font-bold text-gray-700 mb-1">还没有运动数据</div>
         <div class="text-xs text-gray-400">完成打卡后生成每日运动趋势</div>
@@ -751,12 +751,12 @@ const handleSubmit = () => {
     <!-- ══════════ Tab 3: 记录 ══════════ -->
     <div v-show="activeTab === 'records'" class="p-4 space-y-4">
       <div v-if="groupedHistory.length === 0" class="text-center py-10 bg-white rounded-2xl border border-gray-100 animate-pop-in">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-[#07C160]/10 flex items-center justify-center">
-          <Dumbbell class="w-8 h-8 text-[#07C160]" />
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center">
+          <Dumbbell class="w-8 h-8 text-[#0EA5E9]" />
         </div>
         <div class="text-sm font-bold text-gray-700 mb-1">还没有运动记录</div>
         <div class="text-xs text-gray-400 mb-4">完成今天的第一次运动打卡吧</div>
-        <button @click="activeTab = 'checkin'; activities[0].duration = '30'" class="text-xs font-bold text-[#07C160] bg-[#07C160]/10 px-4 py-2 rounded-full active:scale-95 transition-transform">从 30 分钟开始 →</button>
+        <button @click="activeTab = 'checkin'; activities[0].duration = '30'" class="text-xs font-bold text-[#0EA5E9] bg-[#0EA5E9]/10 px-4 py-2 rounded-full active:scale-95 transition-transform">从 30 分钟开始 →</button>
       </div>
       <div v-else class="space-y-4">
         <div v-for="group in groupedHistory" :key="group.date" :id="`exercise-group-${group.date}`">
@@ -766,7 +766,7 @@ const handleSubmit = () => {
             class="w-full flex items-center justify-between bg-white rounded-xl px-4 py-2.5 mb-2 border border-gray-100 sticky top-[104px] z-10 shadow-sm"
           >
             <div class="flex items-center gap-2">
-              <span class="w-1 h-4 rounded-full bg-[#07C160]"></span>
+              <span class="w-1 h-4 rounded-full bg-[#0EA5E9]"></span>
               <span class="text-sm font-bold text-gray-800">{{ group.label }}</span>
               <span class="text-[10px] text-gray-400">{{ group.records.length }}条记录</span>
               <span v-if="group.records.some((r) => r.coachComment && !r.commentRead)" class="text-[10px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">新批注</span>
@@ -782,7 +782,7 @@ const handleSubmit = () => {
               <div class="p-4 border-b border-gray-50">
                 <div class="flex justify-between items-center mb-3">
                   <span class="text-xs text-gray-500 font-medium">{{ formatDateTime(record.date) }}</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded text-[#07C160] bg-[#07C160]/10 font-bold uppercase">
+                  <span class="text-[10px] px-2 py-0.5 rounded text-[#0EA5E9] bg-[#0EA5E9]/10 font-bold uppercase">
                     {{ record.type }}
                   </span>
                 </div>
@@ -825,10 +825,10 @@ const handleSubmit = () => {
                   </div>
                 </div>
 
-                <div v-if="record.coachComment" class="mt-3 p-2.5 rounded-lg bg-[#07C160]/5 border border-[#07C160]/10">
+                <div v-if="record.coachComment" class="mt-3 p-2.5 rounded-lg bg-[#0EA5E9]/5 border border-[#0EA5E9]/10">
                   <div class="flex items-center gap-1.5 mb-1">
-                    <MessageCircle class="w-3 h-3 text-[#07C160]" />
-                    <span class="text-[11px] font-bold text-[#07C160]">{{ record.coachName || '教练' }}批注</span>
+                    <MessageCircle class="w-3 h-3 text-[#0EA5E9]" />
+                    <span class="text-[11px] font-bold text-[#0EA5E9]">{{ record.coachName || '教练' }}批注</span>
                     <span v-if="!record.commentRead" class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                   </div>
                   <p class="text-xs text-gray-700 leading-relaxed">{{ record.coachComment }}</p>
@@ -842,7 +842,7 @@ const handleSubmit = () => {
 
     <!-- 固定悬浮底部打卡按钮（仅打卡Tab显示） -->
     <div v-show="activeTab === 'checkin' && !hasReachedDailyLimit" class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 bg-gradient-to-t from-[#F7F8FA] via-[#F7F8FA]/95 to-transparent">
-      <Button class="w-full shadow-lg shadow-[#07C160]/30 active:scale-95 transition-transform" size="lg" @click="handleSubmit">
+      <Button class="w-full shadow-lg shadow-[#0EA5E9]/30 active:scale-95 transition-transform" size="lg" @click="handleSubmit">
         完成打卡
       </Button>
     </div>

@@ -156,7 +156,7 @@ const exportPDF = () => {
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-24 font-sans">
     <NavBar title="个人历程" :on-back="store.goBack">
       <template #right>
-        <button class="text-[#07C160] hover:bg-green-50 p-2 rounded-full transition-colors" @click="exportPDF">
+        <button class="text-[#0EA5E9] hover:bg-green-50 p-2 rounded-full transition-colors" @click="exportPDF">
           <Download class="h-5 w-5" />
         </button>
       </template>
@@ -164,10 +164,10 @@ const exportPDF = () => {
 
     <!-- 个人营期报告入口（置顶，由完结/数据指标自动生成） -->
     <div class="px-4 pt-4">
-      <Card class="bg-gradient-to-r from-[#07C160]/10 to-[#07C160]/5 border-[#07C160]/20 cursor-pointer hover:shadow-md transition-shadow" @click="store.setCurrentView('camp-report')">
+      <Card class="bg-gradient-to-r from-[#0EA5E9]/10 to-[#0EA5E9]/5 border-[#0EA5E9]/20 cursor-pointer hover:shadow-md transition-shadow" @click="store.setCurrentView('camp-report')">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-[#07C160]/15 flex items-center justify-center shrink-0">
-            <Trophy class="w-5 h-5 text-[#07C160]" />
+          <div class="w-10 h-10 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center shrink-0">
+            <Trophy class="w-5 h-5 text-[#0EA5E9]" />
           </div>
           <div class="flex-1">
             <div class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
@@ -177,14 +177,14 @@ const exportPDF = () => {
               报告由你的打卡与健康数据自动生成，可随时查看
             </div>
           </div>
-          <ChevronRight class="w-4 h-4 text-[#07C160]" />
+          <ChevronRight class="w-4 h-4 text-[#0EA5E9]" />
         </div>
       </Card>
     </div>
 
     <div ref="exportRef" class="p-4 space-y-4">
       <!-- 顶部概览卡片 -->
-      <div class="bg-gradient-to-br from-[#07C160] to-[#06A952] rounded-2xl p-5 text-white shadow-lg">
+      <div class="bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] rounded-2xl p-5 text-white shadow-lg">
         <div class="flex items-center gap-2 mb-4">
           <BookOpen class="w-6 h-6" />
           <h2 class="text-lg font-bold">{{ studentName }}的个人历程</h2>
@@ -221,7 +221,7 @@ const exportPDF = () => {
       <Card>
         <div class="flex items-center justify-between mb-2 border-b pb-2">
           <h3 class="font-bold text-gray-900 flex items-center gap-2">
-            <TrendingDown class="h-4 w-4 text-[#07C160]" />
+            <TrendingDown class="h-4 w-4 text-[#0EA5E9]" />
             体重趋势
           </h3>
           <ChartRulePopup title="体重趋势计算规则">
@@ -239,7 +239,7 @@ const exportPDF = () => {
               <div class="text-xl font-bold text-gray-900">{{ fmt(journey.weightTrend.startWeight) }} <span class="text-xs text-gray-400">kg</span></div>
             </div>
             <div class="flex-1 mx-4 text-center">
-              <div class="text-2xl font-bold" :class="journey.weightTrend.totalChange !== null && journey.weightTrend.totalChange < 0 ? 'text-[#07C160]' : 'text-orange-500'">
+              <div class="text-2xl font-bold" :class="journey.weightTrend.totalChange !== null && journey.weightTrend.totalChange < 0 ? 'text-[#0EA5E9]' : 'text-orange-500'">
                 {{ journey.weightTrend.totalChange !== null ? `${journey.weightTrend.totalChange > 0 ? '+' : ''}${journey.weightTrend.totalChange.toFixed(1)} kg` : '--' }}
               </div>
               <div class="text-xs text-gray-400 mt-1">{{ journey.weightTrend.changePercent !== null ? `${Math.abs(journey.weightTrend.changePercent).toFixed(1)}%` : '--' }}</div>
@@ -254,39 +254,39 @@ const exportPDF = () => {
               <svg :viewBox="`0 0 ${chartWidth} ${CHART_HEIGHT}`" :style="{ width: chartWidth > CHART_MIN_WIDTH ? `${chartWidth}px` : '100%', height: `${CHART_HEIGHT}px` }" preserveAspectRatio="xMidYMid meet" class="block">
                 <defs>
                   <linearGradient id="weightGradJourney" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#07C160" stop-opacity="0.2" />
-                    <stop offset="100%" stop-color="#07C160" stop-opacity="0" />
+                    <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.2" />
+                    <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0" />
                   </linearGradient>
                 </defs>
                 <!-- 减重 3% 目标线 -->
-                <line v-if="weightMilestones" :x1="CHART_PAD_X" :y1="weightMilestones.target3Cy" :x2="chartWidth - CHART_PAD_X" :y2="weightMilestones.target3Cy" stroke="#07C160" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4" />
+                <line v-if="weightMilestones" :x1="CHART_PAD_X" :y1="weightMilestones.target3Cy" :x2="chartWidth - CHART_PAD_X" :y2="weightMilestones.target3Cy" stroke="#0EA5E9" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4" />
                 <!-- 减重 5% 目标线 -->
                 <line v-if="weightMilestones" :x1="CHART_PAD_X" :y1="weightMilestones.target5Cy" :x2="chartWidth - CHART_PAD_X" :y2="weightMilestones.target5Cy" stroke="#FF976A" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4" />
                 <!-- 渐变填充 -->
                 <polygon :points="`${CHART_PAD_X},${CHART_PAD_TOP + CHART_PLOT_HEIGHT} ${svgPoints} ${weightCx(journey.weightTrend.records.length - 1)},${CHART_PAD_TOP + CHART_PLOT_HEIGHT}`" fill="url(#weightGradJourney)" />
                 <!-- 折线 -->
-                <polyline :points="svgPoints" fill="none" stroke="#07C160" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
+                <polyline :points="svgPoints" fill="none" stroke="#0EA5E9" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
                 <!-- 数据点 + 数值标签 + 日期 -->
                 <template v-for="(r, i) in journey.weightTrend.records" :key="i">
-                  <circle :cx="weightCx(i)" :cy="weightCy(r.weight)" r="2.5" fill="#07C160" />
+                  <circle :cx="weightCx(i)" :cy="weightCy(r.weight)" r="2.5" fill="#0EA5E9" />
                   <!-- 体重数值 -->
                   <text :x="weightCx(i)" :y="weightCy(r.weight) - 6" text-anchor="middle" font-size="8" font-weight="bold" fill="#374151">{{ r.weight.toFixed(1) }}</text>
                   <!-- 日期 -->
                   <text :x="weightCx(i)" :y="CHART_HEIGHT - 6" text-anchor="middle" font-size="7" fill="#9CA3AF">{{ fmtDate(r.date) }}</text>
                 </template>
                 <!-- 历史最低点标注 -->
-                <circle v-if="weightMilestones" :cx="weightMilestones.lowestCx" :cy="weightMilestones.lowestCy" r="4" fill="none" stroke="#07C160" stroke-width="1.5" />
+                <circle v-if="weightMilestones" :cx="weightMilestones.lowestCx" :cy="weightMilestones.lowestCy" r="4" fill="none" stroke="#0EA5E9" stroke-width="1.5" />
               </svg>
             </div>
             <!-- 最低点标签 -->
-            <div v-if="weightMilestones" class="flex items-center gap-1 mt-1 text-[9px] font-bold text-[#07C160]">
-              <span class="inline-block w-2 h-2 rounded-full border border-[#07C160]"></span>
+            <div v-if="weightMilestones" class="flex items-center gap-1 mt-1 text-[9px] font-bold text-[#0EA5E9]">
+              <span class="inline-block w-2 h-2 rounded-full border border-[#0EA5E9]"></span>
               历史最低 {{ weightMilestones.lowestWeight.toFixed(1) }} kg
             </div>
             <!-- 目标线图例 -->
             <div v-if="weightMilestones" class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-[9px] text-gray-500">
               <span class="flex items-center gap-1">
-                <span class="inline-block w-3 border-t border-dashed border-[#07C160]"></span>
+                <span class="inline-block w-3 border-t border-dashed border-[#0EA5E9]"></span>
                 达标3%目标 {{ weightMilestones.target3.toFixed(1) }}kg
               </span>
               <span class="flex items-center gap-1">
@@ -324,7 +324,7 @@ const exportPDF = () => {
             <div class="text-[10px] font-bold text-gray-700 mb-1">{{ Math.round(week.completionRate * 100) }}%</div>
             <div
               class="w-full rounded-t-md transition-all min-h-[4px]"
-              :class="week.completionRate >= 0.8 ? 'bg-[#07C160]' : week.completionRate >= 0.5 ? 'bg-[#FF976A]' : 'bg-gray-300'"
+              :class="week.completionRate >= 0.8 ? 'bg-[#0EA5E9]' : week.completionRate >= 0.5 ? 'bg-[#FF976A]' : 'bg-gray-300'"
               :style="{ height: `${Math.max(week.completionRate / weeklyMax * 100, 4)}%` }"
             ></div>
             <div class="text-[10px] text-gray-500 mt-1">{{ week.weekLabel }}</div>

@@ -94,7 +94,7 @@ const handleSave = () => {
           <div class="flex-1">
             <label class="text-xs text-gray-500 block mb-1">开始时间</label>
             <button type="button" @click="openTimePicker(meal.key, 'start')"
-              class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#07C160] flex items-center justify-between">
+              class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#0EA5E9] flex items-center justify-between">
               <span>{{ config[meal.key].start || '选择时间' }}</span>
               <Clock class="w-3.5 h-3.5 text-gray-400 shrink-0" />
             </button>
@@ -103,7 +103,7 @@ const handleSave = () => {
           <div class="flex-1">
             <label class="text-xs text-gray-500 block mb-1">结束时间</label>
             <button type="button" @click="openTimePicker(meal.key, 'end')"
-              class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#07C160] flex items-center justify-between">
+              class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#0EA5E9] flex items-center justify-between">
               <span>{{ config[meal.key].end || '选择时间' }}</span>
               <Clock class="w-3.5 h-3.5 text-gray-400 shrink-0" />
             </button>
