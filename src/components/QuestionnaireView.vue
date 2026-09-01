@@ -646,7 +646,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
           <div>
             <h3 class="font-bold text-gray-900">给营养师的小助手</h3>
             <p class="text-xs text-gray-400 mt-1 leading-relaxed">
-              选填。上传最近的体检报告，营养师能为你定制更精准的方案；没有也不影响参营。
+              选填。上传最近的体检报告，营养师能为你定制更精准的方案；没有也不影响本批次。
             </p>
           </div>
           <div class="grid grid-cols-3 gap-2">

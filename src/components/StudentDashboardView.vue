@@ -62,7 +62,7 @@ const isWeightChangeGood = computed(() => {
   return weightChange.value > 0; // 增重：变重为好
 });
 
-// ─── 营期切换器（多期时显示） ──────────────────────────────
+// ─── 服务批次切换器（多期时显示） ──────────────────────────────
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {
@@ -79,7 +79,7 @@ const studentDisabled = computed(() => {
   const acc = store.accounts.find((a) => a.id === u.id || a.phone === u.phone);
   return acc ? acc.active === false : false;
 });
-// 本营期可正常参与/主动弹通知（未开始、已结束、退营、禁用状态均不主动弹出）
+// 本服务批次可正常参与/主动弹通知（未开始、已结束、退营、禁用状态均不主动弹出）
 const campActiveForStudent = computed(() => activeCamp.value?.status === 'active' && !studentDisabled.value);
 const showCampSwitcher = computed(() => availableCamps.value.length > 1);
 const showCampPicker = ref(false);
@@ -88,7 +88,7 @@ const handleCampSelect = (campId: string) => {
   showCampPicker.value = false;
 };
 
-// 按营期过滤打卡记录
+// 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
@@ -101,7 +101,7 @@ const unreadCount = computed(() =>
 const streakData = computed(() => calculateStreak(campEx.value, campDiet.value, campWt.value, store.user?.id));
 const currentStreak = computed(() => streakData.value.currentStreak);
 
-// 开营第几天（用于头部 DAY X 徽章）
+// 开班第几天（用于头部 DAY X 徽章）
 const campDay = computed(() => {
   if (!activeCamp.value?.startDate) return 1;
   const start = new Date(activeCamp.value.startDate);
@@ -110,19 +110,19 @@ const campDay = computed(() => {
   return Math.max(1, diffDays);
 });
 
-// ─── 营期未开始：禁止打卡入口 ─────────────────────────────
+// ─── 服务批次未开始：禁止打卡入口 ─────────────────────────────
 const campNotStarted = computed(() => {
   if (!activeCamp.value) return false;
   return !store.isCampStarted(activeCamp.value);
 });
-// 未开始营期的权威状态（用于提示文案）：优先 status，其次按日期推断
+// 未开始服务批次的权威状态（用于提示文案）：优先 status，其次按日期推断
 const campNotStartedText = computed(() => {
   const camp = activeCamp.value;
-  if (!camp) return '营期尚未开始';
+  if (!camp) return '服务批次尚未开始';
   if (camp.startDate) {
-    return `营期尚未开始（${camp.startDate} 开营），暂不能打卡`;
+    return `服务批次尚未开始（${camp.startDate} 开班），暂不能打卡`;
   }
-  return '营期尚未开始，暂不能打卡';
+  return '服务批次尚未开始，暂不能打卡';
 });
 // 打卡入口统一拦截：未开始时弹提示，不进入打卡页
 function guardCheckin(view: View) {
@@ -303,7 +303,7 @@ onMounted(() => {
               <TrendingDown v-if="weightChange < 0" class="w-3 h-3" />
               <TrendingUp v-else-if="weightChange > 0" class="w-3 h-3" />
               <Minus v-else class="w-3 h-3" />
-              较开营 {{ weightChange > 0 ? '+' : '' }}{{ weightChange }}kg
+              较开班 {{ weightChange > 0 ? '+' : '' }}{{ weightChange }}kg
             </div>
             <div v-if="targetProgress !== null" class="mt-2">
               <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
@@ -354,7 +354,7 @@ onMounted(() => {
                 <Activity class="h-6 w-6" />
               </div>
               <div class="text-sm font-bold text-gray-900 mb-0.5">运动打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '营期未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</div>
+              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</div>
             </div>
           </Card>
 
@@ -365,7 +365,7 @@ onMounted(() => {
                 <Coffee class="h-6 w-6" />
               </div>
               <div class="text-sm font-bold text-gray-900 mb-0.5">饮食打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '营期未开始' : todayDietLabel }}</div>
+              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : todayDietLabel }}</div>
             </div>
           </Card>
 
@@ -376,13 +376,13 @@ onMounted(() => {
                 <Scale class="h-6 w-6" />
               </div>
               <div class="text-sm font-bold text-gray-900 mb-0.5">体重打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '营期未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</div>
+              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</div>
             </div>
           </Card>
         </div>
       </div>
 
-      <!-- 营期回顾与指导 -->
+      <!-- 服务批次回顾与指导 -->
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-5">
           <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
@@ -458,7 +458,7 @@ onMounted(() => {
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-2">
           <div class="w-1.5 h-4 bg-[#0284C7] rounded-full"></div>
-          营期回顾与指导
+          服务批次回顾与指导
         </h3>
         <div class="grid grid-cols-2 gap-3">
           <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('calendar')">
@@ -497,7 +497,7 @@ onMounted(() => {
                 </div>
                 <div>
                   <div class="text-sm font-bold text-gray-900">个人历程</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5">营期报告 · 数据趋势 · 结营寄语</div>
+                  <div class="text-[11px] text-gray-500 mt-0.5">服务批次报告 · 数据趋势 · 结业寄语</div>
                   <div class="flex gap-1.5 mt-2">
                     <span class="text-[9px] font-bold text-[#0EA5E9] bg-[#0EA5E9]/8 px-2 py-0.5 rounded-full">报告</span>
                     <span class="text-[9px] font-bold text-[#1677FF] bg-[#1677FF]/8 px-2 py-0.5 rounded-full">趋势</span>
@@ -574,10 +574,10 @@ onMounted(() => {
       </Transition>
     </Teleport>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round class="custom-popup">
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             v-for="camp in availableCamps"

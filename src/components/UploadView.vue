@@ -10,7 +10,7 @@ const weight = ref('');
 const images = ref<string[]>([]);
 const error = ref('');
 
-// 营期上下文
+// 服务批次上下文
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {

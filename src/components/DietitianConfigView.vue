@@ -22,8 +22,8 @@ interface ConfigItem {
 
 const configItems = computed<ConfigItem[]>(() => [
   { view: 'metric-config', title: '指标配置', desc: '健康档案体检指标项', icon: FileText, color: '#FF976A' },
-  { view: 'camp-summary', title: '结营统计', desc: '学员数据变化与打卡频率', icon: Trophy, color: '#FF976A' },
-  { view: 'account-manage', title: '账户管理', desc: '各角色手机号与营期', icon: Users, color: '#FF976A' },
+  { view: 'camp-summary', title: '结业统计', desc: '学员数据变化与打卡频率', icon: Trophy, color: '#FF976A' },
+  { view: 'account-manage', title: '账户管理', desc: '各角色手机号与服务批次', icon: Users, color: '#FF976A' },
 ]);
 </script>
 
@@ -36,7 +36,7 @@ const configItems = computed<ConfigItem[]>(() => [
         </div>
         <div>
           <h2 class="text-lg font-bold text-gray-900">管理配置</h2>
-          <p class="text-xs text-gray-500 mt-0.5">营期配置与健康档案管理</p>
+          <p class="text-xs text-gray-500 mt-0.5">服务批次配置与健康档案管理</p>
         </div>
       </div>
     </div>

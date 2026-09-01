@@ -14,11 +14,11 @@ const store = useAppStore();
 const activeTab = ref<'incomplete' | 'completed'>('incomplete');
 const searchQuery = ref('');
 
-// ─── 营期切换 ───
+// ─── 服务批次切换 ───
 const showCampPicker = ref(false);
 
 const availableCamps = computed(() => store.camps);
-// 未选具体营期时回落到第一个 active 营期，避免"全部营期"跨期汇总导致多营期学员重复计分（与学员端/排名页口径一致）
+// 未选具体服务批次时回落到第一个 active 服务批次，避免"全部服务批次"跨期汇总导致多服务批次学员重复计分（与学员端/排名页口径一致）
 const activeCampId = computed(() => {
   if (store.selectedCampId) return store.selectedCampId;
   const active = store.camps.find((c) => c.status === 'active');
@@ -26,17 +26,17 @@ const activeCampId = computed(() => {
   return active?.id || first?.id || null;
 });
 const activeCampName = computed(() => {
-  if (!activeCampId.value) return '全部营期';
-  return store.camps.find((c) => c.id === activeCampId.value)?.name || '全部营期';
+  if (!activeCampId.value) return '全部服务批次';
+  return store.camps.find((c) => c.id === activeCampId.value)?.name || '全部服务批次';
 });
 
-// 按营期过滤学员（null = 全部活跃学员）
+// 按服务批次过滤学员（null = 全部活跃学员）
 const campStudents = computed(() => {
   if (!activeCampId.value) return store.getAllStudents();
   return store.getStudentsByCamp(activeCampId.value);
 });
 
-// 按营期过滤打卡记录（null = 全部记录）
+// 按服务批次过滤打卡记录（null = 全部记录）
 const campDietRecords = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campWeightRecords = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
 const campExerciseRecords = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
@@ -130,7 +130,7 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
     </div>
 
     <div class="flex-1 px-5 space-y-4 relative -mt-2">
-      <!-- 营期切换 -->
+      <!-- 服务批次切换 -->
       <div class="flex items-center gap-2 mb-1">
         <button
           @click="showCampPicker = true"
@@ -228,10 +228,10 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
       </VanTabbarItem>
     </VanTabbar>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round class="custom-popup">
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             v-for="camp in availableCamps"

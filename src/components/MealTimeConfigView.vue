@@ -64,10 +64,10 @@ const handleSave = () => {
 
     <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
       <div>
-        <div class="text-xs text-gray-500">当前营期</div>
+        <div class="text-xs text-gray-500">当前服务批次</div>
         <div class="text-sm font-medium text-gray-800">{{ campColumns.find(c => c.value === selectedCampId)?.text || '请选择' }}</div>
       </div>
-      <VanButton size="small" plain type="warning" @click="showCampPicker = true">切换营期</VanButton>
+      <VanButton size="small" plain type="warning" @click="showCampPicker = true">切换服务批次</VanButton>
     </div>
     <VanPopup v-model:show="showCampPicker" position="bottom">
       <VanPicker :columns="campColumns" @confirm="onCampConfirm" @cancel="showCampPicker = false" />

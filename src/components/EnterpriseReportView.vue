@@ -12,13 +12,13 @@ import { exportReport } from '../lib/exportPDF';
 
 const store = useAppStore();
 
-// ─── 营期切换（默认最新一期） ───
+// ─── 服务批次切换（默认最新一期） ───
 const selectedCampId = ref<string>(latestOrFirstId(store.camps) || '');
 const showCampPicker = ref(false);
 const selectedCamp = computed(() => store.camps.find((c) => c.id === selectedCampId.value));
 const campDays = computed(() => campDaysOf(selectedCamp.value));
 
-// 按营期过滤学员和记录
+// 按服务批次过滤学员和记录
 const campStudents = computed(() => selectedCampId.value ? store.getStudentsByCamp(selectedCampId.value) : store.getAllStudents());
 const campDietRecords = computed(() => selectedCampId.value ? store.getCampDietRecords(selectedCampId.value) : store.dietRecords);
 const campExerciseRecords = computed(() => selectedCampId.value ? store.getCampExerciseRecords(selectedCampId.value) : store.exerciseRecords);
@@ -62,14 +62,14 @@ const handleExport = () => {
       </template>
     </NavBar>
 
-    <!-- 营期切换 -->
+    <!-- 服务批次切换 -->
     <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
       <div>
-        <div class="text-xs text-gray-500">当前营期</div>
+        <div class="text-xs text-gray-500">当前服务批次</div>
         <div class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '未选择' }}</div>
       </div>
       <button class="text-xs text-[#0EA5E9] border border-[#0EA5E9] px-3 py-1.5 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
-        切换营期
+        切换服务批次
       </button>
     </div>
 
@@ -94,9 +94,9 @@ const handleExport = () => {
       <div class="bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] rounded-2xl p-5 text-white shadow-lg">
         <div class="flex items-center gap-2 mb-1">
           <Building2 class="w-5 h-5" />
-          <h2 class="text-lg font-bold">健康训练营 · 结营汇报</h2>
+          <h2 class="text-lg font-bold">健康训练营 · 结业汇报</h2>
         </div>
-        <p class="text-xs opacity-85 mb-4">{{ report.campDays }} 天 · {{ report.totalStudents }} 名员工参营</p>
+        <p class="text-xs opacity-85 mb-4">{{ report.campDays }} 天 · {{ report.totalStudents }} 名员工本批次</p>
         <div class="grid grid-cols-2 gap-3 text-center">
           <div class="bg-white/15 rounded-lg py-3">
             <div class="text-2xl font-bold">{{ fmt(report.avgWeightLoss) }}<span class="text-xs font-normal">kg</span></div>
@@ -136,7 +136,7 @@ const handleExport = () => {
           </div>
           <div class="bg-gray-50 rounded-xl py-3">
             <div class="text-xl font-bold text-gray-900">{{ report.streakChampionCount }}<span class="text-xs text-gray-400 font-normal">/{{ report.totalStudents }}人</span></div>
-            <div class="text-[10px] text-gray-500 mt-1">坚持≥70%营期天数</div>
+            <div class="text-[10px] text-gray-500 mt-1">坚持≥70%服务批次天数</div>
           </div>
           <div class="bg-gray-50 rounded-xl py-3">
             <div class="text-xl font-bold text-gray-900">{{ fmt(report.avgCheckinDays, 0) }}<span class="text-xs text-gray-400 font-normal">天</span></div>
@@ -227,10 +227,10 @@ const handleExport = () => {
       </div>
     </div>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round>
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             v-for="camp in store.camps"

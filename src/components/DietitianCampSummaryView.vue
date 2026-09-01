@@ -16,19 +16,19 @@ const store = useAppStore();
 // 底部 Tabbar 角标：批注=待批注数，配置=发放中心待发货数（各营养师页面共用口径）
 const { unannotatedCount, fulfillmentPendingCount } = useDietitianCounts();
 
-// ─── 营期切换（默认最新一期） ───
+// ─── 服务批次切换（默认最新一期） ───
 const selectedCampId = ref<string>(latestOrFirstId(store.camps) || '');
 const showCampPicker = ref(false);
 const selectedCamp = computed(() => store.camps.find((c) => c.id === selectedCampId.value));
 const campDays = computed(() => campDaysOf(selectedCamp.value));
 
-// 按营期过滤学员和记录
+// 按服务批次过滤学员和记录
 const campStudents = computed(() => selectedCampId.value ? store.getStudentsByCamp(selectedCampId.value) : store.getAllStudents());
 const campDietRecords = computed(() => selectedCampId.value ? store.getCampDietRecords(selectedCampId.value) : store.dietRecords);
 const campExerciseRecords = computed(() => selectedCampId.value ? store.getCampExerciseRecords(selectedCampId.value) : store.exerciseRecords);
 const campWeightRecords = computed(() => selectedCampId.value ? store.getCampWeightRecords(selectedCampId.value) : store.weightRecords);
 
-// 生成结营统计（使用营期过滤后的数据）
+// 生成结业统计（使用服务批次过滤后的数据）
 // 首次进入全校聚合较慢：用 useDeferred 延迟到首帧后空闲计算，先出骨架屏，避免阻塞首绘
 const { data: summary, done: summaryReady } = useDeferred<DietitianCampSummary>(() =>
   generateDietitianSummary(
@@ -42,7 +42,7 @@ const { data: summary, done: summaryReady } = useDeferred<DietitianCampSummary>(
   ),
 );
 
-// 减重总人数及占比（分母=本营期参营学员总数：体重下降人数 / 参营学员总数）
+// 减重总人数及占比（分母=本服务批次本批次学员总数：体重下降人数 / 本批次学员总数）
 const weightLossStats = computed(() => {
   if (!summary.value) return { count: 0, total: 0 };
   const count = summary.value.studentReports.filter((r) => (r.weightTrend.totalChange ?? 0) < 0).length;
@@ -70,7 +70,7 @@ const openStudent = (id: string) => {
 const exportRef = ref<HTMLElement | null>(null);
 const exportPDF = () => {
   if (exportRef.value) {
-    exportReport(exportRef.value, `结营统计_${new Date().toISOString().split('T')[0]}`);
+    exportReport(exportRef.value, `结业统计_${new Date().toISOString().split('T')[0]}`);
   }
 };
 
@@ -96,7 +96,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
 
 <template>
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-24 font-sans">
-    <NavBar title="结营统计" :on-back="store.goBack">
+    <NavBar title="结业统计" :on-back="store.goBack">
       <template #right>
         <button class="text-[#FF976A] hover:bg-orange-50 p-2 rounded-full transition-colors" @click="exportPDF">
           <Download class="h-5 w-5" />
@@ -104,14 +104,14 @@ const fmtChange = (v: number | null, unit = ''): string => {
       </template>
     </NavBar>
 
-    <!-- 营期切换 -->
+    <!-- 服务批次切换 -->
     <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
       <div>
-        <div class="text-xs text-gray-500">当前营期</div>
+        <div class="text-xs text-gray-500">当前服务批次</div>
         <div class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '未选择' }}</div>
       </div>
       <button class="text-xs text-[#FF976A] border border-[#FF976A] px-3 py-1.5 rounded-full font-bold active:bg-orange-50" @click="showCampPicker = true">
-        切换营期
+        切换服务批次
       </button>
     </div>
 
@@ -153,7 +153,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
             <Users class="w-5 h-5 text-[#FF976A] mr-1" />
           </div>
           <div class="text-2xl font-bold text-gray-900">{{ summary.totalStudents }}</div>
-          <div class="text-xs text-gray-500 mt-1">参营学员</div>
+          <div class="text-xs text-gray-500 mt-1">本批次学员</div>
         </Card>
         <Card class="p-4 text-center">
           <div class="flex items-center justify-center mb-2">
@@ -188,7 +188,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
             <Flame class="w-5 h-5 text-[#FF976A] mr-1" />
           </div>
           <div class="text-2xl font-bold text-[#FF976A]">{{ weightLossStats.count }}<span class="text-sm font-normal text-gray-400">/{{ weightLossStats.total }}</span></div>
-          <div class="text-xs text-gray-500 mt-1">减重总人数<span class="text-[10px] text-gray-400">（{{ fmtPct(weightLossStats.total ? weightLossStats.count / weightLossStats.total : 0) }}占参营）</span></div>
+          <div class="text-xs text-gray-500 mt-1">减重总人数<span class="text-[10px] text-gray-400">（{{ fmtPct(weightLossStats.total ? weightLossStats.count / weightLossStats.total : 0) }}占本批次）</span></div>
         </Card>
       </div>
 
@@ -196,7 +196,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
       <Card>
         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
           <BarChart3 class="h-4 w-4 text-[#FF976A]" />
-          学员结营概况
+          学员结业概况
         </h3>
         <div class="space-y-3">
           <div
@@ -300,10 +300,10 @@ const fmtChange = (v: number | null, unit = ''): string => {
       </Card>
     </div>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round>
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             v-for="camp in store.camps"

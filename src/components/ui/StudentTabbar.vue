@@ -8,7 +8,7 @@ import { useAppStore } from '../../store/app';
  * 学员端底部主导航（首页/消息/档案）。共用，杜绝手写高亮索引复制错位(曾「档案页亮活动」)。
  *
  * 高亮索引由 anchor 锚点在「可见 tab 列表」里的位置推导。props.anchor: 本页要高亮的 tab
- * （语义键，非索引）。个人营期报告传 'dashboard'（高亮首页，用户口径）；个人历程传 'health-profile'。
+ * （语义键，非索引）。个人服务报告传 'dashboard'（高亮首页，用户口径）；个人历程传 'health-profile'。
  * 当 anchor 不在列表中（如不可达子页），回退高亮首页。
  */
 type Anchor = 'dashboard' | 'messages' | 'health-profile';
@@ -16,7 +16,7 @@ type Anchor = 'dashboard' | 'messages' | 'health-profile';
 const props = defineProps<{
   anchor: Anchor;
   badge?: number; // 消息未读数：主页面传各自口径；当前就在消息页(anchor=messages)时不展示徽标
-  printHidden?: boolean; // 打印/长图导出时隐藏底部栏(个人历程/个人营期报告用)
+  printHidden?: boolean; // 打印/长图导出时隐藏底部栏(个人历程/个人服务报告用)
 }>();
 
 const store = useAppStore();

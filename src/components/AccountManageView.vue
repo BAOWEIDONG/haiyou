@@ -24,10 +24,10 @@ const tabs: { role: Role; label: string; icon: typeof Users; color: string }[] =
 const searchQuery = ref('');
 const searchKeyword = computed(() => searchQuery.value.trim().toLowerCase());
 
-// ─── 营期筛选（仅学员 tab 下展示） ───
+// ─── 服务批次筛选（仅学员 tab 下展示） ───
 const filterCampId = ref<string>('all'); // 'all' = 全部期
 
-// ─── 营期管理弹窗 ───
+// ─── 服务批次管理弹窗 ───
 const showCampModal = ref(false);
 const editingCamp = ref<Partial<Camp> | null>(null);
 const campFormError = ref('');
@@ -40,7 +40,7 @@ const accountFormError = ref('');
 // ─── 计算属性 ───
 const filteredAccounts = computed(() => {
   let list = store.accounts.filter((a) => a.role === activeTab.value);
-  // 学员 tab 下按营期筛选
+  // 学员 tab 下按服务批次筛选
   if (activeTab.value === 'student' && filterCampId.value !== 'all') {
     list = list.filter((a) => a.campIds?.includes(filterCampId.value));
   }
@@ -54,7 +54,7 @@ const filteredAccounts = computed(() => {
   }
   return list;
 });
-// 账户列表分页：默认前 20，更多点「加载更多」；切 tab/营期/搜索时重置
+// 账户列表分页：默认前 20，更多点「加载更多」；切 tab/服务批次/搜索时重置
 const { items: pagedAccounts, hasMore, remaining, loadMore, reset: resetPagedAccounts } = usePaged(filteredAccounts, 20);
 watch([activeTab, filterCampId, searchKeyword], () => resetPagedAccounts());
 
@@ -70,7 +70,7 @@ const campNameMap = computed(() => {
   return map;
 });
 
-// ─── 营期管理 ───
+// ─── 服务批次管理 ───
 const handleEditCamp = (camp?: Camp) => {
   editingCamp.value = camp
     ? { ...camp }
@@ -85,8 +85,8 @@ const handleDeleteCamp = (camp: Camp) => {
   ).length;
   const msg = studentCount > 0
     ? `「${camp.name}」下有 ${studentCount} 名学员，删除后学员将移除该期关联。确定删除？`
-    : `确定删除营期「${camp.name}」？`;
-  showConfirmDialog({ title: '删除营期', message: msg })
+    : `确定删除服务批次「${camp.name}」？`;
+  showConfirmDialog({ title: '删除服务批次', message: msg })
     .then(() => {
       // 同时移除学员的 campId 关联
       store.accounts.forEach((a) => {
@@ -106,7 +106,7 @@ const handleDeleteCamp = (camp: Camp) => {
 const saveCamp = () => {
   if (!editingCamp.value) return;
   if (!editingCamp.value.name?.trim()) {
-    campFormError.value = '请输入营期名称';
+    campFormError.value = '请输入服务批次名称';
     return;
   }
   // 检查重名
@@ -114,7 +114,7 @@ const saveCamp = () => {
     (c) => c.name === editingCamp.value!.name.trim() && c.id !== editingCamp.value!.id,
   );
   if (dup) {
-    campFormError.value = '已存在同名营期';
+    campFormError.value = '已存在同名服务批次';
     return;
   }
   // 根据 startDate 自动推断 status
@@ -193,7 +193,7 @@ const saveAccount = () => {
     return;
   }
   if (role === 'student' && (!campIds || campIds.length === 0)) {
-    accountFormError.value = '学员至少关联一个营期';
+    accountFormError.value = '学员至少关联一个服务批次';
     return;
   }
 
@@ -202,18 +202,18 @@ const saveAccount = () => {
     (a) => a.phone === phone.trim() && a.id !== editingAccount.value!.id,
   );
   if (dup) {
-    // 同手机号已存在：如果是同学员角色，合并营期；如果是不同角色，报错
+    // 同手机号已存在：如果是同学员角色，合并服务批次；如果是不同角色，报错
     if (dup.role !== role) {
       const roleLabel = dup.role === 'dietitian' ? '营养师' : dup.role === 'coach' ? '教练' : '学员';
       accountFormError.value = `该手机号已注册为${roleLabel}，不能重复注册其他角色`;
       return;
     }
-    // 同角色：把新选的营期追加到已有账户
+    // 同角色：把新选的服务批次追加到已有账户
     if (role === 'student' && campIds && campIds.length > 0) {
       const existingCamps = dup.campIds || [];
       const newCamps = campIds.filter((id) => !existingCamps.includes(id));
       if (newCamps.length === 0) {
-        accountFormError.value = '该学员已关联所选全部营期，无需重复添加';
+        accountFormError.value = '该学员已关联所选全部服务批次，无需重复添加';
         return;
       }
       store.updateAccount(dup.id, {
@@ -270,7 +270,7 @@ const statusLabel = (status: Camp['status']) => {
 
 const formatDate = (d?: string) => (d ? d.replace(/-/g, '/') : '—');
 
-// 切换 tab 时重置营期筛选
+// 切换 tab 时重置服务批次筛选
 const switchTab = (role: Role) => {
   activeTab.value = role;
   filterCampId.value = 'all';
@@ -287,16 +287,16 @@ const switchTab = (role: Role) => {
       <div class="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
         <ShieldCheck class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
         <div class="text-xs text-blue-700 leading-relaxed">
-          只有配置了手机号的账户才能登录系统。学员需关联服务批次（营期），各批次数据相互独立；同一人可参与多批。
+          只有配置了手机号的账户才能登录系统。学员需关联服务批次（服务批次），各批次数据相互独立；同一人可参与多批。
         </div>
       </div>
 
-      <!-- 营期管理 -->
+      <!-- 服务批次管理 -->
       <div>
         <div class="flex items-center justify-between mb-2 px-1">
           <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
             <Settings2 class="w-4 h-4 text-[#FF976A]" />
-            营期管理
+            服务批次管理
           </h3>
           <button
             class="text-xs text-[#FF976A] font-medium flex items-center gap-0.5 active:opacity-70"
@@ -326,7 +326,7 @@ const switchTab = (role: Role) => {
             </div>
           </Card>
           <div v-if="store.camps.length === 0" class="text-xs text-gray-400 py-4 text-center w-full">
-            暂无营期，请先新增
+            暂无服务批次，请先新增
           </div>
         </div>
       </div>
@@ -349,7 +349,7 @@ const switchTab = (role: Role) => {
         </button>
       </div>
 
-      <!-- 营期筛选（仅学员 tab） -->
+      <!-- 服务批次筛选（仅学员 tab） -->
       <div v-if="activeTab === 'student'" class="flex gap-2 overflow-x-auto pb-1">
         <button
           :class="[
@@ -421,7 +421,7 @@ const switchTab = (role: Role) => {
                 <div class="text-[10px] text-gray-500 flex items-center gap-1 mb-1.5">
                   <Phone class="w-3 h-3" /> {{ maskPhone(account.phone) }}
                 </div>
-                <!-- 学员营期标签 -->
+                <!-- 学员服务批次标签 -->
                 <div v-if="(account.role === 'student' || account.role === 'coach') && account.campIds && account.campIds.length > 0" class="flex flex-wrap gap-1">
                   <span
                     v-for="campId in account.campIds"
@@ -471,13 +471,13 @@ const switchTab = (role: Role) => {
       </button>
     </div>
 
-    <!-- 营期编辑弹窗 -->
+    <!-- 服务批次编辑弹窗 -->
     <VanPopup v-model:show="showCampModal" position="bottom" round :style="{ maxHeight: '90%' }">
       <div class="p-5 flex flex-col" style="max-height: 90vh;" v-if="editingCamp">
-        <h3 class="text-lg font-bold text-gray-900 mb-5 shrink-0">{{ editingCamp.id ? '编辑营期' : '新增营期' }}</h3>
+        <h3 class="text-lg font-bold text-gray-900 mb-5 shrink-0">{{ editingCamp.id ? '编辑服务批次' : '新增服务批次' }}</h3>
         <div class="space-y-4 mb-6 overflow-y-auto flex-1 min-h-0">
           <div>
-            <label class="text-sm font-medium text-gray-700 block mb-1">营期名称 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium text-gray-700 block mb-1">服务批次名称 <span class="text-red-500">*</span></label>
             <input
               type="text"
               placeholder="如：第一期"
@@ -487,7 +487,7 @@ const switchTab = (role: Role) => {
             />
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-700 block mb-1">开营日期</label>
+            <label class="text-sm font-medium text-gray-700 block mb-1">开班日期</label>
             <input
               type="date"
               class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF976A] text-sm"
@@ -495,7 +495,7 @@ const switchTab = (role: Role) => {
             />
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-700 block mb-1">结营日期</label>
+            <label class="text-sm font-medium text-gray-700 block mb-1">结业日期</label>
             <input
               type="date"
               class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF976A] text-sm"
@@ -503,7 +503,7 @@ const switchTab = (role: Role) => {
             />
           </div>
           <div v-if="editingCamp.startDate" class="text-[10px] text-gray-400">
-            状态将根据日期自动判断：开营前=未开始，开营~结营=进行中，结营后=已结束
+            状态将根据日期自动判断：开班前=未开始，开班~结业=进行中，结业后=已结束
           </div>
           <div v-if="campFormError" class="text-red-500 text-xs font-medium text-center">{{ campFormError }}</div>
         </div>
@@ -567,11 +567,11 @@ const switchTab = (role: Role) => {
               </button>
             </div>
           </div>
-          <!-- 营期关联（学员/教练） -->
+          <!-- 服务批次关联（学员/教练） -->
           <div v-if="editingAccount.role === 'student' || editingAccount.role === 'coach'">
-            <label class="text-sm font-medium text-gray-700 block mb-2">{{ editingAccount.role === 'coach' ? '负责营期' : '所属营期' }} <span v-if="editingAccount.role === 'student'" class="text-red-500">*</span></label>
+            <label class="text-sm font-medium text-gray-700 block mb-2">{{ editingAccount.role === 'coach' ? '负责服务批次' : '所属服务批次' }} <span v-if="editingAccount.role === 'student'" class="text-red-500">*</span></label>
             <div v-if="store.camps.length === 0" class="text-xs text-orange-500 bg-orange-50 rounded-lg p-2.5">
-              暂无营期，请先在上方新增营期
+              暂无服务批次，请先在上方新增服务批次
             </div>
             <div v-else class="flex flex-wrap gap-2">
               <button
@@ -599,7 +599,7 @@ const switchTab = (role: Role) => {
                 {{ camp.name }}
               </button>
             </div>
-            <div class="text-[10px] text-gray-400 mt-1.5">{{ editingAccount.role === 'coach' ? '可多选，不选则负责全部营期；发布活动时仅可选负责的营期' : '可多选，同一人可参与多批次；各批次数据相互独立' }}</div>
+            <div class="text-[10px] text-gray-400 mt-1.5">{{ editingAccount.role === 'coach' ? '可多选，不选则负责全部服务批次；发布活动时仅可选负责的服务批次' : '可多选，同一人可参与多批次；各批次数据相互独立' }}</div>
           </div>
           <!-- 启用状态 -->
           <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3">

@@ -39,7 +39,7 @@ async function handleRefresh() {
   }
 }
 
-// ─── 与首页 dashboard 完全一致的营期解析逻辑（保证 badge 与未读数口径统一） ───
+// ─── 与首页 dashboard 完全一致的服务批次解析逻辑（保证 badge 与未读数口径统一） ───
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {

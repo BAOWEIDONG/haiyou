@@ -6,7 +6,7 @@ import ActivityCard from './ActivityCard.vue';
 
 const store = useAppStore();
 
-// 学员端：按营期过滤活动（全部营期的 + 当前营期的）
+// 学员端：按服务批次过滤活动（全部服务批次的 + 当前服务批次的）
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {

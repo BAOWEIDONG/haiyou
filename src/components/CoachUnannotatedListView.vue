@@ -10,7 +10,7 @@ import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
 const store = useAppStore();
 const { unannotatedCount } = useCoachCounts();
 
-// 营期统一由首页主控切换，这里只读展示当前营期
+// 服务批次统一由首页主控切换，这里只读展示当前服务批次
 const currentCampId = computed(() => store.selectedCampId || latestOrFirstId(store.camps) || '');
 const currentCamp = computed(() => store.camps.find((c) => c.id === currentCampId.value));
 
@@ -93,10 +93,10 @@ const intentLabel = (intensity: number) =>
       <h1 class="text-lg font-bold text-gray-900">教练批注</h1>
     </div>
 
-    <!-- 营期显示条（对标营养师样式，营期由首页主控只读展示） -->
+    <!-- 服务批次显示条（对标营养师样式，服务批次由首页主控只读展示） -->
     <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
       <div>
-        <div class="text-xs text-gray-500">当前营期</div>
+        <div class="text-xs text-gray-500">当前服务批次</div>
         <div class="text-sm font-medium text-gray-800">{{ currentCamp?.name || '未选择' }} · 待批注 {{ unannotatedCount }} 条</div>
       </div>
     </div>

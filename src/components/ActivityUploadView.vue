@@ -11,8 +11,8 @@ import { Camera, Video, X, ChevronDown, Check } from 'lucide-vue-next';
 
 const store = useAppStore();
 
-// 教练可发布的营期：来源于营养师端账号管理分配的 campIds
-  // 无 campIds = 负责全部营期
+// 教练可发布的服务批次：来源于营养师端账号管理分配的 campIds
+  // 无 campIds = 负责全部服务批次
   const coachCamps = computed(() => {
     const coachAccount = store.accounts.find(a => a.id === store.user?.id || a.phone === store.user?.phone);
     const ids = coachAccount?.campIds;
@@ -20,12 +20,12 @@ const store = useAppStore();
     return store.camps.filter(c => ids.includes(c.id));
   });
   const camps = coachCamps;
-const selectedCampIds = ref<string[]>([]);  // 空数组 = 全部营期
+const selectedCampIds = ref<string[]>([]);  // 空数组 = 全部服务批次
 const showCampPicker = ref(false);
 
 const campDisplayName = computed(() => {
-  if (selectedCampIds.value.length === 0) return '全部营期';
-  if (selectedCampIds.value.length === camps.value.length) return '全部营期';
+  if (selectedCampIds.value.length === 0) return '全部服务批次';
+  if (selectedCampIds.value.length === camps.value.length) return '全部服务批次';
   return selectedCampIds.value.map(id => camps.value.find(c => c.id === id)?.name || id).join('、');
 });
 
@@ -60,7 +60,7 @@ const isEditing = computed(() => Boolean(editingId.value));
     mediaType.value = 'image';
     imageFiles.value = [...imgs];
   }
-  // 仅预填用户可见营期内的 id（不在可选营期的自动落入全部营期）
+  // 仅预填用户可见服务批次内的 id（不在可选服务批次的自动落入全部服务批次）
   selectedCampIds.value = record.campIds ? record.campIds.filter((id) => camps.value.some((c) => c.id === id)) : [];
 })();
 
@@ -148,7 +148,7 @@ const handleSubmit = () => {
     <div class="p-4 space-y-4">
       <Card>
         <div class="space-y-4">
-          <!-- 营期选择 -->
+          <!-- 服务批次选择 -->
           <div>
             <label class="text-sm font-medium text-gray-700 block mb-2">发布范围 <span class="text-red-500">*</span></label>
             <button
@@ -250,11 +250,11 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- 营期选择弹窗（多选） -->
+    <!-- 服务批次选择弹窗（多选） -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round class="custom-popup">
       <div class="p-4">
         <h3 class="text-base font-bold text-gray-900 mb-1 text-center">选择发布范围</h3>
-        <p class="text-xs text-gray-400 text-center mb-4">不选 = 全部营期可见，可多选</p>
+        <p class="text-xs text-gray-400 text-center mb-4">不选 = 全部服务批次可见，可多选</p>
         <div class="space-y-2 max-h-60 overflow-y-auto">
           <button
             v-for="camp in camps"
@@ -274,7 +274,7 @@ const handleSubmit = () => {
         </div>
         <div class="flex gap-3 mt-4">
           <button @click="selectedCampIds = []" class="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-600">
-            清空（全部营期）
+            清空（全部服务批次）
           </button>
           <button @click="showCampPicker = false" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-[#0EA5E9] text-white">
             确定{{ selectedCampIds.length > 0 ? `(${selectedCampIds.length})` : '' }}

@@ -25,31 +25,31 @@ const MEAL_TYPES = [
 const store = useAppStore();
 const student = computed(() => store.students.find((s) => s.id === store.selectedStudentId));
 
-// ─── 营期切换（学员可能在多个营期中） ───
+// ─── 服务批次切换（学员可能在多个服务批次中） ───
 const studentCamps = computed(() => store.selectedStudentId ? store.getStudentCamps(store.selectedStudentId) : []);
 const selectedCampId = ref<string>('');
 const showCampPicker = ref(false);
 const selectedCamp = computed(() => studentCamps.value.find((c) => c.id === selectedCampId.value) || null);
 
-// 当学员切换时，自动选择其当前营期（优先沿用详情流已选的营期，独立于全局 selectedCampId）
+// 当学员切换时，自动选择其当前服务批次（优先沿用详情流已选的服务批次，独立于全局 selectedCampId）
 watch(() => store.selectedStudentId, (id) => {
   if (id) {
     if (store.detailSelectedCampId && studentCamps.value.some((c) => c.id === store.detailSelectedCampId)) {
-      // 详情流已选营期 -> 继承（不影响全局）
+      // 详情流已选服务批次 -> 继承（不影响全局）
       selectedCampId.value = store.detailSelectedCampId;
     } else {
-      // 详情流未选营期 -> 默认展示该学员的最新一期（不再有「全部营期」合并模式）
+      // 详情流未选服务批次 -> 默认展示该学员的最新一期（不再有「全部服务批次」合并模式）
       selectedCampId.value = latestOrFirstId(studentCamps.value) || '';
     }
   }
 }, { immediate: true });
 
-// 本地营期切换时写入独立详情流上下文（不污染全局 selectedCampId），下游 PointsDetailView 等据此继承
+// 本地服务批次切换时写入独立详情流上下文（不污染全局 selectedCampId），下游 PointsDetailView 等据此继承
 watch(selectedCampId, (newId) => {
   store.detailSelectedCampId = newId || null;
 });
 
-// 按营期+学员过滤打卡记录
+// 按服务批次+学员过滤打卡记录
 const campDietRecords = computed(() => {
   if (!selectedCampId.value) return store.dietRecords;
   return store.getCampDietRecords(selectedCampId.value);
@@ -79,29 +79,29 @@ const WEIGHT_TEMPLATES = [
   '减重速度偏快，注意营养均衡',
   '建议固定早晨空腹称重，数据更可比',
 ];
-// 结营寄语模板
+// 结业寄语模板
 const MESSAGE_TEMPLATES = [
   '坚持下来很不容易，你的自律大家都看在眼里，继续加油！',
   '体重数字只是开始，希望你把这段时间养成的习惯带到以后的生活里。',
-  '结营不是结束，是健康生活的起点，有任何问题随时找我。',
+  '结业不是结束，是健康生活的起点，有任何问题随时找我。',
   '这期进步很大，下期我们继续向目标冲刺！',
 ];
 
-// 结营寄语（学员端结营报告展示；后端可用 PUT /camp/message/:studentId 持久化）
+// 结业寄语（学员端结业报告展示；后端可用 PUT /camp/message/:studentId 持久化）
 const campMessageText = ref('');
 const campMessageSaved = ref(false);
 const showCampMessage = ref(false);
 const loadCampMessage = () => {
   const studentId = store.selectedStudentId;
   if (!studentId) { campMessageText.value = ''; return; }
-  // 寄语按营期存储，key = `${campId}_${studentId}`；通过 getCampMessage 读取
+  // 寄语按服务批次存储，key = `${campId}_${studentId}`；通过 getCampMessage 读取
   campMessageText.value = selectedCampId.value ? store.getCampMessage(selectedCampId.value, studentId) : '';
 };
 const saveCampMessage = () => {
   const studentId = store.selectedStudentId;
   if (!studentId) return;
   if (!selectedCampId.value) return;
-  // 记录作者（营养师姓名），结营报告内展示"填写文本 + 营养师姓名"
+  // 记录作者（营养师姓名），结业报告内展示"填写文本 + 营养师姓名"
   store.setCampMessage(selectedCampId.value, studentId, campMessageText.value, store.user?.name || '营养师');
   campMessageSaved.value = true;
   setTimeout(() => (campMessageSaved.value = false), 2000);
@@ -124,7 +124,7 @@ const studentExercises = computed(() =>
   campExerciseRecords.value.filter((r) => r.studentId === store.selectedStudentId).sort((a, b) => b.date.localeCompare(a.date)),
 );
 
-// 趋势图计算（与学员端 DietView/ExerciseView 完全对称，内容一致；使用营期过滤后的记录）
+// 趋势图计算（与学员端 DietView/ExerciseView 完全对称，内容一致；使用服务批次过滤后的记录）
 const exerciseTrends = computed(() => computeExerciseTrends(studentExercises.value, store.selectedStudentId || undefined));
 const exerciseTrendMax = computed(() => Math.max(...exerciseTrends.value.map((t) => t.totalDuration), 1));
 
@@ -227,7 +227,7 @@ watch(() => student.value?.id, () => {
   loadCampMessage();
 }, { immediate: true });
 
-// 切换营期时重新加载寄语
+// 切换服务批次时重新加载寄语
 watch(selectedCampId, () => {
   loadCampMessage();
 });
@@ -355,10 +355,10 @@ const openReport = (r: any) => {
         </div>
       </Card>
 
-      <!-- 营期切换（学员在多个营期时显示） -->
+      <!-- 服务批次切换（学员在多个服务批次时显示） -->
       <div v-if="studentCamps.length > 1" class="bg-white px-4 py-2.5 flex items-center justify-between rounded-xl border border-gray-100">
         <div>
-          <span class="text-xs text-gray-500">当前营期：</span>
+          <span class="text-xs text-gray-500">当前服务批次：</span>
           <span class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '未选择' }}</span>
         </div>
         <button class="text-xs text-[#FF976A] border border-[#FF976A] px-2.5 py-1 rounded-full font-bold active:bg-orange-50" @click="showCampPicker = true">
@@ -373,7 +373,7 @@ const openReport = (r: any) => {
         >
           <div class="flex items-center gap-2">
             <MessageCircle class="w-4 h-4 text-[#0EA5E9]" />
-            <h3 class="text-sm font-bold text-gray-900">结营寄语</h3>
+            <h3 class="text-sm font-bold text-gray-900">结业寄语</h3>
             <span v-if="campMessageText" class="text-[10px] text-[#0EA5E9] bg-[#0EA5E9]/10 px-1.5 py-0.5 rounded">已填写</span>
             <span v-else class="text-[10px] text-gray-400">未填写</span>
           </div>
@@ -393,7 +393,7 @@ const openReport = (r: any) => {
             @input="campMessageText = ($event.target as HTMLTextAreaElement).value"
             rows="3"
             maxlength="200"
-            placeholder="写给学员的结营寄语，将显示在学员结营报告中"
+            placeholder="写给学员的结业寄语，将显示在学员结业报告中"
             class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none resize-none bg-white"
           ></textarea>
           <div class="flex items-center justify-between">
@@ -880,7 +880,7 @@ const openReport = (r: any) => {
 
                 <div class="grid grid-cols-2 gap-4">
                   <div class="bg-gray-50 p-2 rounded flex flex-col justify-center items-center">
-                    <span class="text-[10px] text-gray-500 mb-1">开营前</span>
+                    <span class="text-[10px] text-gray-500 mb-1">开班前</span>
                     <div class="text-sm w-full flex justify-center">
                       <input
                         v-if="isEditingMedical"
@@ -899,7 +899,7 @@ const openReport = (r: any) => {
                     </div>
                   </div>
                   <div class="bg-[#0EA5E9]/5 p-2 rounded flex flex-col justify-center items-center border border-[#0EA5E9]/10">
-                    <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结营后</span>
+                    <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结业后</span>
                     <div class="text-sm w-full flex justify-center">
                       <input
                         v-if="isEditingMedical"
@@ -989,10 +989,10 @@ const openReport = (r: any) => {
 
       </div>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round>
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             v-for="camp in studentCamps"

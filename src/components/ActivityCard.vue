@@ -120,7 +120,7 @@ const handleMediaClick = (item: { url: string; type: 'video' | 'image' }) => {
         <template v-if="campLabels.length > 0">
           <span v-for="label in campLabels" :key="label" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] shrink-0">{{ label }}</span>
         </template>
-        <span v-else class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 shrink-0">全部营期</span>
+        <span v-else class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 shrink-0">全部服务批次</span>
       </div>
       <p :class="['text-sm text-gray-600 mb-2 whitespace-pre-wrap', isLongText && !expanded ? 'line-clamp-3' : '']">{{ activity.description }}</p>
       <button

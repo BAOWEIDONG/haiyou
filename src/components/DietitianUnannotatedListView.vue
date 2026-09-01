@@ -37,7 +37,7 @@ const store = useAppStore();
 // ─── 底部 Tabbar 角标：批注=待批注数，配置=发放中心待发货数（各营养师页面共用口径） ───
 const { unannotatedCount, fulfillmentPendingCount } = useDietitianCounts();
 
-// ─── 营期切换（实时读 store.selectedCampId，与教练端口径一致；KeepAlive 缓存视图不再存本地快照） ───
+// ─── 服务批次切换（实时读 store.selectedCampId，与教练端口径一致；KeepAlive 缓存视图不再存本地快照） ───
 const selectedCampId = computed<string>({
   get: () => store.selectedCampId || latestOrFirstId(store.camps) || '',
   set: (v: string) => { store.selectedCampId = v; },
@@ -45,7 +45,7 @@ const selectedCampId = computed<string>({
 const showCampPicker = ref(false);
 const selectedCamp = computed(() => selectedCampId.value ? store.camps.find((c) => c.id === selectedCampId.value) : null);
 
-// 按营期过滤打卡记录
+// 按服务批次过滤打卡记录
 const campDietRecords = computed(() => selectedCampId.value ? store.getCampDietRecords(selectedCampId.value) : store.dietRecords);
 const campWeightRecords = computed(() => selectedCampId.value ? store.getCampWeightRecords(selectedCampId.value) : store.weightRecords);
 
@@ -157,7 +157,7 @@ function toggleAll() {
   }
 }
 
-// 筛选/营期变化时默认展开第一个学员
+// 筛选/服务批次变化时默认展开第一个学员
 watch([activeFilter, selectedCampId], () => {
   if (studentGroups.value.length > 0) {
     expandedStudents.value = new Set([studentGroups.value[0].studentId]);
@@ -167,7 +167,7 @@ watch([activeFilter, selectedCampId], () => {
 }, { immediate: true });
 
 const openRecord = (item: UnifiedItem) => {
-  store.selectedCampId = selectedCampId.value; // 同步营期到 store
+  store.selectedCampId = selectedCampId.value; // 同步服务批次到 store
   store.setSelectedStudentId(item.studentId);
   store.setPendingAnnotation(item.type, item.id);
   store.setCurrentView('dietitian-student-detail');
@@ -185,14 +185,14 @@ const typeConfig: Record<ItemType, { label: string; bg: string; text: string; ic
       <h1 class="text-lg font-bold text-gray-900">待批注</h1>
     </div>
 
-    <!-- 营期切换 -->
+    <!-- 服务批次切换 -->
     <div class="bg-white/30 px-4 py-3 flex items-center justify-between border-b border-white/40">
       <div>
-        <div class="text-xs text-gray-500">当前营期</div>
-        <div class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '全部营期' }}</div>
+        <div class="text-xs text-gray-500">当前服务批次</div>
+        <div class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '全部服务批次' }}</div>
       </div>
       <button class="text-xs text-[#FF976A] border border-[#FF976A] px-3 py-1.5 rounded-full font-bold active:bg-orange-50" @click="showCampPicker = true">
-        切换营期
+        切换服务批次
       </button>
     </div>
 
@@ -305,12 +305,12 @@ const typeConfig: Record<ItemType, { label: string; bg: string; text: string; ic
       </div>
     </div>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round>
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
-          <!-- 各营期 -->
+          <!-- 各服务批次 -->
           <button
             v-for="camp in store.camps"
             :key="camp.id"

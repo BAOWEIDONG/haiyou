@@ -19,7 +19,7 @@ const activeTab = ref<'checkin' | 'trend' | 'records'>('checkin');
 const sheetRoot = ref<HTMLElement | null>(null);
 useTabSwipe(sheetRoot, activeTab, ['checkin', 'trend', 'records']);
 
-// ─── 营期切换（多期时显示） ──────────────────────────────
+// ─── 服务批次切换（多期时显示） ──────────────────────────────
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {
@@ -29,7 +29,7 @@ const activeCampId = computed(() => {
   return active?.id || availableCamps.value[0]?.id || null;
 });
 
-// 按营期过滤打卡记录
+// 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);

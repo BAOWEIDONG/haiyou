@@ -17,13 +17,13 @@ const studentId = computed(() => store.user?.id || 's1');
 const studentName = computed(() => store.user?.name || '学员');
 const studentGender = computed(() => store.user?.gender);
 
-// ─── 营期切换（学员可能在多个营期中） ───
+// ─── 服务批次切换（学员可能在多个服务批次中） ───
 const studentCamps = computed(() => store.getStudentCamps(studentId.value));
 const selectedCampId = ref<string>('');
 const showCampPicker = ref(false);
 const selectedCamp = computed(() => studentCamps.value.find((c) => c.id === selectedCampId.value) || null);
 
-// 初始化选中营期（优先 active，其次 ended）
+// 初始化选中服务批次（优先 active，其次 ended）
 watch(() => studentId.value, (id) => {
   if (id) {
     const camp = store.getStudentCamp(id);
@@ -31,7 +31,7 @@ watch(() => studentId.value, (id) => {
   }
 }, { immediate: true });
 
-// 营期信息
+// 服务批次信息
 const campInfo = computed(() => selectedCamp.value || store.getStudentCamp(studentId.value));
 const campDays = computed(() => {
   if (campInfo.value?.startDate && campInfo.value?.endDate) {
@@ -39,10 +39,10 @@ const campDays = computed(() => {
   }
   return store.getCampDays(studentId.value);
 });
-// 学员端结营报告不再上锁：营期未结束也可随时打开查看（数据为截至当前的累计）
+// 学员端结业报告不再上锁：服务批次未结束也可随时打开查看（数据为截至当前的累计）
 const canView = computed(() => true);
 
-// 按营期过滤打卡记录
+// 按服务批次过滤打卡记录
 const campDietRecords = computed(() => selectedCampId.value ? store.getCampDietRecords(selectedCampId.value) : store.dietRecords);
 const campExerciseRecords = computed(() => selectedCampId.value ? store.getCampExerciseRecords(selectedCampId.value) : store.exerciseRecords);
 const campWeightRecords = computed(() => selectedCampId.value ? store.getCampWeightRecords(selectedCampId.value) : store.weightRecords);
@@ -53,22 +53,22 @@ const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
 );
 
-// 体重记录（当前学员，按营期过滤）
+// 体重记录（当前学员，按服务批次过滤）
 const studentWeights = computed(() =>
   campWeightRecords.value.filter((r) => r.studentId === studentId.value),
 );
 
-// 饮食记录（当前学员，按营期过滤）
+// 饮食记录（当前学员，按服务批次过滤）
 const studentDiets = computed(() =>
   campDietRecords.value.filter((r) => r.studentId === studentId.value),
 );
 
-// 运动记录（当前学员，按营期过滤）
+// 运动记录（当前学员，按服务批次过滤）
 const studentExercises = computed(() =>
   campExerciseRecords.value.filter((r) => r.studentId === studentId.value),
 );
 
-// 生成结营报告
+// 生成结业报告
 const report = computed<StudentCampReport>(() =>
   generateStudentReport(
     { id: studentId.value, name: studentName.value, gender: studentGender.value },
@@ -117,14 +117,14 @@ const labMetricGroups = computed(() => {
   return Array.from(groups.entries());
 });
 
-// 营养师结营寄语（按营期存储，key = `${campId}_${studentId}`）
+// 营养师结业寄语（按服务批次存储，key = `${campId}_${studentId}`）
 const campMessage = computed(() => {
   const sid = store.user?.id;
   const cid = selectedCampId.value || campInfo.value?.id;
   if (!sid || !cid) return '';
   return store.getCampMessage(cid, sid);
 });
-// 营养师姓名：优先取「填写结营寄语的营养师」；历史寄语未记录作者时回退到批注人
+// 营养师姓名：优先取「填写结业寄语的营养师」；历史寄语未记录作者时回退到批注人
 const dietitianName = computed(() => {
   const sid = store.user?.id;
   const cid = selectedCampId.value || campInfo.value?.id;
@@ -148,7 +148,7 @@ const targetInfo = computed(() => {
   const needLose = start - target;      // 需要减的总量
   const actualLose = start - end;       // 实际减的
   if (needLose <= 0) {
-    return { target, end, achieved: end <= target, progress: end <= target ? 1 : 0, text: end <= target ? '已达到目标体重' : '目标体重高于开营体重' };
+    return { target, end, achieved: end <= target, progress: end <= target ? 1 : 0, text: end <= target ? '已达到目标体重' : '目标体重高于开班体重' };
   }
   const progress = Math.min(Math.max(actualLose / needLose, 0), 1.5);
   return { target, end, achieved: end <= target, progress, remaining: Math.max(end - target, 0) };
@@ -183,7 +183,7 @@ const weightTrendIcon = computed(() => {
   return Activity;
 });
 
-// 顶部鼓励语：数据自适应展示本营期「最亮的一面」——锚定本人真实进步，而非平铺全部指标；
+// 顶部鼓励语：数据自适应展示本服务批次「最亮的一面」——锚定本人真实进步，而非平铺全部指标；
 // 且不造假：没有身体亮点时按实际坚持程度给有依据的鼓励，而非万能套话。
 const encouragement = computed(() => {
   const s = report.value.summary;
@@ -204,28 +204,28 @@ const encouragement = computed(() => {
 
   if (parts.length > 0) {
     // 最多取 3 句，避免罗列过载
-    return `恭喜你，${name}！本次营期${parts.slice(0, 3).join('，')}，这些变化的背后，是你每天的自律与坚持。`;
+    return `恭喜你，${name}！本次服务批次${parts.slice(0, 3).join('，')}，这些变化的背后，是你每天的自律与坚持。`;
   }
   // 无身体数据亮点：肯定坚持过程(有依据、不造假)
   if (s.totalCheckinDays > 0) {
-    return `无论如何，你在这个营期坚持打卡了${s.totalCheckinDays}天。别用一次数字否定自己的努力，改变正在习惯里悄悄发生。${name}，继续加油！`;
+    return `无论如何，你在这个服务批次坚持打卡了${s.totalCheckinDays}天。别用一次数字否定自己的努力，改变正在习惯里悄悄发生。${name}，继续加油！`;
   }
-  // 数据尚在累积（刚开营记录少）
-  return `${name}，你已获得了这份结营报告。请继续保持打卡习惯，每一次记录都会在积累中看到回响。`;
+  // 数据尚在累积（刚开班记录少）
+  return `${name}，你已获得了这份结业报告。请继续保持打卡习惯，每一次记录都会在积累中看到回响。`;
 });
 
 // ─── 导出（普通浏览器=PDF，微信=长图长按保存）───
 const exportRef = ref<HTMLElement | null>(null);
 const exportPDF = () => {
   if (exportRef.value) {
-    exportReport(exportRef.value, `个人营期报告_${studentName.value}_${new Date().toISOString().split('T')[0]}`);
+    exportReport(exportRef.value, `个人服务报告_${studentName.value}_${new Date().toISOString().split('T')[0]}`);
   }
 };
 </script>
 
 <template>
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-24 font-sans">
-    <NavBar title="个人营期报告" :on-back="store.goBack">
+    <NavBar title="个人服务报告" :on-back="store.goBack">
       <template #right>
         <button v-if="canView" class="text-[#0EA5E9] hover:bg-green-50 p-2 rounded-full transition-colors" @click="exportPDF">
           <Download class="h-5 w-5" />
@@ -233,10 +233,10 @@ const exportPDF = () => {
       </template>
     </NavBar>
 
-    <!-- 营期切换（学员在多个营期时显示） -->
+    <!-- 服务批次切换（学员在多个服务批次时显示） -->
     <div v-if="studentCamps.length > 1" class="bg-white px-4 py-2.5 flex items-center justify-between border-b border-gray-100">
       <div>
-        <span class="text-xs text-gray-500">当前营期：</span>
+        <span class="text-xs text-gray-500">当前服务批次：</span>
         <span class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '未选择' }}</span>
       </div>
       <button class="text-xs text-[#0EA5E9] border border-[#0EA5E9] px-2.5 py-1 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
@@ -244,26 +244,26 @@ const exportPDF = () => {
       </button>
     </div>
 
-    <!-- 营期未结束：显示锁定状态 -->
+    <!-- 服务批次未结束：显示锁定状态 -->
     <div v-if="!canView" class="flex-1 flex flex-col items-center justify-center px-6 text-center">
       <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
         <Lock class="w-10 h-10 text-gray-400" />
       </div>
-      <h3 class="text-lg font-bold text-gray-700 mb-2">个人营期报告尚未生成</h3>
+      <h3 class="text-lg font-bold text-gray-700 mb-2">个人服务报告尚未生成</h3>
       <p class="text-sm text-gray-500 leading-relaxed">
-        你的营期（{{ campInfo?.name || '当前期' }}）预计于
+        你的服务批次（{{ campInfo?.name || '当前期' }}）预计于
         <span class="font-medium text-gray-700">{{ campInfo?.endDate || '--' }}</span>
-        结束，届时将自动生成个人营期报告。
+        结束，届时将自动生成个人服务报告。
       </p>
     </div>
 
-    <!-- 营期已结束：显示完整报告 -->
+    <!-- 服务批次已结束：显示完整报告 -->
     <div v-else ref="exportRef" class="p-4 space-y-4">
       <!-- 顶部鼓励卡片 -->
       <div class="bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] rounded-2xl p-5 text-white shadow-lg">
         <div class="flex items-center gap-2 mb-3">
           <Trophy class="w-6 h-6" />
-          <h2 class="text-lg font-bold">个人营期报告</h2>
+          <h2 class="text-lg font-bold">个人服务报告</h2>
         </div>
         <p class="text-sm leading-relaxed opacity-95">{{ encouragement }}</p>
         <div class="flex gap-4 mt-4 text-center">
@@ -287,7 +287,7 @@ const exportPDF = () => {
         <template v-if="report.weightTrend.records.length > 0">
           <div class="flex items-center justify-between mb-4">
             <div class="text-center">
-              <div class="text-xs text-gray-500 mb-1">开营前</div>
+              <div class="text-xs text-gray-500 mb-1">开班前</div>
               <div class="text-xl font-bold text-gray-900">{{ fmt(report.weightTrend.startWeight) }} <span class="text-xs text-gray-400">kg</span></div>
             </div>
             <div class="flex-1 mx-4 text-center">
@@ -297,7 +297,7 @@ const exportPDF = () => {
               <div class="text-xs text-gray-400 mt-1">{{ report.weightTrend.changePercent !== null ? `${Math.abs(report.weightTrend.changePercent).toFixed(1)}%` : '--' }}</div>
             </div>
             <div class="text-center">
-              <div class="text-xs text-gray-500 mb-1">结营后</div>
+              <div class="text-xs text-gray-500 mb-1">结业后</div>
               <div class="text-xl font-bold text-gray-900">{{ fmt(report.weightTrend.endWeight) }} <span class="text-xs text-gray-400">kg</span></div>
             </div>
           </div>
@@ -359,7 +359,7 @@ const exportPDF = () => {
             </div>
           </div>
         </div>
-        <div v-else class="text-center text-sm text-gray-400 py-6">本营期暂无体成分检测数据</div>
+        <div v-else class="text-center text-sm text-gray-400 py-6">本服务批次暂无体成分检测数据</div>
       </Card>
 
       <!-- 打卡统计 -->
@@ -450,7 +450,7 @@ const exportPDF = () => {
         </h3>
         <div class="flex items-center justify-between mb-2 text-sm">
           <span class="text-gray-500">目标 <span class="font-bold text-gray-900">{{ targetInfo.target }}kg</span></span>
-          <span class="text-gray-500">结营 <span class="font-bold text-gray-900">{{ fmt(targetInfo.end) }}kg</span></span>
+          <span class="text-gray-500">结业 <span class="font-bold text-gray-900">{{ fmt(targetInfo.end) }}kg</span></span>
         </div>
         <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden mb-2">
           <div
@@ -503,10 +503,10 @@ const exportPDF = () => {
       </div>
     </div>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round>
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             v-for="camp in studentCamps"

@@ -12,7 +12,7 @@ import { exportReport } from '../lib/exportPDF';
 
 const store = useAppStore();
 
-// ─── 营期切换（多期时显示） ──────────────────────────────
+// ─── 服务批次切换（多期时显示） ──────────────────────────────
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {
@@ -24,7 +24,7 @@ const activeCampId = computed(() => {
 const activeCamp = computed(() => store.camps.find((c) => c.id === activeCampId.value) || null);
 const campDays = computed(() => campDaysOf(activeCamp.value));
 
-// 按营期过滤打卡记录
+// 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
@@ -60,7 +60,7 @@ const journey = computed(() =>
   generatePersonalJourney(studentDiets.value, studentExercises.value, studentWeights.value, studentId.value),
 );
 
-// 生成成就（复用结营报告的成就计算）
+// 生成成就（复用结业报告的成就计算）
 const report = computed(() =>
   generateStudentReport(
     { id: studentId.value, name: studentName.value, gender: studentGender.value },
@@ -162,7 +162,7 @@ const exportPDF = () => {
       </template>
     </NavBar>
 
-    <!-- 个人营期报告入口（置顶，由完结/数据指标自动生成） -->
+    <!-- 个人服务报告入口（置顶，由完结/数据指标自动生成） -->
     <div class="px-4 pt-4">
       <Card class="bg-gradient-to-r from-[#0EA5E9]/10 to-[#0EA5E9]/5 border-[#0EA5E9]/20 cursor-pointer hover:shadow-md transition-shadow" @click="store.setCurrentView('camp-report')">
         <div class="flex items-center gap-3">
@@ -171,7 +171,7 @@ const exportPDF = () => {
           </div>
           <div class="flex-1">
             <div class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
-              个人营期报告
+              个人服务报告
             </div>
             <div class="text-xs text-gray-500 mt-0.5">
               报告由你的打卡与健康数据自动生成，可随时查看

@@ -10,7 +10,7 @@ import { formatDateTime } from '../lib/utils';
 const store = useAppStore();
 const today = new Date();
 
-// ─── 营期切换（多期时显示） ──────────────────────────────
+// ─── 服务批次切换（多期时显示） ──────────────────────────────
 const availableCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 const activeCampId = computed(() => {
   if (store.selectedCampId && availableCamps.value.some(c => c.id === store.selectedCampId)) {
@@ -20,26 +20,26 @@ const activeCampId = computed(() => {
   return active?.id || availableCamps.value[0]?.id || null;
 });
 
-// 按营期过滤打卡记录
+// 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
 
-// ─── 营期未开始：禁止打卡入口 ─────────────────────────────
+// ─── 服务批次未开始：禁止打卡入口 ─────────────────────────────
 const activeCamp = computed(() => availableCamps.value.find(c => c.id === activeCampId.value) || null);
 const campNotStarted = computed(() => activeCamp.value ? !store.isCampStarted(activeCamp.value) : false);
 const campNotStartedText = computed(() => {
   const camp = activeCamp.value;
-  if (camp?.startDate) return `营期尚未开始（${camp.startDate} 开营），暂不能打卡`;
-  return '营期尚未开始，暂不能打卡';
+  if (camp?.startDate) return `服务批次尚未开始（${camp.startDate} 开班），暂不能打卡`;
+  return '服务批次尚未开始，暂不能打卡';
 });
-// 营期拦截：未开始时报提示
+// 服务批次拦截：未开始时报提示
 function guardCheckin(): boolean {
   if (campNotStarted.value) { showToast(campNotStartedText.value); return false; }
   return true;
 }
 
-// ─── 营期日期标注 ──────────────────────────────────────────
+// ─── 服务批次日期标注 ──────────────────────────────────────────
 const myCamps = computed(() => store.user ? store.getStudentCamps(store.user.id) : []);
 
 interface CampMarker {
@@ -62,7 +62,7 @@ const getCampMarker = (date: Date): CampMarker | null => {
   return campMarkers.value.find(m => m.date === dStr) || null;
 };
 
-/** 判断日期是否在某个营期范围内 */
+/** 判断日期是否在某个服务批次范围内 */
 const isInCampPeriod = (date: Date): boolean => {
   const dStr = format(date, 'yyyy-MM-dd');
   return myCamps.value.some(c => {
@@ -124,7 +124,7 @@ const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 const isSelectedToday = computed(() => isSameDay(selectedDate.value, today));
 const goCheckin = (view: 'diet' | 'exercise' | 'weight-checkin') => {
   if (!isSelectedToday.value) return;
-  if (!guardCheckin()) return; // 营期未开始时拦截
+  if (!guardCheckin()) return; // 服务批次未开始时拦截
   store.setCurrentView(view);
 };
 
@@ -176,9 +176,9 @@ onMounted(() => {
               {{ format(d, 'd') }}
             </span>
             <div class="flex gap-0.5 mt-0.5 items-center justify-center">
-              <!-- 营期标注：开营/结营 -->
-              <span v-if="getCampMarker(d)?.type === 'start'" class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded leading-tight">开营</span>
-              <span v-else-if="getCampMarker(d)?.type === 'end'" class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded leading-tight">结营</span>
+              <!-- 服务批次标注：开班/结业 -->
+              <span v-if="getCampMarker(d)?.type === 'start'" class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded leading-tight">开班</span>
+              <span v-else-if="getCampMarker(d)?.type === 'end'" class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded leading-tight">结业</span>
               <!-- Partial: show 5 dots (done=colored, missing=gray) -->
               <template v-else-if="!getStatus(d).completed && getStatus(d).completedCount > 0">
                 <div :class="['w-1 h-1 rounded-full', getStatus(d).hasBreakfast ? 'bg-[#FF976A]' : 'bg-gray-200']" />
@@ -206,9 +206,9 @@ onMounted(() => {
             <span class="text-xs text-gray-500 ml-0.5">部分完成</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded">开营</span>
-            <span class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded">结营</span>
-            <span class="text-xs text-gray-500">营期标注</span>
+            <span class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded">开班</span>
+            <span class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded">结业</span>
+            <span class="text-xs text-gray-500">服务批次标注</span>
           </div>
         </div>
       </Card>

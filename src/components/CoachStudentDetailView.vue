@@ -18,7 +18,7 @@ import { buildMedicalData, isValueOutOfRange, type MedicalCategory, type Indicat
 const store = useAppStore();
 const student = computed(() => MOCK_STUDENTS.find(s => s.id === store.selectedStudentId));
 
-// ─── 营期切换 ───
+// ─── 服务批次切换 ───
 const studentCamps = computed(() => store.selectedStudentId ? store.getStudentCamps(store.selectedStudentId) : []);
 const selectedCampId = ref<string>('');
 const showCampPicker = ref(false);
@@ -27,10 +27,10 @@ const selectedCamp = computed(() => studentCamps.value.find(c => c.id === select
 watch(() => store.selectedStudentId, (id) => {
   if (id) {
     if (store.detailSelectedCampId && studentCamps.value.some(c => c.id === store.detailSelectedCampId)) {
-      // 详情流已选营期 -> 继承（不影响全局）
+      // 详情流已选服务批次 -> 继承（不影响全局）
       selectedCampId.value = store.detailSelectedCampId;
     } else if (!store.detailSelectedCampId) {
-      // 全部营期模式 -> 不选具体营期，展示全部数据（有意保留跨营合并视图，不默认回落最新一期）
+      // 全部服务批次模式 -> 不选具体服务批次，展示全部数据（有意保留跨营合并视图，不默认回落最新一期）
       selectedCampId.value = '';
     } else {
       const campId = store.getStudentCampId(id);
@@ -43,7 +43,7 @@ watch(selectedCampId, (newId) => {
   store.detailSelectedCampId = newId || null;
 });
 
-// 按营期过滤运动记录
+// 按服务批次过滤运动记录
 const campExerciseRecords = computed(() => {
   if (!selectedCampId.value) return store.exerciseRecords;
   return store.getCampExerciseRecords(selectedCampId.value);
@@ -204,7 +204,7 @@ onActivated(consumePendingAnnotation);
   <div v-else class="flex min-h-full flex-col bg-[#F7F8FA] pb-safe relative font-sans">
     <NavBar :title="`${student.name} 的运动档案`" :on-back="store.goBack" />
 
-    <!-- 学员信息 + 营期切换 -->
+    <!-- 学员信息 + 服务批次切换 -->
     <div class="bg-white px-4 pt-4 border-b border-gray-200 space-y-4">
       <Card class="flex items-center justify-between p-4 bg-[#0EA5E9]/5 border-[#0EA5E9]/20">
         <div class="flex items-center space-x-3">
@@ -220,11 +220,11 @@ onActivated(consumePendingAnnotation);
         </div>
       </Card>
 
-      <!-- 营期切换 -->
+      <!-- 服务批次切换 -->
       <div v-if="studentCamps.length >= 1" class="bg-white px-4 py-2.5 flex items-center justify-between rounded-xl border border-gray-100 mb-4">
         <div>
-          <span class="text-xs text-gray-500">当前营期：</span>
-          <span class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '全部营期' }}</span>
+          <span class="text-xs text-gray-500">当前服务批次：</span>
+          <span class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '全部服务批次' }}</span>
         </div>
         <button class="text-xs text-[#0EA5E9] border border-[#0EA5E9] px-2.5 py-1 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
           切换
@@ -537,7 +537,7 @@ onActivated(consumePendingAnnotation);
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="bg-gray-50 p-2 rounded flex flex-col justify-center items-center">
-                  <span class="text-[10px] text-gray-500 mb-1">开营前</span>
+                  <span class="text-[10px] text-gray-500 mb-1">开班前</span>
                   <div class="text-sm w-full flex justify-center">
                     <span :class="item.isBeforeOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">
                       <span v-if="item.beforeValue === null" class="text-gray-400 font-normal">-- 未上传</span>
@@ -547,7 +547,7 @@ onActivated(consumePendingAnnotation);
                   </div>
                 </div>
                 <div class="bg-[#0EA5E9]/5 p-2 rounded flex flex-col justify-center items-center border border-[#0EA5E9]/10">
-                  <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结营后</span>
+                  <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结业后</span>
                   <div class="text-sm w-full flex justify-center">
                     <span :class="item.isAfterOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">
                       <span v-if="item.afterValue === null" class="text-gray-400 font-normal">-- 待更新</span>
@@ -626,16 +626,16 @@ onActivated(consumePendingAnnotation);
       </div>
     </template>
 
-    <!-- 营期选择弹窗 -->
+    <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round class="custom-popup">
       <div class="p-4">
-        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择营期</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-3 text-center">选择服务批次</h3>
         <div class="space-y-2">
           <button
             @click="selectedCampId = ''; showCampPicker = false"
             :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', !selectedCampId ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
           >
-            <span class="font-medium">全部营期</span>
+            <span class="font-medium">全部服务批次</span>
             <span class="text-xs text-gray-400">合并显示</span>
           </button>
           <button
