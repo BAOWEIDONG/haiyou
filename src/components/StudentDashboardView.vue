@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Calendar, Scale, PlayCircle, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, Stethoscope, FileSearch, MessageSquareText, Newspaper } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, PlayCircle, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, Stethoscope, FileSearch, MessageSquareText, Newspaper } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 
@@ -434,42 +434,7 @@ onMounted(() => {
               </div>
               <div>
                 <div class="text-sm font-bold text-gray-900">健康答疑</div>
-                <div class="text-[11px] text-gray-500 mt-0.5">给医生留言</div>
-              </div>
-            </div>
-          </Card>
-
-          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('knowledge')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-purple-100/50 to-purple-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center text-purple-500 mb-2 shadow-sm">
-                <Newspaper class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">知识订阅</div>
-                <div class="text-[11px] text-gray-500 mt-0.5">健康科普图文</div>
-              </div>
-            </div>
-          </Card>
-
-        </div>
-      </div>
-
-      <div>
-        <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5 mt-2">
-          <div class="w-1.5 h-4 bg-[#0284C7] rounded-full"></div>
-          服务批次回顾与指导
-        </h3>
-        <div class="grid grid-cols-2 gap-3">
-          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('calendar')">
-            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-orange-100/50 to-orange-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center text-orange-500 mb-2 shadow-sm">
-                <Calendar class="h-5 w-5" />
-              </div>
-              <div>
-                <div class="text-sm font-bold text-gray-900">打卡日历</div>
-                <div class="text-[11px] text-gray-500 mt-0.5">查看历史记录</div>
+                <div class="text-[11px] text-gray-500 mt-0.5">给营养师留言</div>
               </div>
             </div>
           </Card>
@@ -487,6 +452,20 @@ onMounted(() => {
             </div>
           </Card>
 
+          <Card class="p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm flex flex-col justify-between h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('knowledge')">
+            <div class="absolute -top-8 -right-6 w-32 h-32 bg-gradient-to-br from-purple-100/50 to-purple-50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center text-purple-500 mb-2 shadow-sm">
+                <Newspaper class="h-5 w-5" />
+              </div>
+              <div>
+                <div class="text-sm font-bold text-gray-900">知识订阅</div>
+                <div class="text-[11px] text-gray-500 mt-0.5">健康科普图文</div>
+              </div>
+            </div>
+          </Card>
+
+          <!-- 个人历程（健康服务底部） -->
           <Card class="col-span-2 p-5 cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm h-32 bg-white relative overflow-hidden" @click="store.setCurrentView('personal-journey')">
             <div class="absolute -top-10 -right-8 w-44 h-44 bg-gradient-to-br from-[#0EA5E9]/12 to-green-50 rounded-full blur-2xl pointer-events-none"></div>
             <div class="absolute -bottom-14 -right-2 w-36 h-36 bg-gradient-to-br from-teal-50 to-[#0EA5E9]/8 rounded-full blur-2xl pointer-events-none"></div>
