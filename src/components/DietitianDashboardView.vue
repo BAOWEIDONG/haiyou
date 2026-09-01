@@ -3,11 +3,10 @@ import { ref, computed, watch } from 'vue';
 import { usePaged } from '../composables/usePaged';
 import { useDebounced } from '../composables/useDebounced';
 import { useAppStore } from '../store/app';
-import { useDietitianCounts } from '../lib/dietitianCounts';
 import { campDateRange } from '../lib/camps';
-import { Card } from './ui';
-import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, FileText, Settings, ChevronDown } from 'lucide-vue-next';
-import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem, Popup as VanPopup } from 'vant';
+import { Card, DietitianTabbar } from './ui';
+import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown } from 'lucide-vue-next';
+import { Popup as VanPopup } from 'vant';
 
 const store = useAppStore();
 
@@ -44,9 +43,6 @@ const campExerciseRecords = computed(() => activeCampId.value ? store.getCampExe
 const dDietRecords = useDebounced(campDietRecords);
 const dExerciseRecords = useDebounced(campExerciseRecords);
 const dWeightRecords = useDebounced(campWeightRecords);
-
-// 底部 Tabbar 角标：批注=待批注数（各营养师页面共用口径）
-const { unannotatedCount } = useDietitianCounts();
 
 const _now = new Date();
 const todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
@@ -212,21 +208,8 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
         </div>
     </div>
 
-    <!-- Bottom Nav (Vant Tabbar) -->
-    <VanTabbar class="custom-tabbar tabbar-orange" :model-value="0">
-      <VanTabbarItem>
-        <template #icon><Users class="h-6 w-6" /></template>
-        首页
-      </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('dietitian-unannotated-list')" :badge="unannotatedCount > 0 ? unannotatedCount : undefined">
-        <template #icon><FileText class="h-6 w-6" /></template>
-        批注
-      </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('dietitian-config')">
-        <template #icon><Settings class="h-6 w-6" /></template>
-        配置
-      </VanTabbarItem>
-    </VanTabbar>
+    <!-- Bottom Nav (shared 营养师 tabbar) -->
+    <DietitianTabbar anchor="workbench" printHidden />
 
     <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round class="custom-popup">

@@ -2,11 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { useAppStore } from '../store/app';
 import { campDateRange, latestOrFirstId } from '../lib/camps';
-import { useDietitianCounts } from '../lib/dietitianCounts';
 import { usePaged } from '../composables/usePaged';
-import { UserCircle, Coffee, Clock, Activity, Scale, Video, ChevronDown, FileText, Settings, Users } from 'lucide-vue-next';
-import { Popup as VanPopup, Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
+import { UserCircle, Coffee, Clock, Activity, Scale, Video, ChevronDown } from 'lucide-vue-next';
+import { Popup as VanPopup } from 'vant';
 import type { DietRecord, WeightRecord } from '../types';
+import { DietitianTabbar } from './ui';
 
 const MEAL_TYPES = [
   { id: 'breakfast', label: '早餐' },
@@ -33,9 +33,6 @@ interface UnifiedItem {
 }
 
 const store = useAppStore();
-
-// ─── 底部 Tabbar 角标：批注=待批注数，配置=发放中心待发货数（各营养师页面共用口径） ───
-const { unannotatedCount, fulfillmentPendingCount } = useDietitianCounts();
 
 // ─── 服务批次切换（实时读 store.selectedCampId，与教练端口径一致；KeepAlive 缓存视图不再存本地快照） ───
 const selectedCampId = computed<string>({
@@ -340,20 +337,7 @@ const typeConfig: Record<ItemType, { label: string; bg: string; text: string; ic
       </div>
     </VanPopup>
 
-    <!-- Bottom Nav -->
-    <VanTabbar class="custom-tabbar tabbar-orange" :model-value="1">
-      <VanTabbarItem @click="store.setCurrentView('dietitian-dashboard')">
-        <template #icon><Users class="h-6 w-6" /></template>
-        首页
-      </VanTabbarItem>
-      <VanTabbarItem :badge="unannotatedCount > 0 ? unannotatedCount : undefined">
-        <template #icon><FileText class="h-6 w-6" /></template>
-        批注
-      </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('dietitian-config')" :badge="fulfillmentPendingCount > 0 ? fulfillmentPendingCount : undefined">
-        <template #icon><Settings class="h-6 w-6" /></template>
-        配置
-      </VanTabbarItem>
-    </VanTabbar>
+    <!-- Bottom Nav (shared 营养师 tabbar) -->
+    <DietitianTabbar anchor="annotate" printHidden />
   </div>
 </template>

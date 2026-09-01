@@ -71,7 +71,7 @@ const reply = (id: string) => {
                 :class="['p-3 rounded-xl text-[13px] leading-relaxed', ex.side === 'doctor' ? 'bg-[#0EA5E9]/8 ml-6' : 'bg-gray-100 mr-6']"
               >
                 <div class="text-[10px] text-gray-400 mb-1">
-                  {{ ex.side === 'doctor' ? '医生 · ' + ex.authorName : ex.authorName }} · {{ ex.createdAt.slice(5, 16) }}
+                  {{ ex.side === 'doctor' ? '营养师 · ' + ex.authorName : ex.authorName }} · {{ ex.createdAt.slice(5, 16) }}
                 </div>
                 {{ ex.text }}
               </div>

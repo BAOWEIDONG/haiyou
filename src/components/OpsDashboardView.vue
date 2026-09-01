@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
-import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
+import { DietitianTabbar } from './ui';
 import { Building2, LogOut, Users, Package, UserCheck, BarChart3, Newspaper, PhoneCall, ShieldCheck } from 'lucide-vue-next';
 
 const store = useAppStore();
@@ -32,8 +32,8 @@ const openReferralCount = computed(() => store.getOpenReferrals().length);
           <Building2 class="h-6 w-6 text-white" />
         </div>
         <div>
-          <h2 class="text-xl font-bold text-gray-900">医院运营端</h2>
-          <p class="text-xs text-gray-500 mt-0.5">{{ store.user?.name || '运营管理员' }} · 服务包与团队后台</p>
+          <h2 class="text-xl font-bold text-gray-900">管理台</h2>
+          <p class="text-xs text-gray-500 mt-0.5">{{ store.user?.name || '平台管理员' }} · 服务包与团队后台</p>
         </div>
       </div>
     </div>
@@ -58,19 +58,11 @@ const openReferralCount = computed(() => store.getOpenReferrals().length);
       </div>
 
       <div class="rounded-xl bg-white/50 border border-gray-100 p-3 text-[11px] text-gray-400 leading-relaxed">
-        医院运营端为后台管理（团队/服务包/看板/内容/合规）。个人健康数据默认脱敏，企业仅见聚合履约看板。
+        管理台为平台后台（团队/服务包/看板/内容/合规）。个人健康数据默认脱敏，企业仅见聚合履约看板。
       </div>
     </div>
 
-    <VanTabbar class="custom-tabbar tabbar-purple" :model-value="0">
-      <VanTabbarItem>
-        <template #icon><Building2 class="h-6 w-6" /></template>
-        运营台
-      </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('ops-referral-ledger')">
-        <template #icon><PhoneCall class="h-6 w-6" /></template>
-        线索
-      </VanTabbarItem>
-    </VanTabbar>
+    <!-- Bottom Nav (shared 营养师 tabbar) -->
+    <DietitianTabbar anchor="manage" printHidden />
   </div>
 </template>

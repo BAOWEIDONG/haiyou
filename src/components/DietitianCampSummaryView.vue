@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useAppStore } from '../store/app';
-import { useDietitianCounts } from '../lib/dietitianCounts';
 import { campDateRange, latestOrFirstId, campDaysOf } from '../lib/camps';
 import { useDeferred } from '../composables/useDeferred';
-import { NavBar, Card } from './ui';
-import { BarChart3, TrendingDown, Users, Activity, ChevronRight, Download, UserCheck, Building2, FileText, Settings, Flame } from 'lucide-vue-next';
-import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem, Popup as VanPopup } from 'vant';
+import { NavBar, Card, DietitianTabbar } from './ui';
+import { BarChart3, TrendingDown, Users, Activity, ChevronRight, Download, UserCheck, Building2, Flame } from 'lucide-vue-next';
+import { Popup as VanPopup } from 'vant';
 import { MOCK_STUDENT_METRIC_VALUES } from '../mock/data';
 import { generateDietitianSummary } from '../lib/campReport';
 import { exportReport } from '../lib/exportPDF';
 import type { DietitianCampSummary } from '../types';
 
 const store = useAppStore();
-// 底部 Tabbar 角标：批注=待批注数，配置=发放中心待发货数（各营养师页面共用口径）
-const { unannotatedCount, fulfillmentPendingCount } = useDietitianCounts();
 
 // ─── 服务批次切换（默认最新一期） ───
 const selectedCampId = ref<string>(latestOrFirstId(store.camps) || '');
@@ -334,20 +331,7 @@ const fmtChange = (v: number | null, unit = ''): string => {
       </div>
     </VanPopup>
 
-    <VanTabbar class="custom-tabbar tabbar-orange print:hidden" :model-value="2">
-      <VanTabbarItem @click="store.setCurrentView('dietitian-dashboard')">
-        <template #icon><Users class="h-6 w-6" /></template>
-        首页
-      </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('dietitian-unannotated-list')" :badge="unannotatedCount > 0 ? unannotatedCount : undefined">
-        <template #icon><FileText class="h-6 w-6" /></template>
-        批注
-      </VanTabbarItem>
-      <VanTabbarItem :badge="fulfillmentPendingCount > 0 ? fulfillmentPendingCount : undefined">
-        <template #icon><Settings class="h-6 w-6" /></template>
-        配置
-      </VanTabbarItem>
-    </VanTabbar>
+    <DietitianTabbar anchor="config" printHidden />
   </div>
 </template>
 

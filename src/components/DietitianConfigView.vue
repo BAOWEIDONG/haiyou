@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
-import { useDietitianCounts } from '../lib/dietitianCounts';
-import { Card } from './ui';
+import { Card, DietitianTabbar } from './ui';
 import { Trophy, FileText, Users, ChevronRight, Settings } from 'lucide-vue-next';
-import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
 
 const store = useAppStore();
-
-// ─── 底部 Tabbar 角标：批注=待批注数（各营养师页面共用口径） ───
-const { unannotatedCount } = useDietitianCounts();
 
 interface ConfigItem {
   view: string;
@@ -68,20 +63,7 @@ const configItems = computed<ConfigItem[]>(() => [
       </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <VanTabbar class="custom-tabbar tabbar-orange" :model-value="2">
-      <VanTabbarItem @click="store.setCurrentView('dietitian-dashboard')">
-        <template #icon><Users class="h-6 w-6" /></template>
-        首页
-      </VanTabbarItem>
-      <VanTabbarItem @click="store.setCurrentView('dietitian-unannotated-list')" :badge="unannotatedCount > 0 ? unannotatedCount : undefined">
-        <template #icon><FileText class="h-6 w-6" /></template>
-        批注
-      </VanTabbarItem>
-      <VanTabbarItem>
-        <template #icon><Settings class="h-6 w-6" /></template>
-        配置
-      </VanTabbarItem>
-    </VanTabbar>
+    <!-- Bottom Nav (shared 营养师 tabbar) -->
+    <DietitianTabbar anchor="config" printHidden />
   </div>
 </template>

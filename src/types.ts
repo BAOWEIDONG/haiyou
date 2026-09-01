@@ -1,12 +1,10 @@
-export type Role = 'student' | 'coach' | 'dietitian' | 'doctor' | 'ops';
+export type Role = 'student' | 'coach' | 'dietitian';
 
-/** 角色对外展示名（用户端/医疗团队端/运营端各入口共用） */
+/** 角色对外展示名（用户端/健康服务团队端共用） */
 export const ROLE_LABEL: Record<Role, string> = {
   student: '学员',
   coach: '康复教练',
   dietitian: '营养师',
-  doctor: '医生',
-  ops: '医院运营',
 };
 
 // ============================================================================

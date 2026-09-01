@@ -1,0 +1,73 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import { Users, FileText, Stethoscope, Building2, Settings } from 'lucide-vue-next';
+import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
+import { useAppStore } from '../../store/app';
+import { useDietitianCounts } from '../../lib/dietitianCounts';
+import type { View } from '../../store/app';
+
+/**
+ * 营养师端底部主导航（工作台/批注/服务/管理/配置）。医生端与运营端已并入营养师，
+ * 「服务」= 报告解读/答疑/预警/随访工作台，「管理」= 平台运营（账号/服务包/用户/看板/内容/合规）。
+ * 共用组件杜绝手写高亮索引复制错位。
+ */
+type Anchor = 'workbench' | 'annotate' | 'service' | 'manage' | 'config';
+
+const props = defineProps<{
+  anchor: Anchor;
+  printHidden?: boolean; // 打印/长图导出时隐藏底部栏
+}>();
+
+const store = useAppStore();
+const { unannotatedCount } = useDietitianCounts();
+
+const ICONS: Record<Anchor, typeof Users> = {
+  workbench: Users,
+  annotate: FileText,
+  service: Stethoscope,
+  manage: Building2,
+  config: Settings,
+};
+
+const tabs: { key: Anchor; label: string }[] = [
+  { key: 'workbench', label: '工作台' },
+  { key: 'annotate', label: '批注' },
+  { key: 'service', label: '服务' },
+  { key: 'manage', label: '管理' },
+  { key: 'config', label: '配置' },
+];
+
+const modelValue = computed(() => {
+  const i = tabs.findIndex((t) => t.key === props.anchor);
+  return i < 0 ? 0 : i;
+});
+
+function go(key: Anchor) {
+  const target: Record<Anchor, View> = {
+    workbench: 'dietitian-dashboard',
+    annotate: 'dietitian-unannotated-list',
+    service: 'doctor-dashboard',
+    manage: 'ops-dashboard',
+    config: 'dietitian-config',
+  };
+  store.setCurrentView(target[key]);
+}
+</script>
+
+<template>
+  <VanTabbar
+    class="custom-tabbar tabbar-orange"
+    :class="printHidden ? 'print:hidden' : ''"
+    :model-value="modelValue"
+  >
+    <VanTabbarItem
+      v-for="t in tabs"
+      :key="t.key"
+      @click="go(t.key)"
+      :badge="t.key === 'annotate' && anchor !== 'annotate' ? unannotatedCount > 0 ? unannotatedCount : undefined : undefined"
+    >
+      <template #icon><component :is="ICONS[t.key]" class="h-6 w-6" /></template>
+      {{ t.label }}
+    </VanTabbarItem>
+  </VanTabbar>
+</template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
-import { NavBar as VanNavBar, Tabbar as VanTabbar, TabbarItem as VanTabbarItem } from 'vant';
+import { DietitianTabbar } from './ui';
 import {
   LogOut, FileSearch, MessageSquareText, ShieldAlert, CalendarClock, Users,
 } from 'lucide-vue-next';
@@ -12,10 +12,6 @@ const pendingInterpretations = computed(() => store.getPendingInterpretations())
 const pendingThreads = computed(() => store.getPendingThreads());
 const openReferrals = computed(() => store.getOpenReferrals());
 const openFollowups = computed(() => store.getOpenFollowups());
-
-const teamCount = computed(() =>
-  store.accounts.filter((a) => a.active && (a.role === 'doctor' || a.role === 'dietitian' || a.role === 'coach')).length,
-);
 
 const queues = computed(() => [
   {
@@ -72,8 +68,8 @@ const open = (target: string) => store.setCurrentView(target as never);
           <Users class="h-6 w-6 text-white" />
         </div>
         <div>
-          <h2 class="text-xl font-bold text-gray-900">医生您好，{{ store.user?.name || '专家' }}</h2>
-          <p class="text-xs text-gray-500 mt-0.5">减重健康管理团队 · {{ teamCount }} 人协同</p>
+          <h2 class="text-xl font-bold text-gray-900">服务台</h2>
+          <p class="text-xs text-gray-500 mt-0.5">报告解读 · 答疑 · 预警转介 · 随访 · 团队协同</p>
         </div>
       </div>
     </div>
@@ -105,7 +101,7 @@ const open = (target: string) => store.setCurrentView(target as never);
       <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 p-4 shadow-sm">
         <div class="text-sm font-bold text-gray-900 mb-2">团队协同分工</div>
         <ul class="space-y-2 text-[12px] text-gray-600 leading-relaxed">
-          <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">医生 ·</span>报告健康解读、异步答疑、异常预警处置、随访、科普</li>
+          <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">营养师 ·</span>报告健康解读、异步答疑、异常预警处置、随访、科普</li>
           <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">营养师 ·</span>饮食方案 + 饮食执行反馈</li>
           <li class="flex gap-2"><span class="text-[#FF976A] font-bold">康复教练 ·</span>运动/康复处方 + 执行反馈 + 康复教学</li>
         </ul>
@@ -115,27 +111,7 @@ const open = (target: string) => store.setCurrentView(target as never);
       </div>
     </div>
 
-    <VanTabbar class="custom-tabbar tabbar-blue" :model-value="0">
-      <VanTabbarItem>
-        <template #icon><Users class="h-6 w-6" /></template>
-        工作台
-      </VanTabbarItem>
-      <VanTabbarItem @click="open('doctor-interpretation')">
-        <template #icon><FileSearch class="h-6 w-6" /></template>
-        解读
-      </VanTabbarItem>
-      <VanTabbarItem @click="open('doctor-consult')">
-        <template #icon><MessageSquareText class="h-6 w-6" /></template>
-        答疑
-      </VanTabbarItem>
-      <VanTabbarItem @click="open('doctor-referral')">
-        <template #icon><ShieldAlert class="h-6 w-6" /></template>
-        预警
-      </VanTabbarItem>
-      <VanTabbarItem @click="open('doctor-followup')">
-        <template #icon><CalendarClock class="h-6 w-6" /></template>
-        随访
-      </VanTabbarItem>
-    </VanTabbar>
+    <!-- Bottom Nav (shared 营养师 tabbar) -->
+    <DietitianTabbar anchor="service" printHidden />
   </div>
 </template>

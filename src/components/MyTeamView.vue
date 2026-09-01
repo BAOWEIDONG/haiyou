@@ -16,7 +16,7 @@ const roleColor: Record<string, { bg: string; icon: any }> = {
 
 // 我的医生团队：本院已激活的医生/营养师/康复教练（医院×企业服务团队成员）
 const myTeam = computed(() =>
-  store.accounts.filter((a) => a.active && (a.role === 'doctor' || a.role === 'dietitian' || a.role === 'coach')),
+  store.accounts.filter((a) => a.active && (a.role === 'dietitian' || a.role === 'coach')),
 );
 
 const risk = computed(() => (store.user ? store.getRiskPortrait(store.user.id) : undefined));

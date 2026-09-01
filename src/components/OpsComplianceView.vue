@@ -10,7 +10,7 @@ const authorized = computed(() =>
   store.accounts.filter((a) => a.role === 'student').length,
 );
 const staffRoles = computed(() =>
-  store.accounts.filter((a) => a.active && (a.role === 'doctor' || a.role === 'dietitian' || a.role === 'coach' || a.role === 'ops')).length,
+  store.accounts.filter((a) => a.active && (a.role === 'dietitian' || a.role === 'coach')).length,
 );
 
 const boundary = [

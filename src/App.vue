@@ -71,10 +71,8 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
 // 各角色底部 tab 与常用子页（角色预取，配合下方全量预取双保险）
 const ROLE_TABS: Record<string, string[]> = {
   student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'knowledge'],
-  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage'],
+  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-dashboard', 'doctor-interpretation', 'doctor-consult', 'doctor-referral', 'doctor-followup', 'ops-dashboard', 'ops-referral-ledger', 'ops-service-pack', 'ops-users', 'ops-content', 'ops-compliance', 'enterprise-report'],
   coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload', 'activities-list'],
-  doctor: ['doctor-dashboard', 'doctor-interpretation', 'doctor-consult', 'doctor-referral', 'doctor-followup'],
-  ops: ['ops-dashboard', 'ops-referral-ledger', 'ops-service-pack', 'ops-users', 'ops-content', 'ops-compliance', 'account-manage', 'enterprise-report'],
 };
 let prefetchedRole = false;
 let prefetchedAll = false;

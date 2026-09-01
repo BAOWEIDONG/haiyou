@@ -345,10 +345,6 @@ export const useAppStore = defineStore('app', () => {
           viewHistory.value = ['coach-dashboard'];
         } else if (data.user.role === 'dietitian') {
           viewHistory.value = ['dietitian-dashboard'];
-        } else if (data.user.role === 'doctor') {
-          viewHistory.value = ['doctor-dashboard'];
-        } else if (data.user.role === 'ops') {
-          viewHistory.value = ['ops-dashboard'];
         } else {
           // 学员：已填问卷 -> 首页，未填 -> 问卷页
           viewHistory.value = [qSaved ? 'dashboard' : 'questionnaire'];
@@ -781,10 +777,10 @@ export const useAppStore = defineStore('app', () => {
     if (!req) return;
     const now = formatDateTimeStr();
     req.status = 'answered';
-    req.doctorId = user.value?.id || 'doc1';
-    req.doctorName = user.value?.name || '医生';
+    req.doctorId = user.value?.id || 'd1';
+    req.doctorName = user.value?.name || '营养师';
     req.answeredAt = now;
-    req.exchanges.push({ text, authorName: user.value?.name || '医生', side: 'doctor', createdAt: now });
+    req.exchanges.push({ text, authorName: user.value?.name || '营养师', side: 'doctor', createdAt: now });
     req.read = false;
   }
 
@@ -793,7 +789,7 @@ export const useAppStore = defineStore('app', () => {
     if (!req) return;
     req.exchanges.push({
       text,
-      authorName: side === 'user' ? studentName(req.studentId) : user.value?.name || '医生',
+      authorName: side === 'user' ? studentName(req.studentId) : user.value?.name || '营养师',
       side,
       createdAt: formatDateTimeStr(),
     });
@@ -841,10 +837,10 @@ export const useAppStore = defineStore('app', () => {
     const t = consultThreads.value.find((x) => x.id === id);
     if (!t) return;
     t.status = 'answered';
-    t.replierId = user.value?.id || 'doc1';
-    t.replierName = user.value?.name || '医生';
-    t.replierRole = user.value?.role === 'dietitian' || user.value?.role === 'coach' ? user.value.role : 'doctor';
-    t.replies.push({ text, authorName: user.value?.name || '医生', side: 'staff', createdAt: formatDateTimeStr() });
+    t.replierId = user.value?.id || 'd1';
+    t.replierName = user.value?.name || '营养师';
+    t.replierRole = user.value?.role === 'coach' ? 'coach' : 'dietitian';
+    t.replies.push({ text, authorName: user.value?.name || '营养师', side: 'staff', createdAt: formatDateTimeStr() });
     t.read = false;
   }
 

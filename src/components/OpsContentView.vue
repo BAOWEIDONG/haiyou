@@ -10,11 +10,11 @@ const store = useAppStore();
 const showAdd = ref(false);
 const title = ref('');
 const summary = ref('');
-const authorRole = ref<'doctor' | 'dietitian' | 'coach'>('doctor');
+const authorRole = ref<'dietitian' | 'coach'>('dietitian');
 const contentType = ref<'article' | 'video' | 'live'>('article');
 
 const list = computed(() => store.knowledgeContents);
-const roleLabel: Record<string, string> = { doctor: '医生', dietitian: '营养师', coach: '康复教练' };
+const roleLabel: Record<string, string> = { dietitian: '营养师', coach: '康复教练' };
 
 const doRemove = (id: string, name: string) => {
   showConfirmDialog({
@@ -71,7 +71,7 @@ const doAdd = () => {
       <div class="p-5 space-y-3">
         <h3 class="text-base font-bold text-gray-900 mb-1 text-center">发布健康知识</h3>
         <div class="flex gap-2">
-          <button v-for="r in (['doctor','dietitian','coach'] as const)" :key="r" @click="authorRole = r"
+          <button v-for="r in (['dietitian','coach'] as const)" :key="r" @click="authorRole = r"
             :class="['flex-1 py-2 rounded-xl text-[12px] font-bold border-2', authorRole === r ? 'border-[#8B5CF6] text-[#8B5CF6]' : 'border-gray-200 text-gray-500']">
             {{ roleLabel[r] }}
           </button>
