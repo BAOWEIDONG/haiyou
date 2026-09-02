@@ -422,27 +422,38 @@ onMounted(() => {
         </div>
 
         <div class="space-y-3">
-          <button v-if="feedTab === 'exercise'" v-for="a in feedActivities" :key="a.id" @click="store.setCurrentView('activities-list')" class="w-full flex items-center gap-3 text-left bg-white/70 backdrop-blur-md border border-white/70 rounded-2xl p-3 shadow-sm active:bg-gray-50">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1677FF]/12 to-blue-50 flex items-center justify-center shrink-0 overflow-hidden">
-              <img v-if="a.imageUrls[0]" :src="a.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" />
-              <PlayCircle v-else class="h-6 w-6 text-[#1677FF]" />
+          <!-- 锻炼活动：图文预览卡片 -->
+          <button v-if="feedTab === 'exercise'" v-for="a in feedActivities" :key="a.id" @click="store.setCurrentView('activities-list')" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
+            <div class="relative h-36 bg-gradient-to-br from-[#1677FF]/10 to-blue-50">
+              <img v-if="a.imageUrls[0]" :src="a.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <div v-else class="absolute inset-0 flex items-center justify-center">
+                <PlayCircle class="w-10 h-10 text-[#1677FF]/70" />
+              </div>
+              <span v-if="a.videoUrls && a.videoUrls.length" class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                <PlayCircle class="w-3 h-3" /> 视频
+              </span>
             </div>
-            <div class="flex-1 min-w-0">
+            <div class="p-3">
               <div class="text-sm font-bold text-gray-900 truncate">{{ a.title }}</div>
-              <div class="text-[11px] text-gray-400 mt-0.5 truncate">{{ a.coachName }} · {{ a.date.slice(0, 10) }}</div>
+              <div class="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ a.description }}</div>
+              <div class="text-[10px] text-gray-400 mt-1.5">{{ a.coachName }} · {{ a.date.slice(0, 10) }}</div>
             </div>
-            <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
           </button>
 
-          <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.setCurrentView('knowledge')" class="w-full flex items-center gap-3 text-left bg-white/70 backdrop-blur-md border border-white/70 rounded-2xl p-3 shadow-sm active:bg-gray-50">
-            <div :class="['w-12 h-12 rounded-xl flex items-center justify-center shrink-0', ktypeMeta[k.contentType].cls]">
-              <component :is="ktypeMeta[k.contentType].icon" class="h-5 w-5" />
+          <!-- 健康科普：图文预览卡片 -->
+          <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.setCurrentView('knowledge')" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
+            <div class="relative h-36 bg-gradient-to-br from-[#0EA5E9]/10 to-purple-50">
+              <img v-if="k.imageUrls[0]" :src="k.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <div v-else class="absolute inset-0 flex items-center justify-center">
+                <component :is="ktypeMeta[k.contentType].icon" class="w-10 h-10" />
+              </div>
+              <span :class="['absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded', ktypeMeta[k.contentType].cls]">{{ ktypeMeta[k.contentType].label }}</span>
             </div>
-            <div class="flex-1 min-w-0">
+            <div class="p-3">
               <div class="text-sm font-bold text-gray-900 truncate">{{ k.title }}</div>
-              <div class="text-[11px] text-gray-400 mt-0.5 truncate">{{ ktypeMeta[k.contentType].label }} · {{ k.authorName }}</div>
+              <div class="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ k.summary }}</div>
+              <div class="text-[10px] text-gray-400 mt-1.5">{{ k.authorName }} · {{ k.createdAt.slice(0, 10) }}</div>
             </div>
-            <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
           </button>
 
           <div v-if="feedEmpty" class="text-center text-xs text-gray-400 py-8">

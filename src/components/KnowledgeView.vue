@@ -23,7 +23,7 @@ const roleLabel: Record<string, string> = { doctor: '医生', dietitian: '营养
 
 <template>
   <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
-    <NavBar title="健康知识订阅" :on-back="() => store.goBack()" />
+    <NavBar title="健康科普" :on-back="() => store.goBack()" />
     <div class="sticky top-0 z-40 bg-gradient-to-b from-[#E9F7FF] to-transparent px-4 pb-2 pt-2">
       <div class="flex gap-2">
         <button v-for="f in (['all','article','video','live'] as const)" :key="f" @click="filter = f"

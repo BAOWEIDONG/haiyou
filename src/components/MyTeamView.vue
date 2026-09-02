@@ -25,16 +25,16 @@ const services = [
     <NavBar title="健康服务" />
 
     <div class="flex-1 px-4 py-4 space-y-3" v-if="store.user">
-      <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 divide-y divide-gray-50 shadow-sm">
-        <button v-for="s in services" :key="s.key" @click="store.setCurrentView(s.key as never)" class="w-full flex items-center gap-3 p-4 text-left active:bg-gray-50">
-          <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', s.tone]">
-            <component :is="s.icon" class="h-5 w-5" />
+      <div class="space-y-3">
+        <button v-for="s in services" :key="s.key" @click="store.setCurrentView(s.key as never)" class="w-full flex items-center gap-3 p-4 text-left rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.98] transition-transform active:bg-white">
+          <div :class="['w-12 h-12 rounded-xl flex items-center justify-center shrink-0', s.tone]">
+            <component :is="s.icon" class="h-6 w-6" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-bold text-gray-900">{{ s.title }}</div>
-            <div class="text-[11px] text-gray-400">{{ s.desc }}</div>
+            <div class="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{{ s.desc }}</div>
           </div>
-          <ChevronRight class="w-4 h-4 text-gray-300" />
+          <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
         </button>
       </div>
 
