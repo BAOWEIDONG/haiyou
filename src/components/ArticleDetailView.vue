@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
-import { ROLE_LABEL, type CoachActivityRecord, type KnowledgeContent } from '../types';
+import { ROLE_LABEL, type CoachActivityRecord, type KnowledgeContent, type KnowledgeBlock } from '../types';
 import { Newspaper, Play, PlayCircle, User } from 'lucide-vue-next';
 
 /**
@@ -40,14 +40,30 @@ const dateStr = computed(() => {
   const d = isActivity.value ? activity.value?.date : knowledge.value?.createdAt;
   return (d || '').slice(0, 10);
 });
+// 图文正文块（营养师发布的"文字段落 + 中间插图"；缺省=旧版摘要+配图渲染）
+const knowledgeBlocks = computed<KnowledgeBlock[] | null>(() =>
+  knowledge.value?.blocks && knowledge.value.blocks.length > 0 ? knowledge.value.blocks : null,
+);
 // 正文
-const body = computed(() => (isActivity.value ? activity.value?.description || '' : knowledge.value?.summary || ''));
+const body = computed(() => {
+  if (isActivity.value) return activity.value?.description || '';
+  if (knowledgeBlocks.value) return ''; // 图文正文改由 blocks 渲染
+  return knowledge.value?.summary || '';
+});
 // 媒体
 const images = computed<string[]>(() => (isActivity.value ? activity.value?.imageUrls : knowledge.value?.imageUrls) || []);
 const videoUrls = computed<string[]>(() => (isActivity.value ? activity.value?.videoUrls || [] : knowledge.value?.videoUrls || []));
-const cover = computed<string | null>(() => images.value[0] || null);
+const cover = computed<string | null>(() => {
+  if (images.value[0]) return images.value[0];
+  // 无独立封面时，取正文里第一张插图作封面
+  if (knowledgeBlocks.value) {
+    const first = knowledgeBlocks.value.find((b) => b.type === 'image');
+    if (first && first.type === 'image') return first.url;
+  }
+  return null;
+});
 const coverVideo = computed<string | null>(() => (cover.value ? null : videoUrls.value[0] || null));
-const bodyImages = computed(() => images.value.slice(1));
+const bodyImages = computed(() => (knowledgeBlocks.value ? [] : images.value.slice(1)));
 const hasData = computed(() => art.value !== null);
 
 const openBanner = () => {
@@ -58,6 +74,10 @@ const openBanner = () => {
   }
 };
 const playVideo = (url: string) => store.openVideoPreview(url);
+// 图文块字段读取（模板内不做类型断言，走这里窄化）
+const blockText = (b: KnowledgeBlock) => (b.type === 'text' ? b.text : '');
+const blockUrl = (b: KnowledgeBlock) => (b.type === 'image' ? b.url : '');
+const blockHasText = (b: KnowledgeBlock) => b.type === 'text' && b.text.trim() !== '';
 </script>
 
 <template>
@@ -98,17 +118,26 @@ const playVideo = (url: string) => store.openVideoPreview(url);
 
         <!-- 正文 -->
         <div class="px-5 pt-4 pb-8">
-          <p v-if="body" class="text-[15px] text-gray-700 leading-[1.9] tracking-wide whitespace-pre-wrap">{{ body }}</p>
+          <!-- 图文正文：文字段落与中间插图按序（营养师发布的排版） -->
+          <template v-if="knowledgeBlocks">
+            <template v-for="(b, idx) in knowledgeBlocks" :key="idx">
+              <p v-if="blockHasText(b)" class="text-[15px] text-gray-700 leading-[1.9] tracking-wide whitespace-pre-wrap">{{ blockText(b) }}</p>
+              <img v-else-if="b.type === 'image'" :src="blockUrl(b)" :alt="`插图 ${idx + 1}`" class="w-full rounded-xl my-3" loading="lazy" decoding="async" @click="store.openImagePreview([blockUrl(b)], 0)" />
+            </template>
+          </template>
 
-          <!-- 正文内插图（封面外的其余图片） -->
-          <div v-if="bodyImages.length" class="mt-4 space-y-3">
-            <img
-              v-for="(url, idx) in bodyImages" :key="idx"
-              :src="url" :alt="`配图 ${idx + 2}`"
-              class="w-full rounded-xl" loading="lazy" decoding="async"
-              @click="store.openImagePreview(images, idx + 1)"
-            />
-          </div>
+          <!-- 旧结构回退：摘要 + 文后配图（历史内容） -->
+          <template v-else>
+            <p v-if="body" class="text-[15px] text-gray-700 leading-[1.9] tracking-wide whitespace-pre-wrap">{{ body }}</p>
+            <div v-if="bodyImages.length" class="mt-4 space-y-3">
+              <img
+                v-for="(url, idx) in bodyImages" :key="idx"
+                :src="url" :alt="`配图 ${idx + 2}`"
+                class="w-full rounded-xl" loading="lazy" decoding="async"
+                @click="store.openImagePreview(images, idx + 1)"
+              />
+            </div>
+          </template>
 
           <!-- 视频（可播放，复用全局弹层） -->
           <div v-if="videoUrls.length" class="mt-5 space-y-3">

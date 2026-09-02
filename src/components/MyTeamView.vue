@@ -25,7 +25,7 @@ const services = [
     <NavBar title="健康服务" />
 
     <div class="flex-1 px-4 py-4 space-y-3" v-if="store.user">
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 gap-3">
         <button v-for="s in services" :key="s.key" @click="store.setCurrentView(s.key as never)" class="flex flex-col items-start gap-2 p-4 text-left rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.97] transition-transform active:bg-white overflow-hidden relative">
           <div :class="['w-11 h-11 rounded-2xl flex items-center justify-center shrink-0', s.tone]">
             <component :is="s.icon" class="h-5 w-5" />

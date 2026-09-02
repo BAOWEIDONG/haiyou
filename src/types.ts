@@ -349,4 +349,11 @@ export interface KnowledgeContent {
   videoUrls?: string[];
   /** 可见范围：空/未填 = 全部订阅用户可见（内部置空） */
   campIds?: string[];
+  /** 图文正文块：文字段落与中间插图按序（营养师发布）；缺省=旧版仅摘要+文后配图渲染 */
+  blocks?: KnowledgeBlock[];
 }
+
+/** 健康科普正文块：文字段落 / 中间插图 */
+export type KnowledgeBlock =
+  | { type: 'text'; text: string }
+  | { type: 'image'; url: string };
