@@ -55,16 +55,21 @@ const doAdd = () => {
         知识库素材管理：图文/短视频。医生、营养师、康复教练的内容统一在此，按订阅可见范围投放（合规与版权由运营复核）。
       </div>
 
-      <div v-for="k in list" :key="k.id" class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 p-4 space-y-1.5 shadow-sm">
+      <button
+        v-for="k in list"
+        :key="k.id"
+        @click="store.openArticle('knowledge', k)"
+        class="w-full text-left rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 p-4 space-y-1.5 shadow-sm active:opacity-70"
+      >
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
             <div class="text-sm font-bold text-gray-900 leading-snug">{{ k.title }}</div>
             <div class="text-[11px] text-gray-400 mt-1">{{ roleLabel[k.authorRole] }} · {{ k.authorName }} · {{ k.contentType === 'article' ? '图文' : '视频' }}</div>
           </div>
-          <button @click="doRemove(k.id, k.title)" class="text-gray-300 hover:text-red-500 active:opacity-60 shrink-0"><Trash2 class="w-4 h-4" /></button>
+          <span @click.stop="doRemove(k.id, k.title)" class="text-gray-300 active:opacity-60 shrink-0"><Trash2 class="w-4 h-4" /></span>
         </div>
         <div class="text-[12px] text-gray-500 leading-relaxed">{{ k.summary }}</div>
-      </div>
+      </button>
     </div>
 
     <VanPopup v-model:show="showAdd" position="bottom" round class="custom-popup">
