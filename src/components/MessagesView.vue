@@ -139,21 +139,23 @@ const allMessages = computed<MessageItem[]>(() =>
     }),
 );
 
-// ---- 分类筛选：营养师批注 / 教练批注 / 报告解读 / 健康答疑 ----
+// ---- 分类筛选：营养师消息(批注+报告解读+健康答疑) / 教练批注 ----
+// 解读/答疑都归「营养师消息」——回复均来自营养师端；卡片仍用子标签区分 批注/解读/答疑
+const isDietitianSource = (type: string) => type === 'dietitian' || type === 'interpretation' || type === 'consult';
 const filters = [
   { key: 'all', label: '全部' },
-  { key: 'dietitian', label: '营养师批注' },
+  { key: 'dietitian', label: '营养师消息' },
   { key: 'coach', label: '教练批注' },
-  { key: 'interpretation', label: '报告解读' },
-  { key: 'consult', label: '健康答疑' },
 ];
 const activeFilter = ref<string>('all');
 const sheetRoot = ref<HTMLElement | null>(null);
-useTabSwipe(sheetRoot, activeFilter, ['all', 'dietitian', 'coach', 'interpretation', 'consult']);
+useTabSwipe(sheetRoot, activeFilter, ['all', 'dietitian', 'coach']);
 const messages = computed<MessageItem[]>(() =>
   activeFilter.value === 'all'
     ? allMessages.value
-    : allMessages.value.filter((m) => m.type === activeFilter.value),
+    : isDietitianSource(activeFilter.value)
+      ? allMessages.value.filter((m) => isDietitianSource(m.type))
+      : allMessages.value.filter((m) => m.type === activeFilter.value),
 );
 
 // 未读数 = 批注(营养师+教练)+报告解读+健康答疑，与各学员页底部「消息」Tab 角标口径一致。
@@ -164,11 +166,13 @@ const unreadCount = computed(() =>
 const debouncedMessages = useDebounced(messages, 300);
 const { items: pagedMessages, hasMore, remaining, loadMore } = usePaged(debouncedMessages, 20);
 
-/** 各分类筛选 Tab 的未读数：all=总未读，其余按 type 统计未读 */
+/** 各分类筛选 Tab 的未读数：all=总未读，其余按 type 统计未读（营养师消息含 批注+解读+答疑） */
 const tabUnread = (key: string): number =>
   key === 'all'
     ? unreadCount.value
-    : allMessages.value.filter((m) => m.type === key && m.unread).length;
+    : key === 'dietitian'
+      ? allMessages.value.filter((m) => isDietitianSource(m.type) && m.unread).length
+      : allMessages.value.filter((m) => m.type === key && m.unread).length;
 
 /** 当前激活 sheet 的未读数（顶部摘要用，随切换联动） */
 const sheetUnread = computed(() => tabUnread(activeFilter.value));
@@ -265,7 +269,7 @@ const fmtDate = (d: string) => {
         v-for="m in pagedMessages"
         :key="m.id"
         @click="openMessage(m)"
-        :class="['w-full text-left bg-white rounded-2xl p-4 flex items-start gap-3 active:scale-[0.98] transition-all shadow-sm hover:shadow-md', m.type === 'dietitian' || m.type === 'coach' ? 'border border-[#0EA5E9]/15' : 'border border-gray-100']"
+        :class="['w-full text-left bg-white rounded-2xl p-4 flex items-start gap-3 active:scale-[0.98] transition-all shadow-sm hover:shadow-md border border-[#0EA5E9]/15']"
       >
         <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', typeMeta(m.type).cls]">
           <component :is="typeMeta(m.type).icon" class="w-5 h-5" />
