@@ -6,7 +6,7 @@ import { campDateRange, latestOrFirstId } from '../lib/camps';
 import { MOCK_METRIC_VALUES, MOCK_STUDENT_METRIC_VALUES } from '../mock/data';
 import { NavBar, Card, Button, ChartRulePopup } from './ui';
 import WeightTrendChart from './ui/WeightTrendChart.vue';
-import { UserCircle, Coffee, MessageCircle, Stethoscope, ClipboardList, AlertCircle, FileText, Activity, Scale, TrendingUp, PlayCircle, ChevronDown, ChevronUp, Eye } from 'lucide-vue-next';
+import { UserCircle, Coffee, MessageCircle, Stethoscope, ClipboardList, AlertCircle, FileText, Activity, Scale, TrendingUp, PlayCircle, ChevronDown, Eye } from 'lucide-vue-next';
 import { Popup as VanPopup } from 'vant';
 import { buildMedicalData, isValueOutOfRange, type MedicalCategory, type Indicator } from '../lib/medicalData';
 import { formatDateTime } from '../lib/utils';
@@ -79,33 +79,6 @@ const WEIGHT_TEMPLATES = [
   '减重速度偏快，注意营养均衡',
   '建议固定早晨空腹称重，数据更可比',
 ];
-// 结业寄语模板
-const MESSAGE_TEMPLATES = [
-  '坚持下来很不容易，你的自律大家都看在眼里，继续加油！',
-  '体重数字只是开始，希望你把这段时间养成的习惯带到以后的生活里。',
-  '结业不是结束，是健康生活的起点，有任何问题随时找我。',
-  '这期进步很大，下期我们继续向目标冲刺！',
-];
-
-// 结业寄语（学员端结业报告展示；后端可用 PUT /camp/message/:studentId 持久化）
-const campMessageText = ref('');
-const campMessageSaved = ref(false);
-const showCampMessage = ref(false);
-const loadCampMessage = () => {
-  const studentId = store.selectedStudentId;
-  if (!studentId) { campMessageText.value = ''; return; }
-  // 寄语按服务批次存储，key = `${campId}_${studentId}`；通过 getCampMessage 读取
-  campMessageText.value = selectedCampId.value ? store.getCampMessage(selectedCampId.value, studentId) : '';
-};
-const saveCampMessage = () => {
-  const studentId = store.selectedStudentId;
-  if (!studentId) return;
-  if (!selectedCampId.value) return;
-  // 记录作者（营养师姓名），结业报告内展示"填写文本 + 营养师姓名"
-  store.setCampMessage(selectedCampId.value, studentId, campMessageText.value, store.user?.name || '营养师');
-  campMessageSaved.value = true;
-  setTimeout(() => (campMessageSaved.value = false), 2000);
-};
 
 const activeTab = ref<'diet' | 'exercise' | 'weight' | 'medical' | 'questionnaire'>('diet');
 
@@ -224,13 +197,7 @@ const toggleCat = (title: string) => {
 watch(() => student.value?.id, () => {
   const vals = getStudentMetrics(student.value?.id);
   medicalData.value = JSON.parse(JSON.stringify(buildMedicalData(store.metricConfigs, vals, student.value?.gender)));
-  loadCampMessage();
 }, { immediate: true });
-
-// 切换服务批次时重新加载寄语
-watch(selectedCampId, () => {
-  loadCampMessage();
-});
 
 // Questionnaire tab
 const qData = ref<any>(null);
@@ -366,45 +333,6 @@ const openReport = (r: any) => {
         </button>
       </div>
 
-      <Card class="p-0 overflow-hidden border-[#0EA5E9]/20 bg-[#0EA5E9]/[0.03] shadow-sm">
-        <button
-          @click="showCampMessage = !showCampMessage"
-          class="w-full flex items-center justify-between px-4 py-3"
-        >
-          <div class="flex items-center gap-2">
-            <MessageCircle class="w-4 h-4 text-[#0EA5E9]" />
-            <h3 class="text-sm font-bold text-gray-900">结业寄语</h3>
-            <span v-if="campMessageText" class="text-[10px] text-[#0EA5E9] bg-[#0EA5E9]/10 px-1.5 py-0.5 rounded">已填写</span>
-            <span v-else class="text-[10px] text-gray-400">未填写</span>
-          </div>
-          <component :is="showCampMessage ? ChevronUp : ChevronDown" class="w-4 h-4 text-gray-400 transition-transform" />
-        </button>
-        <div v-show="showCampMessage" class="px-4 pb-4 space-y-3">
-          <div class="flex flex-wrap gap-1.5">
-            <button
-              v-for="tpl in MESSAGE_TEMPLATES"
-              :key="tpl"
-              class="px-2.5 py-1 rounded-full text-[11px] border border-[#0EA5E9]/30 text-[#0EA5E9] bg-white hover:bg-[#0EA5E9]/5 transition-colors"
-              @click="campMessageText = campMessageText ? campMessageText + tpl : tpl"
-            >{{ tpl.length > 12 ? tpl.slice(0, 12) + '…' : tpl }}</button>
-          </div>
-          <textarea
-            :value="campMessageText"
-            @input="campMessageText = ($event.target as HTMLTextAreaElement).value"
-            rows="3"
-            maxlength="200"
-            placeholder="写给学员的结业寄语，将显示在学员结业报告中"
-            class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9]/20 outline-none resize-none bg-white"
-          ></textarea>
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] text-gray-400">{{ campMessageText.length }}/200</span>
-            <button
-              @click="saveCampMessage"
-              :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all', campMessageSaved ? 'bg-[#0EA5E9]/10 text-[#0EA5E9]' : 'bg-[#0EA5E9] text-white active:scale-95']"
-            >{{ campMessageSaved ? '已保存 ✓' : '保存寄语' }}</button>
-          </div>
-        </div>
-      </Card>
     </div>
 
     <!-- Tab 栏：独立 sticky，滚动时固定在顶部 -->

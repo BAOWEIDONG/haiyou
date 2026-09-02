@@ -3,15 +3,13 @@ import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { DietitianTabbar } from './ui';
 import {
-  LogOut, FileSearch, MessageSquareText, ShieldAlert, CalendarClock, Users,
+  LogOut, FileSearch, MessageSquareText, Users,
 } from 'lucide-vue-next';
 
 const store = useAppStore();
 
 const pendingInterpretations = computed(() => store.getPendingInterpretations());
 const pendingThreads = computed(() => store.getPendingThreads());
-const openReferrals = computed(() => store.getOpenReferrals());
-const openFollowups = computed(() => store.getOpenFollowups());
 
 const queues = computed(() => [
   {
@@ -22,6 +20,7 @@ const queues = computed(() => [
     tone: 'from-[#0EA5E9] to-[#0284C7]',
     bar: 'text-[#0EA5E9]',
     target: 'doctor-interpretation',
+    icon: FileSearch,
   },
   {
     key: 'consult',
@@ -31,24 +30,7 @@ const queues = computed(() => [
     tone: 'from-[#0EA5E9] to-[#0284C7]',
     bar: 'text-[#0EA5E9]',
     target: 'doctor-consult',
-  },
-  {
-    key: 'referral',
-    label: '异常预警·转介',
-    desc: '需处置就医转介',
-    count: openReferrals.value.length,
-    tone: 'from-[#EF4444] to-[#DC2626]',
-    bar: 'text-red-500',
-    target: 'doctor-referral',
-  },
-  {
-    key: 'followup',
-    label: '随访计划',
-    desc: '待办复查/复测',
-    count: openFollowups.value.length,
-    tone: 'from-[#8B5CF6] to-[#7C3AED]',
-    bar: 'text-[#8B5CF6]',
-    target: 'doctor-followup',
+    icon: MessageSquareText,
   },
 ]);
 
@@ -69,7 +51,7 @@ const open = (target: string) => store.setCurrentView(target as never);
         </div>
         <div>
           <h2 class="text-xl font-bold text-gray-900">服务台</h2>
-          <p class="text-xs text-gray-500 mt-0.5">报告解读 · 答疑 · 预警转介 · 随访 · 团队协同</p>
+          <p class="text-xs text-gray-500 mt-0.5">报告解读 · 答疑 · 团队协同</p>
         </div>
       </div>
     </div>
@@ -87,10 +69,7 @@ const open = (target: string) => store.setCurrentView(target as never);
             {{ q.count }}
           </div>
           <div :class="['w-9 h-9 rounded-xl flex items-center justify-center mb-2 text-white shadow-sm bg-gradient-to-br', q.tone]">
-            <FileSearch v-if="q.key === 'interpretation'" class="w-5 h-5" />
-            <MessageSquareText v-else-if="q.key === 'consult'" class="w-5 h-5" />
-            <ShieldAlert v-else-if="q.key === 'referral'" class="w-5 h-5" />
-            <CalendarClock v-else class="w-5 h-5" />
+            <component :is="q.icon" class="w-5 h-5" />
           </div>
           <div :class="['text-base font-bold text-gray-900', q.bar]">{{ q.label }}</div>
           <div class="text-[11px] text-gray-400 mt-0.5">{{ q.desc }}</div>
@@ -101,7 +80,7 @@ const open = (target: string) => store.setCurrentView(target as never);
       <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 p-4 shadow-sm">
         <div class="text-sm font-bold text-gray-900 mb-2">团队协同分工</div>
         <ul class="space-y-2 text-[12px] text-gray-600 leading-relaxed">
-          <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">营养师 ·</span>报告健康解读、异步答疑、异常预警处置、随访、科普</li>
+          <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">营养师 ·</span>报告健康解读、异步答疑、健康科普</li>
           <li class="flex gap-2"><span class="text-[#0EA5E9] font-bold">营养师 ·</span>饮食方案 + 饮食执行反馈</li>
           <li class="flex gap-2"><span class="text-[#FF976A] font-bold">康复教练 ·</span>运动/康复处方 + 执行反馈 + 康复教学</li>
         </ul>

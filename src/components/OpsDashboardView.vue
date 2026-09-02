@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { DietitianTabbar } from './ui';
-import { Building2, LogOut, Users, Package, UserCheck, BarChart3, Newspaper, PhoneCall, ShieldCheck } from 'lucide-vue-next';
+import { Building2, LogOut, Users, Package, UserCheck, BarChart3, Newspaper, ShieldCheck } from 'lucide-vue-next';
 
 const store = useAppStore();
 
@@ -12,11 +11,8 @@ const menus = [
   { key: 'ops-users', title: '用户管理', desc: '激活/服务中/失效·异常标记', icon: UserCheck, tone: 'bg-[#FF976A]/10 text-[#FF976A]' },
   { key: 'enterprise-report', title: '企业履约看板', desc: '脱敏聚合：参与/活跃/达标', icon: BarChart3, tone: 'bg-[#8B5CF6]/10 text-[#8B5CF6]' },
   { key: 'ops-content', title: '内容管理', desc: '知识库·发布与订阅', icon: Newspaper, tone: 'bg-purple-100 text-purple-600' },
-  { key: 'ops-referral-ledger', title: '私域转介台账', desc: '电话/微信线索·转介复盘', icon: PhoneCall, tone: 'bg-red-50 text-red-500' },
   { key: 'ops-compliance', title: '数据与合规', desc: '授权审计·脱敏·医疗边界', icon: ShieldCheck, tone: 'bg-gray-100 text-gray-600' },
 ];
-
-const openReferralCount = computed(() => store.getOpenReferrals().length);
 </script>
 
 <template>
@@ -46,9 +42,6 @@ const openReferralCount = computed(() => store.getOpenReferrals().length);
           @click="store.setCurrentView(m.key as never)"
           class="relative rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 p-4 text-left active:scale-[0.98] transition-transform shadow-sm"
         >
-          <div v-if="m.key === 'ops-referral-ledger' && openReferralCount > 0" class="absolute -top-1.5 -right-1.5 min-w-[1.5rem] h-6 px-1 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center shadow">
-            {{ openReferralCount }}
-          </div>
           <div :class="['w-9 h-9 rounded-xl flex items-center justify-center mb-2', m.tone]">
             <component :is="m.icon" class="w-5 h-5" />
           </div>
