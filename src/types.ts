@@ -423,58 +423,6 @@ export interface ConsultThread {
   read?: boolean;
 }
 
-/** 风险分层结果（U4 健康画像·风险分层，仅本人+医生端可见） */
-export interface HealthRiskPortrait {
-  studentId: string;
-  /** normal 正常 / watch 需关注 / refer 需干预 → 转介线下医院 */
-  level: 'normal' | 'watch' | 'refer';
-  /** 风险说明（分类） */
-  flags: string[];
-  updatedAt: string;
-}
-
-/** 异常指标预警 → 就医/私域转介（D4 / O6） */
-export interface Referral {
-  id: string;
-  studentId: string;
-  /** 触发预警的指标名 */
-  indicatorNames: string[];
-  /** 预警等级 */
-  riskLevel: 'watch' | 'refer';
-  reason: string;
-  /** 处置医生 */
-  doctorId?: string;
-  doctorName?: string;
-  createdAt: string;
-  /** 转介方式：电话 / 微信 / 建议复测 */
-  method: 'phone' | 'wechat' | 'retest';
-  /** 线下承接联系方式（医院/HCP 转介凭证，平台不给医疗处置） */
-  contactValue: string;
-  /** 运营端登记备注（O6 线索台账） */
-  opsNote?: string;
-  /** open 待处置 / done 已闭环 */
-  status: 'open' | 'done';
-  closedAt?: string;
-}
-
-/** 随访计划（D5）：医生建复查/复测任务，到点提醒用户 */
-export interface FollowupTask {
-  id: string;
-  studentId: string;
-  /** 任务名，如"复查血脂""复测体成分" */
-  title: string;
-  /** 建议完成日期 yyyy-MM-dd */
-  dueDate: string;
-  /** 创建医生 */
-  doctorId?: string;
-  doctorName?: string;
-  createdAt: string;
-  status: 'open' | 'done' | 'missed';
-  /** 用户回填结果 */
-  result?: string;
-  resultAt?: string;
-}
-
 /** 医院健康知识内容（D8 知识发布 / U9 内容订阅 / O5 内容管理） */
 export interface KnowledgeContent {
   id: string;

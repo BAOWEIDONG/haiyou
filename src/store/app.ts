@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
-import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, HealthRiskPortrait, Referral, FollowupTask, KnowledgeContent } from '../types';
+import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
   MOCK_DIET_RECORDS,
@@ -14,9 +14,6 @@ import {
   MOCK_ACCOUNTS,
   MOCK_INTERPRETATION_REQUESTS,
   MOCK_CONSULT_THREADS,
-  MOCK_HEALTH_RISK_PORTRAITS,
-  MOCK_REFERRALS,
-  MOCK_FOLLOWUP_TASKS,
   MOCK_KNOWLEDGE_CONTENTS,
 } from '../mock/data';
 import * as api from '../lib/api';
@@ -49,11 +46,9 @@ export type View =
   | 'dietitian-unannotated-list'
   | 'activities-list'
   | 'video-player'
-  | 'camp-summary'
   | 'camp-report'
   | 'enterprise-report'
   | 'personal-journey'
-  | 'meal-time-config'
   | 'metric-config'
   | 'messages'
   | 'account-manage'
@@ -64,19 +59,12 @@ export type View =
   | 'interpretation-result'
   | 'consult'
   | 'knowledge'
-  // 医生端（医生·工作台 + 报告解读/答疑/异常转介/随访）
-  | 'doctor-dashboard'
+  // 健康团队服务（并入营养师「配置」：报告解读 + 健康答疑）
   | 'doctor-interpretation'
   | 'doctor-consult'
-  | 'doctor-referral'
-  | 'doctor-followup'
-  // 医院运营端（手机端管理员）
-  | 'ops-dashboard'
+  // 医院运营端（并入营养师「配置·管理」）
   | 'ops-service-pack'
-  | 'ops-users'
-  | 'ops-content'
-  | 'ops-referral-ledger'
-  | 'ops-compliance';
+  | 'ops-content';
 
 export const useAppStore = defineStore('app', () => {
   const user = ref<User | null>(null);
@@ -136,12 +124,6 @@ export const useAppStore = defineStore('app', () => {
   const interpretationRequests = ref<InterpretationRequest[]>([...MOCK_INTERPRETATION_REQUESTS]);
   /** 异步健康答疑线程（U8/D3） */
   const consultThreads = ref<ConsultThread[]>([...MOCK_CONSULT_THREADS]);
-  /** 健康画像·风险分层（U4，仅本人+医生端可见） */
-  const riskPortraits = ref<HealthRiskPortrait[]>([...MOCK_HEALTH_RISK_PORTRAITS]);
-  /** 异常指标预警→就医/私域转介（D4/O6） */
-  const referrals = ref<Referral[]>([...MOCK_REFERRALS]);
-  /** 随访计划（D5） */
-  const followupTasks = ref<FollowupTask[]>([...MOCK_FOLLOWUP_TASKS]);
   /** 医院健康知识内容（D8/U9/O5） */
   const knowledgeContents = ref<KnowledgeContent[]>([...MOCK_KNOWLEDGE_CONTENTS]);
   /** 当前打开的解读/答疑线程 ID（医生端查看某条） */
@@ -188,12 +170,12 @@ export const useAppStore = defineStore('app', () => {
   const bizSources = [
     students, weightRecords, exerciseRecords, dietRecords, coachActivities,
     metricConfigs, camps, accounts, mealTimeConfigByCamp,
-    interpretationRequests, consultThreads, riskPortraits, referrals, followupTasks, knowledgeContents,
+    interpretationRequests, consultThreads, knowledgeContents,
   ];
   const bizNames = [
     'students', 'weightRecords', 'exerciseRecords', 'dietRecords', 'coachActivities',
     'metricConfigs', 'camps', 'accounts', 'mealTimeConfigByCamp',
-    'interpretationRequests', 'consultThreads', 'riskPortraits', 'referrals', 'followupTasks', 'knowledgeContents',
+    'interpretationRequests', 'consultThreads', 'knowledgeContents',
   ] as const;
   function persistBiz() {
     const snap: Record<string, unknown> = {};
@@ -373,8 +355,8 @@ export const useAppStore = defineStore('app', () => {
   }
 
   /** 底部 Tab 根页面（切换时去重，避免历史栈无限增长） */
-  // 学员端底部Tab：首页/消息/活动/档案（无活动配置时「活动」自动隐藏）；教练/营养师端各自的底部Tab根页
-  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'coach-dashboard', 'dietitian-dashboard', 'doctor-dashboard', 'ops-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
+  // 学员端底部Tab：首页/消息/健康；教练/营养师端各自的底部Tab根页
+  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
 
   /** 学员详情流视图：在此流内继承 detailSelectedCampId，离开则清空（不污染全局 selectedCampId） */
   const DETAIL_FLOW_VIEWS: View[] = ['dietitian-student-detail', 'coach-student-detail'];
@@ -868,42 +850,6 @@ export const useAppStore = defineStore('app', () => {
     return consultThreads.value.filter((t) => t.status === 'pending');
   }
 
-  function getRiskPortrait(studentId: string): HealthRiskPortrait | undefined {
-    return riskPortraits.value.find((r) => r.studentId === studentId);
-  }
-
-  function addReferral(data: Omit<Referral, 'id' | 'createdAt' | 'status'>) {
-    const ref: Referral = {
-      ...data,
-      id: `rf_${Date.now()}_${_seq.n++}`,
-      createdAt: formatDateTimeStr(),
-      status: 'open',
-    };
-    referrals.value.unshift(ref);
-    return ref.id;
-  }
-  function closeReferral(id: string, opsNote: string) {
-    const r = referrals.value.find((x) => x.id === id);
-    if (r) { r.status = 'done'; r.opsNote = opsNote; r.closedAt = formatDateTimeStr(); }
-  }
-  function getOpenReferrals() { return referrals.value.filter((r) => r.status === 'open'); }
-
-  function addFollowupTask(data: Omit<FollowupTask, 'id' | 'createdAt' | 'status'>) {
-    const t: FollowupTask = { ...data, id: `fu_${Date.now()}_${_seq.n++}`, createdAt: formatDateTimeStr(), status: 'open' };
-    followupTasks.value.unshift(t);
-    return t.id;
-  }
-  function completeFollowupTask(id: string, result: string) {
-    const t = followupTasks.value.find((x) => x.id === id);
-    if (t) { t.status = 'done'; t.result = result; t.resultAt = formatDateTimeStr(); }
-  }
-  function getOpenFollowups() { return followupTasks.value.filter((t) => t.status === 'open'); }
-
-  /** 学员的随访任务 */
-  function getStudentFollowups(studentId: string) {
-    return followupTasks.value.filter((t) => t.studentId === studentId);
-  }
-
   function addKnowledgeContent(data: Omit<KnowledgeContent, 'id' | 'createdAt'>) {
     const k: KnowledgeContent = { ...data, id: `kc_${Date.now()}_${_seq.n++}`, createdAt: formatDateTimeStr() };
     knowledgeContents.value.unshift(k);
@@ -996,9 +942,6 @@ export const useAppStore = defineStore('app', () => {
     // B2C 新增域
     interpretationRequests,
     consultThreads,
-    riskPortraits,
-    referrals,
-    followupTasks,
     knowledgeContents,
     activeRequestId,
     activeThreadId,
@@ -1017,14 +960,6 @@ export const useAppStore = defineStore('app', () => {
     markThreadRead,
     getStudentThreads,
     getPendingThreads,
-    getRiskPortrait,
-    addReferral,
-    closeReferral,
-    getOpenReferrals,
-    addFollowupTask,
-    completeFollowupTask,
-    getOpenFollowups,
-    getStudentFollowups,
     addKnowledgeContent,
     deleteKnowledgeContent,
     studentName,

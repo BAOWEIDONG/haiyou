@@ -1,4 +1,4 @@
-import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, HealthRiskPortrait, Referral, FollowupTask, KnowledgeContent } from '../types';
+import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent } from '../types';
 import type { MetricValue } from '../lib/medicalData';
 
 function dateStr(offsetDays: number): string {
@@ -778,40 +778,6 @@ export const MOCK_CONSULT_THREADS = [
     read: false,
   },
 ] as ConsultThread[];
-
-export const MOCK_HEALTH_RISK_PORTRAITS = [
-  { studentId: 's10', level: 'refer', flags: ['血脂偏高', '早上空腹血糖波动', '近两周打卡频率下降'], updatedAt: iso(-1, '08:00:00') },
-  { studentId: 's6', level: 'watch', flags: ['体脂率偏高', '运动打卡不规律'], updatedAt: iso(-3, '08:00:00') },
-] as HealthRiskPortrait[];
-
-export const MOCK_REFERRALS = [
-  {
-    id: 'rf1',
-    studentId: 's10',
-    indicatorNames: ['空腹血糖'],
-    riskLevel: 'refer',
-    reason: '两次空腹血糖超过正常参考区间，波动需线下医院复查确认。',
-    doctorId: 'd1',
-    doctorName: '王营养师',
-    createdAt: iso(-1, '11:00:00'),
-    method: 'retest',
-    contactValue: '建议至内分泌科复查空腹血糖+糖化血红蛋白（复测日期未定，营养师将安排随访）',
-    status: 'open',
-  },
-] as Referral[];
-
-export const MOCK_FOLLOWUP_TASKS = [
-  {
-    id: 'fu1',
-    studentId: 's10',
-    title: '复查空腹血糖 + 糖化血红蛋白',
-    dueDate: dateStr(7),
-    doctorId: 'd1',
-    doctorName: '王营养师',
-    createdAt: iso(-1, '11:05:00'),
-    status: 'open',
-  },
-] as FollowupTask[];
 
 export const MOCK_KNOWLEDGE_CONTENTS = [
   {
