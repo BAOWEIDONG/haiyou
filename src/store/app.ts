@@ -61,7 +61,9 @@ export type View =
   | 'doctor-interpretation'
   | 'doctor-consult'
   // 内容订阅（并入营养师「配置·管理」）
-  | 'ops-content';
+  | 'ops-content'
+  // 内容管理·全屏发布图文（健康科普正文编辑）
+  | 'ops-content-new';
 
 export const useAppStore = defineStore('app', () => {
   const user = ref<User | null>(null);

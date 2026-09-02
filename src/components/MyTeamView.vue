@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar, StudentTabbar } from './ui';
-import { FileSearch, MessageSquareText, BookOpen, ClipboardList } from 'lucide-vue-next';
+import { FileSearch, MessageSquareText, BookOpen, ClipboardList, ChevronRight } from 'lucide-vue-next';
 
 const store = useAppStore();
 
@@ -12,11 +12,28 @@ const unreadCount = computed(() =>
 );
 
 // 健康服务统一入口（首页不重复展示，统一由此进入；锻炼/知识订阅在首页「健康活动」信息流平铺）
+// 每项带专属浅色渐变 + 图标色块 + 水印，竖排整宽展示
 const services = [
-  { key: 'interpretation-result', title: '报告健康解读', desc: '勾指标请营养师解读、看结论、追问', icon: FileSearch, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
-  { key: 'consult', title: '健康答疑', desc: '给健康顾问留言，索取电话/微信', icon: MessageSquareText, tone: 'text-[#0EA5E9] bg-[#0EA5E9]/8' },
-  { key: 'personal-journey', title: '个人历程', desc: '服务记录 · 报告 · 数据趋势', icon: BookOpen, tone: 'text-[#FF976A] bg-[#FF976A]/8' },
-  { key: 'health-profile', title: '我的健康档案', desc: '体检指标 · 上传报告 · 编辑档案', icon: ClipboardList, tone: 'text-[#1677FF] bg-[#1677FF]/8' },
+  {
+    key: 'interpretation-result', title: '报告健康解读', desc: '勾指标请营养师解读、看结论、追问',
+    icon: FileSearch, grad: 'from-[#0EA5E9]/16 via-white/40 to-white/0',
+    iconColor: 'bg-[#0EA5E9]/12 text-[#0EA5E9]', wm: 'text-[#0EA5E9]/12',
+  },
+  {
+    key: 'consult', title: '健康答疑', desc: '给健康顾问留言，索取电话/微信',
+    icon: MessageSquareText, grad: 'from-[#14B8A6]/16 via-white/40 to-white/0',
+    iconColor: 'bg-[#14B8A6]/12 text-[#14B8A6]', wm: 'text-[#14B8A6]/12',
+  },
+  {
+    key: 'personal-journey', title: '个人历程', desc: '服务记录 · 报告 · 数据趋势',
+    icon: BookOpen, grad: 'from-[#FF976A]/20 via-white/40 to-white/0',
+    iconColor: 'bg-[#FF976A]/15 text-[#FF976A]', wm: 'text-[#FF976A]/14',
+  },
+  {
+    key: 'health-profile', title: '我的健康档案', desc: '体检指标 · 上传报告 · 编辑档案',
+    icon: ClipboardList, grad: 'from-[#6366F1]/16 via-white/40 to-white/0',
+    iconColor: 'bg-[#6366F1]/12 text-[#6366F1]', wm: 'text-[#6366F1]/12',
+  },
 ];
 </script>
 
@@ -26,15 +43,23 @@ const services = [
 
     <div class="flex-1 px-4 py-4 space-y-3" v-if="store.user">
       <div class="grid grid-cols-1 gap-3">
-        <button v-for="s in services" :key="s.key" @click="store.setCurrentView(s.key as never)" class="flex flex-col items-start gap-2 p-4 text-left rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.97] transition-transform active:bg-white overflow-hidden relative">
-          <div :class="['w-11 h-11 rounded-2xl flex items-center justify-center shrink-0', s.tone]">
-            <component :is="s.icon" class="h-5 w-5" />
+        <button
+          v-for="s in services" :key="s.key"
+          @click="store.setCurrentView(s.key as never)"
+          class="relative overflow-hidden rounded-2xl border border-white/70 shadow-sm p-4 flex items-center gap-4 bg-gradient-to-br active:opacity-90 transition-opacity"
+          :class="s.grad"
+        >
+          <!-- 右下水印大图标 -->
+          <component :is="s.icon" :class="['absolute -right-2 -bottom-3 w-24 h-24', s.wm]" />
+          <!-- 图标色块 -->
+          <div :class="['w-12 h-12 rounded-2xl flex items-center justify-center shrink-0', s.iconColor]">
+            <component :is="s.icon" class="h-6 w-6" />
           </div>
-          <div class="min-w-0">
-            <div class="text-sm font-bold text-gray-900 leading-snug">{{ s.title }}</div>
-            <div class="text-[11px] text-gray-400 mt-1 leading-relaxed">{{ s.desc }}</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[15px] font-bold text-gray-800 leading-snug">{{ s.title }}</div>
+            <div class="text-[11px] text-gray-500 mt-1 leading-relaxed">{{ s.desc }}</div>
           </div>
-          <span class="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-[#0EA5E9]/40"></span>
+          <ChevronRight class="w-5 h-5 text-gray-300 shrink-0" />
         </button>
       </div>
 

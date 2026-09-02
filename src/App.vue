@@ -52,12 +52,14 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
   'doctor-consult': () => import('./components/DoctorConsultView.vue'),
   // 内容订阅（并入营养师「配置·管理」）
   'ops-content': () => import('./components/OpsContentView.vue'),
+  // 内容管理·全屏发布图文（健康科普正文编辑）
+  'ops-content-new': () => import('./components/OpsContentEditView.vue'),
 };
 
 // 各角色底部 tab 与常用子页（角色预取，配合下方全量预取双保险）
 const ROLE_TABS: Record<string, string[]> = {
   student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'article-detail'],
-  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-content', 'article-detail'],
+  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-content', 'ops-content-new', 'article-detail'],
   coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload'],
 };
 let prefetchedRole = false;
