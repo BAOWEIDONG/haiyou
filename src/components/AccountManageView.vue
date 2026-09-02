@@ -287,8 +287,26 @@ const switchTab = (role: Role) => {
       <div class="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
         <ShieldCheck class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
         <div class="text-xs text-blue-700 leading-relaxed">
-          只有配置了手机号的账户才能登录系统。学员需关联服务批次（服务批次），各批次数据相互独立；同一人可参与多批。
+          只有配置了手机号的账户才能登录系统。学员需关联服务批次，各批次数据相互独立；同一人可参与多批。
         </div>
+      </div>
+
+      <!-- 学员预录入登录开关（仅影响学员；营养师/教练始终需在此维护） -->
+      <div class="flex items-center justify-between bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+        <div class="flex-1 pr-3">
+          <div class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+            <UserPlus class="w-4 h-4 text-[#FF976A]" />
+            学员需预录入才能登录
+          </div>
+          <div class="text-[10px] text-gray-400 mt-1 leading-relaxed">
+            关闭=开放登录（任意手机号自动建档为学员）；开启=学员必须先在此录入手机号才能登录。营养师与教练始终需录入。
+          </div>
+        </div>
+        <VanSwitch
+          v-model="store.studentRequiresPreRegister"
+          size="24px"
+          active-color="#FF976A"
+        />
       </div>
 
       <!-- 服务批次管理 -->

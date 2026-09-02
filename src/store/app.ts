@@ -60,8 +60,7 @@ export type View =
   // 健康团队服务（并入营养师「配置」：报告解读 + 健康答疑）
   | 'doctor-interpretation'
   | 'doctor-consult'
-  // 医院运营端（并入营养师「配置·管理」）
-  | 'ops-service-pack'
+  // 内容订阅（并入营养师「配置·管理」）
   | 'ops-content';
 
 export const useAppStore = defineStore('app', () => {
@@ -143,6 +142,10 @@ export const useAppStore = defineStore('app', () => {
   /** 学员详情（营养师/教练查看某学员档案）流内的营期上下文，独立于全局 selectedCampId，不影响首页营期 */
   const detailSelectedCampId = ref<string | null>(null);
 
+  /** 学员登录预录入开关：true=学员必须先在账户管理中提前录入手机号才能登录(验证登录)；false=开放登录(任意手机号自动建档为学员)。
+   *  仅影响学员；营养师/教练始终需在账户管理中维护手机号。 */
+  const studentRequiresPreRegister = ref(false);
+
   /** 刚完成打卡标记（用于返回首页时触发成就/里程碑检测） */
   const justCheckedIn = ref(false);
 
@@ -168,12 +171,12 @@ export const useAppStore = defineStore('app', () => {
   const bizSources = [
     students, weightRecords, exerciseRecords, dietRecords, coachActivities,
     metricConfigs, camps, accounts, mealTimeConfigByCamp,
-    interpretationRequests, consultThreads, knowledgeContents,
+    interpretationRequests, consultThreads, knowledgeContents, studentRequiresPreRegister,
   ];
   const bizNames = [
     'students', 'weightRecords', 'exerciseRecords', 'dietRecords', 'coachActivities',
     'metricConfigs', 'camps', 'accounts', 'mealTimeConfigByCamp',
-    'interpretationRequests', 'consultThreads', 'knowledgeContents',
+    'interpretationRequests', 'consultThreads', 'knowledgeContents', 'studentRequiresPreRegister',
   ] as const;
   function persistBiz() {
     const snap: Record<string, unknown> = {};
@@ -525,11 +528,13 @@ export const useAppStore = defineStore('app', () => {
   }
 
   // ─── 账户管理 ───
-  /** 开放登录：已知手机号返回其账户（角色匹配在 LoginView 校验）；
-   *  未知手机号自动建档为学员，挂到默认活跃营期，返回 created=true。无营期概念的开放权益入口。 */
+  /** 学员登录：已知手机号返回其账户（角色匹配在 LoginView 校验）；
+   *  未知手机号：预录入开启时一律拒绝（须先在账户管理中录入），否则自动建档为学员，挂到默认活跃营期，返回 created=true。 */
   function openStudentLogin(phone: string): { account: Account | null; created: boolean } {
     const existing = accounts.value.find((a) => a.phone === phone && a.active);
     if (existing) return { account: existing, created: false };
+    // 预录入关闭=开放登录；开启时未知手机号必须先在账户管理中录入为学员，禁止自动建档
+    if (studentRequiresPreRegister.value) return { account: null, created: false };
     // 未知手机号：自动建档为学员
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -929,6 +934,7 @@ export const useAppStore = defineStore('app', () => {
     closeVideoPreview,
     camps,
     accounts,
+    studentRequiresPreRegister,
     addCamp,
     updateCamp,
     deleteCamp,

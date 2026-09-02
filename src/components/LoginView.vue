@@ -36,7 +36,7 @@ const handlePhoneSubmit = () => {
   }
 
   // 开放登录：任意手机号+验证码即可登录。已知手机号按所选角色匹配；
-  // 若手机号已注册其他角色则提示切换；未知手机号自动建档为学员。
+  // 若手机号已注册其他角色则提示切换；（账户管理中开启「学员需预录入」时）未知手机号不自动建档。
   const existing = store.accounts.find((a) => a.phone === phone.value && a.active);
   if (existing && existing.role !== role.value) {
     error.value = `该手机号已注册为${ROLE_LABEL[existing.role]}，请切换角色后登录`;
@@ -45,7 +45,9 @@ const handlePhoneSubmit = () => {
 
   const { account, created } = store.openStudentLogin(phone.value);
   if (!account) {
-    error.value = '登录失败，请重试';
+    error.value = role.value === 'student' && store.studentRequiresPreRegister
+      ? '该手机号需先在账户管理中录入为学员，方可登录'
+      : '登录失败，请重试';
     return;
   }
 

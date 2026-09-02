@@ -50,15 +50,14 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
   // 健康团队服务（并入营养师「配置」：报告解读 + 健康答疑）
   'doctor-interpretation': () => import('./components/DoctorInterpretationView.vue'),
   'doctor-consult': () => import('./components/DoctorConsultView.vue'),
-  // 医院运营端（并入营养师「配置·管理」）
-  'ops-service-pack': () => import('./components/OpsServicePackView.vue'),
+  // 内容订阅（并入营养师「配置·管理」）
   'ops-content': () => import('./components/OpsContentView.vue'),
 };
 
 // 各角色底部 tab 与常用子页（角色预取，配合下方全量预取双保险）
 const ROLE_TABS: Record<string, string[]> = {
   student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'article-detail'],
-  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-service-pack', 'ops-content'],
+  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-content'],
   coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload'],
 };
 let prefetchedRole = false;

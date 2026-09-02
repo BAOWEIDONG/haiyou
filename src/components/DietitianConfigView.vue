@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { DietitianTabbar } from './ui';
 import {
-  Settings, LogOut, FileSearch, MessageSquareText, Users, Package, Newspaper, Activity, ShieldCheck,
+  Settings, LogOut, FileSearch, MessageSquareText, Users, Newspaper, Activity, ShieldCheck,
 } from 'lucide-vue-next';
 
 /**
@@ -35,7 +35,6 @@ const serviceItems = computed<ConfigItem[]>(() => [
 // 管理（平台后台：用户登录所需账户 / 服务批次 / 科普订阅）
 const manageItems: ConfigItem[] = [
   { view: 'account-manage', title: '账户管理', desc: '各角色手机号与服务批次', icon: Users, color: '#FF976A' },
-  { view: 'ops-service-pack', title: '服务包与权益', desc: '权益批次/有效期/服务范围', icon: Package, color: '#FF976A' },
   { view: 'ops-content', title: '科普内容', desc: '发布健康科普/视频', icon: Newspaper, color: '#8B5CF6' },
 ];
 
