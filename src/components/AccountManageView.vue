@@ -487,7 +487,7 @@ const switchTab = (role: Role) => {
             />
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-700 block mb-1">开班日期</label>
+            <label class="text-sm font-medium text-gray-700 block mb-1">开始日期</label>
             <input
               type="date"
               class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF976A] text-sm"
@@ -495,7 +495,7 @@ const switchTab = (role: Role) => {
             />
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-700 block mb-1">结业日期</label>
+            <label class="text-sm font-medium text-gray-700 block mb-1">结束日期</label>
             <input
               type="date"
               class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF976A] text-sm"
@@ -503,7 +503,7 @@ const switchTab = (role: Role) => {
             />
           </div>
           <div v-if="editingCamp.startDate" class="text-[10px] text-gray-400">
-            状态将根据日期自动判断：开班前=未开始，开班~结业=进行中，结业后=已结束
+            状态将根据日期自动判断：开始前=未开始，开始~结束=进行中，结束后=已结束
           </div>
           <div v-if="campFormError" class="text-red-500 text-xs font-medium text-center">{{ campFormError }}</div>
         </div>

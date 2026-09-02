@@ -110,7 +110,7 @@ export const MOCK_WEIGHT_RECORDS: WeightRecord[] = [
     studentId: 's1',
     campId: 'camp1',
     photos: ['https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80'],
-    dietitianComment: '入营初始体重，建议每日晨起空腹称重，保持同一时间点记录更准确。',
+    dietitianComment: '开始时初始体重，建议每日晨起空腹称重，保持同一时间点记录更准确。',
     dietitianName: '王营养师',
     dietitianCommentDate: iso(-15, '10:30:00'),
   },

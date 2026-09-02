@@ -286,7 +286,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
 
 <template>
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-safe relative">
-    <NavBar title="入营小问卷" />
+    <NavBar title="健康档案问卷" />
 
     <div class="p-4 flex-1 flex flex-col space-y-4 pb-32">
       <!-- 顶部：问候 + 进度 -->

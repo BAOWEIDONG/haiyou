@@ -441,7 +441,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
 
       <Card class="bg-orange-50 border-orange-100">
         <p class="text-xs text-orange-800">
-          提示：以下数据在客户结业完成后进行更新。橙色字体表示该指标超出医学参考范围。结业后数据若为空，显示为"待更新"；若报告中未包含该项，显示为"未检测"。
+          提示：以下数据在服务结束后进行更新。橙色字体表示该指标超出医学参考范围。结束后数据若为空，显示为"待更新"；若报告中未包含该项，显示为"未检测"。
         </p>
       </Card>
 
@@ -463,7 +463,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
 
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-gray-50 p-2 rounded-lg flex flex-col justify-center items-center">
-                <span class="text-[10px] text-gray-500 mb-1 font-medium">开班前</span>
+                <span class="text-[10px] text-gray-500 mb-1 font-medium">开始时</span>
                 <div class="text-sm">
                   <template v-if="item.beforeValue === null"><span class="text-gray-400">-- 待上传</span></template>
                   <template v-else-if="item.beforeValue === undefined || item.beforeValue === ''"><span class="text-gray-400">-- 未检测</span></template>
@@ -472,7 +472,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
                 </div>
               </div>
               <div class="bg-[#0EA5E9]/5 p-2 rounded-lg flex flex-col justify-center items-center border border-[#0EA5E9]/10">
-                <span class="text-[10px] text-[#0EA5E9] font-bold mb-1">结业后</span>
+                <span class="text-[10px] text-[#0EA5E9] font-bold mb-1">结束时</span>
                 <div class="text-sm">
                   <template v-if="item.afterValue === null"><span class="text-gray-400">-- 待更新</span></template>
                   <template v-else-if="item.afterValue === undefined || item.afterValue === ''"><span class="text-gray-400">-- 未检测</span></template>

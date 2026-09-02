@@ -126,7 +126,7 @@ const targetInfo = computed(() => {
   const needLose = start - target;      // 需要减的总量
   const actualLose = start - end;       // 实际减的
   if (needLose <= 0) {
-    return { target, end, achieved: end <= target, progress: end <= target ? 1 : 0, text: end <= target ? '已达到目标体重' : '目标体重高于开班体重' };
+    return { target, end, achieved: end <= target, progress: end <= target ? 1 : 0, text: end <= target ? '已达到目标体重' : '目标体重高于开始时体重' };
   }
   const progress = Math.min(Math.max(actualLose / needLose, 0), 1.5);
   return { target, end, achieved: end <= target, progress, remaining: Math.max(end - target, 0) };
@@ -188,8 +188,8 @@ const encouragement = computed(() => {
   if (s.totalCheckinDays > 0) {
     return `无论如何，你在这个服务批次坚持打卡了${s.totalCheckinDays}天。别用一次数字否定自己的努力，改变正在习惯里悄悄发生。${name}，继续加油！`;
   }
-  // 数据尚在累积（刚开班记录少）
-  return `${name}，你已获得了这份结业报告。请继续保持打卡习惯，每一次记录都会在积累中看到回响。`;
+  // 数据尚在累积（刚开始记录少）
+  return `${name}，你已获得了这份个人服务报告。请继续保持打卡习惯，每一次记录都会在积累中看到回响。`;
 });
 
 // ─── 导出（普通浏览器=PDF，微信=长图长按保存）───
@@ -265,7 +265,7 @@ const exportPDF = () => {
         <template v-if="report.weightTrend.records.length > 0">
           <div class="flex items-center justify-between mb-4">
             <div class="text-center">
-              <div class="text-xs text-gray-500 mb-1">开班前</div>
+              <div class="text-xs text-gray-500 mb-1">开始时</div>
               <div class="text-xl font-bold text-gray-900">{{ fmt(report.weightTrend.startWeight) }} <span class="text-xs text-gray-400">kg</span></div>
             </div>
             <div class="flex-1 mx-4 text-center">
@@ -275,7 +275,7 @@ const exportPDF = () => {
               <div class="text-xs text-gray-400 mt-1">{{ report.weightTrend.changePercent !== null ? `${Math.abs(report.weightTrend.changePercent).toFixed(1)}%` : '--' }}</div>
             </div>
             <div class="text-center">
-              <div class="text-xs text-gray-500 mb-1">结业后</div>
+              <div class="text-xs text-gray-500 mb-1">结束时</div>
               <div class="text-xl font-bold text-gray-900">{{ fmt(report.weightTrend.endWeight) }} <span class="text-xs text-gray-400">kg</span></div>
             </div>
           </div>
@@ -428,7 +428,7 @@ const exportPDF = () => {
         </h3>
         <div class="flex items-center justify-between mb-2 text-sm">
           <span class="text-gray-500">目标 <span class="font-bold text-gray-900">{{ targetInfo.target }}kg</span></span>
-          <span class="text-gray-500">结业 <span class="font-bold text-gray-900">{{ fmt(targetInfo.end) }}kg</span></span>
+          <span class="text-gray-500">结束 <span class="font-bold text-gray-900">{{ fmt(targetInfo.end) }}kg</span></span>
         </div>
         <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden mb-2">
           <div

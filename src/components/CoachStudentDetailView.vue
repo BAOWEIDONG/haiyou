@@ -537,7 +537,7 @@ onActivated(consumePendingAnnotation);
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="bg-gray-50 p-2 rounded flex flex-col justify-center items-center">
-                  <span class="text-[10px] text-gray-500 mb-1">开班前</span>
+                  <span class="text-[10px] text-gray-500 mb-1">开始时</span>
                   <div class="text-sm w-full flex justify-center">
                     <span :class="item.isBeforeOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">
                       <span v-if="item.beforeValue === null" class="text-gray-400 font-normal">-- 未上传</span>
@@ -547,7 +547,7 @@ onActivated(consumePendingAnnotation);
                   </div>
                 </div>
                 <div class="bg-[#0EA5E9]/5 p-2 rounded flex flex-col justify-center items-center border border-[#0EA5E9]/10">
-                  <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结业后</span>
+                  <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结束时</span>
                   <div class="text-sm w-full flex justify-center">
                     <span :class="item.isAfterOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">
                       <span v-if="item.afterValue === null" class="text-gray-400 font-normal">-- 待更新</span>

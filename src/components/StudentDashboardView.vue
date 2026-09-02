@@ -136,7 +136,7 @@ const campNotStartedText = computed(() => {
   const camp = activeCamp.value;
   if (!camp) return '服务批次尚未开始';
   if (camp.startDate) {
-    return `服务批次尚未开始（${camp.startDate} 开班），暂不能打卡`;
+    return `服务批次尚未开始（${camp.startDate} 开始），暂不能打卡`;
   }
   return '服务批次尚未开始，暂不能打卡';
 });
@@ -319,7 +319,7 @@ onMounted(() => {
               <TrendingDown v-if="weightChange < 0" class="w-3 h-3" />
               <TrendingUp v-else-if="weightChange > 0" class="w-3 h-3" />
               <Minus v-else class="w-3 h-3" />
-              较开班 {{ weightChange > 0 ? '+' : '' }}{{ weightChange }}kg
+              较开始时 {{ weightChange > 0 ? '+' : '' }}{{ weightChange }}kg
             </div>
             <div v-if="targetProgress !== null" class="mt-2">
               <div class="h-1 bg-gray-100 rounded-full overflow-hidden">

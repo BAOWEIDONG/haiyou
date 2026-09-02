@@ -30,7 +30,7 @@ const activeCamp = computed(() => availableCamps.value.find(c => c.id === active
 const campNotStarted = computed(() => activeCamp.value ? !store.isCampStarted(activeCamp.value) : false);
 const campNotStartedText = computed(() => {
   const camp = activeCamp.value;
-  if (camp?.startDate) return `服务批次尚未开始（${camp.startDate} 开班），暂不能打卡`;
+  if (camp?.startDate) return `服务批次尚未开始（${camp.startDate} 开始），暂不能打卡`;
   return '服务批次尚未开始，暂不能打卡';
 });
 // 服务批次拦截：未开始时报提示
@@ -177,8 +177,8 @@ onMounted(() => {
             </span>
             <div class="flex gap-0.5 mt-0.5 items-center justify-center">
               <!-- 服务批次标注：开班/结业 -->
-              <span v-if="getCampMarker(d)?.type === 'start'" class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded leading-tight">开班</span>
-              <span v-else-if="getCampMarker(d)?.type === 'end'" class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded leading-tight">结业</span>
+              <span v-if="getCampMarker(d)?.type === 'start'" class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded leading-tight">开始</span>
+              <span v-else-if="getCampMarker(d)?.type === 'end'" class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded leading-tight">结束</span>
               <!-- Partial: show 5 dots (done=colored, missing=gray) -->
               <template v-else-if="!getStatus(d).completed && getStatus(d).completedCount > 0">
                 <div :class="['w-1 h-1 rounded-full', getStatus(d).hasBreakfast ? 'bg-[#FF976A]' : 'bg-gray-200']" />
@@ -206,8 +206,8 @@ onMounted(() => {
             <span class="text-xs text-gray-500 ml-0.5">部分完成</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded">开班</span>
-            <span class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded">结业</span>
+            <span class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded">开始</span>
+            <span class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded">结束</span>
             <span class="text-xs text-gray-500">服务批次标注</span>
           </div>
         </div>
