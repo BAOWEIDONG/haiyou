@@ -291,6 +291,8 @@ export interface InterpretationRequest {
   indicatorNames: string[];
   /** 学员提交时上传的报告材料图片（化验单/体检单等），营养师解读时查看 */
   materialImages?: string[];
+  /** 学员可选填的联系手机号，医生必要时电话沟通 */
+  studentPhone?: string;
   /** 用户留言 */
   question: string;
   /** pending 待解读 / answered 已解读 / closed 已关闭 */
@@ -328,8 +330,8 @@ export interface ConsultThread {
     side: 'student' | 'staff';
     createdAt: string;
   }[];
-  /** 医嘱/私域跟进凭证（线上无法处置 → 电话/微信转介） */
-  contact?: { type: 'phone' | 'wechat'; value: string };
+  /** 学员可选填的联系手机号，必要时电话回访 */
+  studentPhone?: string;
   /** 学员是否已读最新回复 */
   read?: boolean;
 }

@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
 import { showToast } from 'vant';
-import { MessageCircleQuestion, Users, Send } from 'lucide-vue-next';
+import { MessageCircleQuestion, Users, Send, Phone } from 'lucide-vue-next';
 
 const store = useAppStore();
 const openId = ref<string | null>(null);
@@ -76,6 +76,12 @@ const reply = (id: string) => {
                   <img :src="img" loading="lazy" decoding="async" class="w-full h-full object-cover" />
                 </button>
               </div>
+            </div>
+
+            <!-- 学员填写的联系电话 -->
+            <div v-if="req.studentPhone" class="flex items-center gap-1.5 rounded-xl bg-purple-50 border border-purple-100 p-3 text-[12px] text-purple-700">
+              <Phone class="w-3.5 h-3.5" />
+              学员联系电话：{{ req.studentPhone }}
             </div>
 
             <!-- 解读/追问往返 -->

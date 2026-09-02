@@ -10,6 +10,7 @@ import { Send, UploadCloud, X } from 'lucide-vue-next';
 const store = useAppStore();
 
 const question = ref('');
+const phone = ref('');
 
 // 报告材料（必传）：化验单/体检报告图片，营养师结合材料解读
 const materials = ref<string[]>([]);
@@ -38,7 +39,7 @@ const submit = () => {
   if (!store.user) { showToast('请先登录'); return; }
   if (materials.value.length === 0) { showToast('请上传报告材料（化验单/体检报告）'); return; }
   if (!question.value.trim()) { showToast('请留下你的问题或想了解的方向'); return; }
-  store.submitInterpretationRequest(store.user.id, [], question.value.trim(), materials.value);
+  store.submitInterpretationRequest(store.user.id, [], question.value.trim(), materials.value, phone.value.trim());
   showToast('已提交，医生团队将结合你的报告为你解读');
   store.setCurrentView('interpretation-result');
 };
@@ -93,6 +94,17 @@ const submit = () => {
           class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
         />
         <div class="text-[10px] text-gray-400 mt-1">可直接写出关心的指标与数值，营养师将结合你上传的报告给出解读</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-bold text-gray-900 mb-2">联系电话（选填）</div>
+        <input
+          v-model="phone"
+          inputmode="tel"
+          placeholder="若需要，医生可能电话沟通"
+          class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none"
+        />
+        <div class="text-[10px] text-gray-400 mt-1">选择性填写，填了便于医生在必要时电话回访；不填也不影响线上解读</div>
       </div>
 
       <div class="pt-2">

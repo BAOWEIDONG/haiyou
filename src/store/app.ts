@@ -754,7 +754,7 @@ export const useAppStore = defineStore('app', () => {
   // ============================================================================
   const _seq = { n: 0 };
 
-  function submitInterpretationRequest(studentId: string, indicatorNames: string[], question: string, materialImages: string[] = []) {
+  function submitInterpretationRequest(studentId: string, indicatorNames: string[], question: string, materialImages: string[] = [], studentPhone = '') {
     const now = formatDateTimeStr();
     const req: InterpretationRequest = {
       id: `ir_${Date.now()}_${_seq.n++}`,
@@ -762,6 +762,7 @@ export const useAppStore = defineStore('app', () => {
       campId: getStudentCampId(studentId) || undefined,
       indicatorNames,
       materialImages,
+      studentPhone: studentPhone.trim() || undefined,
       question,
       status: 'pending',
       createdAt: now,
@@ -818,12 +819,13 @@ export const useAppStore = defineStore('app', () => {
     return interpretationRequests.value.filter((r) => r.status === 'pending');
   }
 
-  function askConsult(studentId: string, topic: string, question: string) {
+  function askConsult(studentId: string, topic: string, question: string, studentPhone = '') {
     const thread: ConsultThread = {
       id: `ct_${Date.now()}_${_seq.n++}`,
       studentId,
       topic,
       question,
+      studentPhone: studentPhone.trim() || undefined,
       createdAt: formatDateTimeStr(),
       status: 'pending',
       replies: [],
@@ -849,11 +851,6 @@ export const useAppStore = defineStore('app', () => {
     if (!t) return;
     t.replies.push({ text, authorName: studentName(t.studentId), side: 'student', createdAt: formatDateTimeStr() });
     t.status = 'answered';
-  }
-
-  function setConsultContact(id: string, contact: { type: 'phone' | 'wechat'; value: string }) {
-    const t = consultThreads.value.find((x) => x.id === id);
-    if (t) t.contact = contact;
   }
 
   function markThreadRead(id: string) {
@@ -977,7 +974,6 @@ export const useAppStore = defineStore('app', () => {
     askConsult,
     staffReplyConsult,
     studentReplyConsult,
-    setConsultContact,
     markThreadRead,
     getStudentThreads,
     getPendingThreads,
