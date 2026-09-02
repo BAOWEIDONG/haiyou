@@ -24,10 +24,10 @@
     /* 淡蓝底 + 柔和光晕交叠：让液态玻璃模糊透出纹理，纯色底会变脏灰 */
     background-color: #f0f7fd;
     background-image:
-      radial-gradient(ellipse 60% 42% at 18% 0%, rgba(14, 165, 233, 0.12), transparent 65%),
+      radial-gradient(ellipse 60% 42% at 18% 0%, rgba(11, 107, 203, 0.12), transparent 65%),
       radial-gradient(ellipse 55% 40% at 88% 16%, rgba(22, 119, 255, 0.07), transparent 65%),
       radial-gradient(ellipse 70% 55% at 50% 100%, rgba(255, 151, 106, 0.12), transparent 70%),
-      radial-gradient(ellipse 50% 30% at 10% 85%, rgba(14, 165, 233, 0.08), transparent 60%),
+      radial-gradient(ellipse 50% 30% at 10% 85%, rgba(11, 107, 203, 0.08), transparent 60%),
       linear-gradient(180deg, #eff6fd 0%, #f8fafc 45%, #ffffff 100%);
     background-attachment: fixed;
   }
@@ -35,7 +35,7 @@
 
 /* Vant 主题对齐（浮层 + 组件） */
 :root {
-  --van-primary-color: #0EA5E9;
+  --van-primary-color: #0B6BCB;
   --van-success-color: #10B981;
 }
 
@@ -69,8 +69,8 @@
 }
 .custom-input .van-field__control::placeholder { color: #9ca3af; }
 .custom-input.van-cell:focus-within {
-  border-color: #0EA5E9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+  border-color: #0B6BCB;
+  box-shadow: 0 0 0 2px rgba(11, 107, 203, 0.2);
 }
 .custom-input.van-cell--disabled { opacity: 0.5; }
 
@@ -124,9 +124,9 @@
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(15, 23, 42, 0.04);
   transform: scale(1.03);
 }
-.seg-tab-green.active { color: #0EA5E9; }
+.seg-tab-green.active { color: #0B6BCB; }
 .seg-tab-orange.active { color: #FF976A; }
-.seg-tab-blue.active { color: #0EA5E9; }
+.seg-tab-blue.active { color: #0B6BCB; }
 
 /* 玻璃主按钮（立即领取等）：白色高光边 + 弥散阴影 */
 .btn-glass-orange {
@@ -188,12 +188,12 @@ body.liquid-glass .custom-tabbar.van-tabbar {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .custom-tabbar .van-tabbar-item--active {
-  color: #0EA5E9;
+  color: #0B6BCB;
   background: transparent !important;
 }
 .custom-tabbar .van-tabbar-item--active .van-tabbar-item__icon {
   transform: scale(1.18) translateY(-1px);
-  filter: drop-shadow(0 2px 6px rgba(14, 165, 233, 0.45));
+  filter: drop-shadow(0 2px 6px rgba(11, 107, 203, 0.45));
 }
 .custom-tabbar.tabbar-orange .van-tabbar-item--active .van-tabbar-item__icon {
   filter: drop-shadow(0 2px 6px rgba(255, 151, 106, 0.45));
@@ -234,20 +234,20 @@ body.role-coach .custom-nav.van-nav-bar {
 .custom-tabs .van-tabs__wrap { height: 44px; background: transparent; }
 .custom-tabs .van-tabs__nav--line { box-shadow: none; background: transparent; border-bottom: 1px solid #f3f4f6; }
 .custom-tabs .van-tab { font-size: 14px; font-weight: 700; color: #6b7280; padding: 0 12px; flex: 0 0 auto; }
-.custom-tabs .van-tab--active { color: #0EA5E9; }
-.custom-tabs .van-tabs__line { background: #0EA5E9; height: 2px; border-radius: 2px; bottom: 0; }
+.custom-tabs .van-tab--active { color: #0B6BCB; }
+.custom-tabs .van-tabs__line { background: #0B6BCB; height: 2px; border-radius: 2px; bottom: 0; }
 
 /* Popup (van-popup)：还原圆角白卡 */
 .custom-popup.van-popup--center { border-radius: 16px; max-width: 24rem; width: calc(100% - 2rem); }
 .custom-popup .van-popup__close-icon { color: #9ca3af; font-size: 20px; padding: 12px; }
 
 /* Checkbox (van-checkbox) */
-.custom-checkbox.van-checkbox { --van-checkbox-checked-icon-color: #0EA5E9; --van-checkbox-size: 16px; align-items: center; }
+.custom-checkbox.van-checkbox { --van-checkbox-checked-icon-color: #0B6BCB; --van-checkbox-size: 16px; align-items: center; }
 .custom-checkbox .van-checkbox__label { font-size: 12px; color: #9ca3af; margin-left: 6px; line-height: 1.4; }
 .custom-checkbox.cb-orange { --van-checkbox-checked-icon-color: #FF976A; }
 .custom-radio-group { display: flex; flex-wrap: wrap; gap: 16px; }
 .custom-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* Radio (van-radio) */
-.custom-radio.van-radio { --van-radio-checked-icon-color: #0EA5E9; --van-radio-size: 16px; align-items: center; }
+.custom-radio.van-radio { --van-radio-checked-icon-color: #0B6BCB; --van-radio-size: 16px; align-items: center; }
 .custom-radio .van-radio__label { font-size: 14px; color: #374151; margin-left: 6px; }

@@ -45,7 +45,7 @@ const submit = () => {
 </script>
 
 <template>
-  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
+  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
     <NavBar title="请医生健康解读" :on-back="() => store.goBack()" />
     <div class="flex-1 px-5 py-4 space-y-4">
       <div class="text-[11px] text-gray-500 rounded-xl bg-blue-50 border border-blue-100 p-3 leading-relaxed">
@@ -73,7 +73,7 @@ const submit = () => {
           <button
             :disabled="uploading"
             @click="materialInput?.click()"
-            class="aspect-[3/4] rounded-xl border-2 border-dashed border-[#0EA5E9]/40 bg-[#0EA5E9]/5 text-[#0EA5E9] flex flex-col items-center justify-center gap-1 active:bg-[#0EA5E9]/10 disabled:opacity-50"
+            class="aspect-[3/4] rounded-xl border-2 border-dashed border-[#0B6BCB]/40 bg-[#0B6BCB]/5 text-[#0B6BCB] flex flex-col items-center justify-center gap-1 active:bg-[#0B6BCB]/10 disabled:opacity-50"
           >
             <UploadCloud class="w-5 h-5" />
             <span class="text-[10px] font-bold">{{ uploading ? '上传中' : '添加' }}</span>
@@ -90,13 +90,13 @@ const submit = () => {
           rows="4"
           style="height: 6.5rem"
           placeholder="直接告诉我你想让营养师解读的内容：体检/化验报告里关心的指标、数值、趋势，或你的疑问。例如：最近体重下降变慢，早上空腹血糖有点波动，整体趋势合不合理？"
-          class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none resize-none"
+          class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
         />
         <div class="text-[10px] text-gray-400 mt-1">可直接写出关心的指标与数值，营养师将结合你上传的报告给出解读</div>
       </div>
 
       <div class="pt-2">
-        <button @click="submit" class="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90">
+        <button @click="submit" class="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90">
           <Send class="w-4 h-4" /> 提交请健康解读
         </button>
       </div>

@@ -25,10 +25,10 @@ const ask = (id: string) => {
 </script>
 
 <template>
-  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
+  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
     <NavBar title="报告健康解读" :on-back="() => store.goBack()">
       <template #right>
-        <button @click="store.setCurrentView('interpretation-request')" class="flex items-center gap-1 text-sm font-bold text-[#0EA5E9]"><Plus class="w-4 h-4" /> 新增</button>
+        <button @click="store.setCurrentView('interpretation-request')" class="flex items-center gap-1 text-sm font-bold text-[#0B6BCB]"><Plus class="w-4 h-4" /> 新增</button>
       </template>
     </NavBar>
     <div class="flex-1 px-4 py-4 space-y-3">
@@ -40,7 +40,7 @@ const ask = (id: string) => {
         <div v-for="req in list" :key="req.id" class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm overflow-hidden">
           <button @click="toggle(req.id)" class="w-full p-4 text-left">
             <div class="flex items-center gap-3">
-              <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] flex items-center justify-center shrink-0"><FileSearch class="h-5 w-5" /></div>
+              <div class="h-10 w-10 rounded-full bg-[#0B6BCB]/10 text-[#0B6BCB] flex items-center justify-center shrink-0"><FileSearch class="h-5 w-5" /></div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="text-xs font-bold text-gray-700">{{ req.createdAt.slice(0, 16) }}</span>
@@ -77,7 +77,7 @@ const ask = (id: string) => {
               <div
                 v-for="(ex, i) in req.exchanges"
                 :key="i"
-                :class="['p-3 rounded-xl text-[13px] leading-relaxed', ex.side === 'doctor' ? 'bg-[#0EA5E9]/8 mr-8' : 'bg-gray-100 ml-8']"
+                :class="['p-3 rounded-xl text-[13px] leading-relaxed', ex.side === 'doctor' ? 'bg-[#0B6BCB]/8 mr-8' : 'bg-gray-100 ml-8']"
               >
                 <div class="text-[10px] text-gray-400 mb-1">{{ ex.authorName }} · {{ ex.createdAt.slice(5, 16) }}</div>
                 {{ ex.text }}
@@ -91,9 +91,9 @@ const ask = (id: string) => {
               v-model="draft"
               rows="2"
               placeholder="继续追问…"
-              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none resize-none"
+              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
             />
-            <button @click="ask(req.id)" class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90">
+            <button @click="ask(req.id)" class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90">
               <Send class="w-4 h-4" /> 发送追问
             </button>
           </div>

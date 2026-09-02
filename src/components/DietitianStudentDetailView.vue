@@ -339,31 +339,31 @@ const openReport = (r: any) => {
     <div class="bg-white px-4 border-b border-gray-200 sticky top-14 z-10">
       <div class="flex gap-4 overflow-x-auto whitespace-nowrap py-1 no-scrollbar">
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'diet' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'diet' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'diet'"
         >
           饮食打卡
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'exercise' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'exercise' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'exercise'"
         >
           运动打卡
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'weight' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'weight' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'weight'"
         >
           体重打卡
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'medical' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'medical' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'medical'"
         >
           基础医疗
         </button>
         <button
-          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'questionnaire' ? 'border-[#0EA5E9] text-[#0EA5E9]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'questionnaire' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'questionnaire'"
         >
           自查问卷
@@ -503,7 +503,7 @@ const openReport = (r: any) => {
         <Card v-if="studentExercises.length > 0" class="space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
-              <TrendingUp class="h-4 w-4 text-[#0EA5E9]" />
+              <TrendingUp class="h-4 w-4 text-[#0B6BCB]" />
               每日运动趋势
             </h3>
             <div class="flex items-center gap-2">
@@ -521,8 +521,8 @@ const openReport = (r: any) => {
         </Card>
 
         <div v-if="studentExercises.length === 0" class="text-center py-10 bg-white rounded-2xl border border-gray-100">
-          <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center">
-            <Activity class="w-7 h-7 text-[#0EA5E9]" />
+          <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#0B6BCB]/10 flex items-center justify-center">
+            <Activity class="w-7 h-7 text-[#0B6BCB]" />
           </div>
           <div class="text-sm font-bold text-gray-700">该学员暂无运动打卡记录</div>
         </div>
@@ -530,7 +530,7 @@ const openReport = (r: any) => {
           <div v-for="group in groupedExerciseRecords" :key="group.date">
             <!-- Date header -->
             <div @click="toggleExerciseDate(group.date)" class="flex items-center gap-2 px-1 py-2 cursor-pointer select-none sticky top-[104px] z-[5] bg-[#F7F8FA]">
-              <div class="w-1 h-4 bg-[#0EA5E9] rounded-full"></div>
+              <div class="w-1 h-4 bg-[#0B6BCB] rounded-full"></div>
               <span class="text-sm font-bold text-gray-900">{{ group.label }}</span>
               <span class="text-[10px] text-gray-400">{{ group.records.length }} 条</span>
               <ChevronDown :class="['ml-auto w-4 h-4 text-gray-400 transition-transform duration-300', !isExerciseExpanded(group.date) ? '-rotate-90' : '']" />
@@ -540,7 +540,7 @@ const openReport = (r: any) => {
             <div class="p-4 border-b border-gray-50">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-xs text-gray-500 font-medium">{{ formatDateTime(record.date) }}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded text-[#0EA5E9] bg-[#0EA5E9]/10 font-bold uppercase flex items-center gap-1">
+                <span class="text-[10px] px-2 py-0.5 rounded text-[#0B6BCB] bg-[#0B6BCB]/10 font-bold uppercase flex items-center gap-1">
                   <Activity class="w-3 h-3" />
                   {{ record.type }}
                 </span>
@@ -554,7 +554,7 @@ const openReport = (r: any) => {
                 <div>
                   <div class="text-[10px] text-gray-500 mb-0.5">强度 (1-5)</div>
                   <div class="text-sm font-bold text-gray-900 flex gap-1">
-                    <div v-for="v in 5" :key="v" :class="['w-2 h-3 rounded-full', v <= record.intensity ? 'bg-[#0EA5E9]' : 'bg-gray-200']" />
+                    <div v-for="v in 5" :key="v" :class="['w-2 h-3 rounded-full', v <= record.intensity ? 'bg-[#0B6BCB]' : 'bg-gray-200']" />
                   </div>
                 </div>
               </div>
@@ -594,7 +594,7 @@ const openReport = (r: any) => {
               <div v-if="record.coachComment" class="relative">
                 <div class="flex items-center justify-between mb-1">
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-[#0EA5E9]">教练批注</span>
+                    <span class="text-xs font-bold text-[#0B6BCB]">教练批注</span>
                   </div>
                   <span v-if="record.coachCommentDate" class="text-[10px] text-gray-400">{{ record.coachCommentDate }}</span>
                 </div>
@@ -637,9 +637,9 @@ const openReport = (r: any) => {
               <div class="text-[10px] text-gray-500 mb-1">最新体重</div>
               <div class="text-base font-bold text-gray-900">{{ weightStats?.last }}<span class="text-[10px] font-normal text-gray-400 ml-0.5">kg</span></div>
             </div>
-            <div :class="['rounded-xl p-3 text-center border', (weightStats?.change ?? 0) < 0 ? 'bg-[#0EA5E9]/5 border-[#0EA5E9]/20' : 'bg-orange-50 border-orange-200']">
+            <div :class="['rounded-xl p-3 text-center border', (weightStats?.change ?? 0) < 0 ? 'bg-[#0B6BCB]/5 border-[#0B6BCB]/20' : 'bg-orange-50 border-orange-200']">
               <div class="text-[10px] text-gray-500 mb-1">总变化</div>
-              <div :class="['text-base font-bold', (weightStats?.change ?? 0) < 0 ? 'text-[#0EA5E9]' : 'text-orange-500']">
+              <div :class="['text-base font-bold', (weightStats?.change ?? 0) < 0 ? 'text-[#0B6BCB]' : 'text-orange-500']">
                 {{ weightStats && weightStats.change > 0 ? '+' : '' }}{{ weightStats?.change }}<span class="text-[10px] font-normal ml-0.5">kg</span>
               </div>
             </div>
@@ -665,7 +665,7 @@ const openReport = (r: any) => {
           <!-- Weight record history with annotation -->
           <Card class="p-0 overflow-hidden">
             <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center gap-2">
-              <Scale class="w-4 h-4 text-[#0EA5E9]" />
+              <Scale class="w-4 h-4 text-[#0B6BCB]" />
               <h3 class="font-bold text-gray-900 text-sm">打卡记录与批注</h3>
               <span class="text-[10px] text-gray-400 ml-auto">共 {{ studentWeights.length }} 条记录</span>
             </div>
@@ -687,7 +687,7 @@ const openReport = (r: any) => {
                   >
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-[#0EA5E9]/8 flex items-center justify-center text-[#0EA5E9] shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-[#0B6BCB]/8 flex items-center justify-center text-[#0B6BCB] shrink-0">
                           <Scale class="w-4 h-4" />
                         </div>
                         <div>
@@ -697,7 +697,7 @@ const openReport = (r: any) => {
                       </div>
                       <!-- 较上次变化（同一天内多条记录时也显示） -->
                       <div v-if="getPrevWeight(rec, group) !== null" class="text-right">
-                        <div :class="['text-xs font-bold', (rec.weight - getPrevWeight(rec, group)!) < 0 ? 'text-[#0EA5E9]' : 'text-orange-500']">
+                        <div :class="['text-xs font-bold', (rec.weight - getPrevWeight(rec, group)!) < 0 ? 'text-[#0B6BCB]' : 'text-orange-500']">
                           {{ (rec.weight - getPrevWeight(rec, group)!) > 0 ? '+' : '' }}{{ (rec.weight - getPrevWeight(rec, group)!).toFixed(1) }} kg
                         </div>
                         <div class="text-[10px] text-gray-400">较上次</div>
@@ -727,13 +727,13 @@ const openReport = (r: any) => {
                             v-for="tpl in WEIGHT_TEMPLATES"
                             :key="tpl"
                             @click="weightCommentText = weightCommentText ? weightCommentText + '，' + tpl : tpl"
-                            class="text-[10px] px-2 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] font-medium active:scale-95 transition-transform"
+                            class="text-[10px] px-2 py-1 rounded-full bg-[#0B6BCB]/10 text-[#0B6BCB] font-medium active:scale-95 transition-transform"
                           >
                             {{ tpl }}
                           </button>
                         </div>
                         <textarea
-                          class="w-full rounded-lg border border-gray-200 p-2 text-sm focus:outline-none focus:border-[#0EA5E9]"
+                          class="w-full rounded-lg border border-gray-200 p-2 text-sm focus:outline-none focus:border-[#0B6BCB]"
                           rows="2"
                           placeholder="输入体重批注..."
                           :value="weightCommentText"
@@ -741,26 +741,26 @@ const openReport = (r: any) => {
                         />
                         <div class="flex justify-end gap-2">
                           <Button variant="outline" size="sm" @click="cancelWeightComment">取消</Button>
-                          <Button class="bg-[#0EA5E9] text-white" size="sm" @click="handleSaveWeightComment(rec.id)">保存</Button>
+                          <Button class="bg-[#0B6BCB] text-white" size="sm" @click="handleSaveWeightComment(rec.id)">保存</Button>
                         </div>
                       </div>
                       <div v-else-if="rec.dietitianComment" class="relative group">
                         <div class="flex items-center justify-between mb-1">
                           <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-[#0EA5E9]">批注</span>
+                            <span class="text-xs font-bold text-[#0B6BCB]">批注</span>
                           </div>
                           <span v-if="rec.dietitianCommentDate" class="text-[10px] text-gray-400">{{ rec.dietitianCommentDate }}</span>
                         </div>
                         <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ rec.dietitianComment }}</p>
                         <div class="flex items-center gap-2 mt-1">
-                          <button @click="startWeightComment(rec)" class="text-xs text-[#0EA5E9]">编辑</button>
+                          <button @click="startWeightComment(rec)" class="text-xs text-[#0B6BCB]">编辑</button>
                           <span v-if="rec.dietitianComment && rec.commentRead" class="flex items-center gap-1 text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                             <Eye class="w-3 h-3" />
                             学员已读未回
                           </span>
                         </div>
                       </div>
-                      <button v-else @click="startWeightComment(rec)" class="flex items-center gap-1 text-sm text-[#0EA5E9] font-medium">
+                      <button v-else @click="startWeightComment(rec)" class="flex items-center gap-1 text-sm text-[#0B6BCB] font-medium">
                         <MessageCircle class="w-4 h-4" />
                         添加批注
                       </button>
@@ -814,7 +814,7 @@ const openReport = (r: any) => {
                         v-if="isEditingMedical"
                         type="number"
                         inputmode="decimal"
-                        class="w-20 text-center rounded border border-gray-200 p-1 text-sm focus:border-[#0EA5E9] outline-none"
+                        class="w-20 text-center rounded border border-gray-200 p-1 text-sm focus:border-[#0B6BCB] outline-none"
                         :value="item.beforeValue === null ? '' : item.beforeValue"
                         @input="handleMedicalChange(idx, iIdx, 'beforeValue', ($event.target as HTMLInputElement).value)"
                         placeholder="未检测"
@@ -826,14 +826,14 @@ const openReport = (r: any) => {
                       <span v-if="!isEditingMedical && item.beforeValue !== null && item.unit" class="text-[10px] text-gray-500 ml-1">{{ item.unit }}</span>
                     </div>
                   </div>
-                  <div class="bg-[#0EA5E9]/5 p-2 rounded flex flex-col justify-center items-center border border-[#0EA5E9]/10">
-                    <span class="text-[10px] text-[#0EA5E9] font-medium mb-1">结束时</span>
+                  <div class="bg-[#0B6BCB]/5 p-2 rounded flex flex-col justify-center items-center border border-[#0B6BCB]/10">
+                    <span class="text-[10px] text-[#0B6BCB] font-medium mb-1">结束时</span>
                     <div class="text-sm w-full flex justify-center">
                       <input
                         v-if="isEditingMedical"
                         type="number"
                         inputmode="decimal"
-                        class="w-20 text-center rounded border border-gray-200 p-1 text-sm focus:border-[#0EA5E9] outline-none"
+                        class="w-20 text-center rounded border border-gray-200 p-1 text-sm focus:border-[#0B6BCB] outline-none"
                         :value="item.afterValue === null ? '' : item.afterValue"
                         @input="handleMedicalChange(idx, iIdx, 'afterValue', ($event.target as HTMLInputElement).value)"
                         placeholder="未检测"
@@ -857,7 +857,7 @@ const openReport = (r: any) => {
         <div class="space-y-4">
           <Card>
             <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-              <FileText class="h-4 w-4 text-[#0EA5E9]" />
+              <FileText class="h-4 w-4 text-[#0B6BCB]" />
               学员体检报告
             </h3>
             <div class="grid grid-cols-2 gap-3">
@@ -865,10 +865,10 @@ const openReport = (r: any) => {
                 <div
                   v-for="(r, idx) in qData.medicalReports"
                   :key="idx"
-                  class="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-[#0EA5E9]"
+                  class="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-[#0B6BCB]"
                   @click="openReport(r)"
                 >
-                  <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0EA5E9]">
+                  <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0B6BCB]">
                     <FileText class="w-8 h-8 mb-1" />
                     <span class="text-[10px] text-gray-500 truncate px-1">{{ r.name || 'PDF报告' }}</span>
                   </div>
@@ -886,7 +886,7 @@ const openReport = (r: any) => {
 
           <Card>
             <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-              <ClipboardList class="h-4 w-4 text-[#0EA5E9]" />
+              <ClipboardList class="h-4 w-4 text-[#0B6BCB]" />
               基础与健康信息
             </h3>
             <div class="space-y-3 text-sm">
@@ -900,7 +900,7 @@ const openReport = (r: any) => {
 
           <Card>
             <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-              <AlertCircle class="h-4 w-4 text-[#0EA5E9]" />
+              <AlertCircle class="h-4 w-4 text-[#0B6BCB]" />
               生活与运动习惯
             </h3>
             <div class="space-y-3 text-sm">

@@ -151,7 +151,7 @@ const metricChangeText = (m: MetricChange): string => {
 // 指标变化颜色
 const metricChangeColor = (m: MetricChange): string => {
   if (m.change === null) return 'text-gray-400';
-  return m.isImproved ? 'text-[#0EA5E9]' : 'text-orange-500';
+  return m.isImproved ? 'text-[#0B6BCB]' : 'text-orange-500';
 };
 
 // 体重变化趋势箭头
@@ -205,7 +205,7 @@ const exportPDF = () => {
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-24 font-sans">
     <NavBar title="个人服务报告" :on-back="store.goBack">
       <template #right>
-        <button v-if="canView" class="text-[#0EA5E9] hover:bg-green-50 p-2 rounded-full transition-colors" @click="exportPDF">
+        <button v-if="canView" class="text-[#0B6BCB] hover:bg-green-50 p-2 rounded-full transition-colors" @click="exportPDF">
           <Download class="h-5 w-5" />
         </button>
       </template>
@@ -217,7 +217,7 @@ const exportPDF = () => {
         <span class="text-xs text-gray-500">当前服务批次：</span>
         <span class="text-sm font-medium text-gray-800">{{ selectedCamp?.name || '未选择' }}</span>
       </div>
-      <button class="text-xs text-[#0EA5E9] border border-[#0EA5E9] px-2.5 py-1 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
+      <button class="text-xs text-[#0B6BCB] border border-[#0B6BCB] px-2.5 py-1 rounded-full font-bold active:bg-green-50" @click="showCampPicker = true">
         切换
       </button>
     </div>
@@ -238,7 +238,7 @@ const exportPDF = () => {
     <!-- 服务批次已结束：显示完整报告 -->
     <div v-else ref="exportRef" class="p-4 space-y-4">
       <!-- 顶部鼓励卡片 -->
-      <div class="bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] rounded-2xl p-5 text-white shadow-lg">
+      <div class="bg-gradient-to-br from-[#0B6BCB] to-[#12B5C2] rounded-2xl p-5 text-white shadow-lg">
         <div class="flex items-center gap-2 mb-3">
           <Trophy class="w-6 h-6" />
           <h2 class="text-lg font-bold">个人服务报告</h2>
@@ -259,7 +259,7 @@ const exportPDF = () => {
       <!-- 体重变化 -->
       <Card>
         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-          <component :is="weightTrendIcon" class="h-4 w-4 text-[#0EA5E9]" />
+          <component :is="weightTrendIcon" class="h-4 w-4 text-[#0B6BCB]" />
           体重变化趋势
         </h3>
         <template v-if="report.weightTrend.records.length > 0">
@@ -269,7 +269,7 @@ const exportPDF = () => {
               <div class="text-xl font-bold text-gray-900">{{ fmt(report.weightTrend.startWeight) }} <span class="text-xs text-gray-400">kg</span></div>
             </div>
             <div class="flex-1 mx-4 text-center">
-              <div class="text-2xl font-bold" :class="report.weightTrend.totalChange !== null && report.weightTrend.totalChange < 0 ? 'text-[#0EA5E9]' : 'text-orange-500'">
+              <div class="text-2xl font-bold" :class="report.weightTrend.totalChange !== null && report.weightTrend.totalChange < 0 ? 'text-[#0B6BCB]' : 'text-orange-500'">
                 {{ fmtChange(report.weightTrend.totalChange, 'kg') }}
               </div>
               <div class="text-xs text-gray-400 mt-1">{{ report.weightTrend.changePercent !== null ? `${Math.abs(report.weightTrend.changePercent).toFixed(1)}%` : '--' }}</div>
@@ -284,8 +284,8 @@ const exportPDF = () => {
             <svg viewBox="0 0 280 100" class="w-full" preserveAspectRatio="none" style="height: 100px;">
               <defs>
                 <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.2" />
-                  <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0" />
+                  <stop offset="0%" stop-color="#0B6BCB" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#0B6BCB" stop-opacity="0" />
                 </linearGradient>
               </defs>
               <polygon
@@ -295,7 +295,7 @@ const exportPDF = () => {
               <polyline
                 :points="svgPoints"
                 fill="none"
-                stroke="#0EA5E9"
+                stroke="#0B6BCB"
                 stroke-width="2"
                 stroke-linejoin="round"
                 stroke-linecap="round"
@@ -306,7 +306,7 @@ const exportPDF = () => {
                 :cx="20 + (i / (report.weightTrend.records.length - 1)) * 240"
                 :cy="100 - 20 - ((r.weight - Math.min(...report.weightTrend.records.map(x => x.weight))) / (Math.max(...report.weightTrend.records.map(x => x.weight)) - Math.min(...report.weightTrend.records.map(x => x.weight)) || 1)) * 60"
                 r="3"
-                fill="#0EA5E9"
+                fill="#0B6BCB"
               />
             </svg>
           </div>
@@ -343,7 +343,7 @@ const exportPDF = () => {
       <!-- 打卡统计 -->
       <Card>
         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-          <Activity class="h-4 w-4 text-[#0EA5E9]" />
+          <Activity class="h-4 w-4 text-[#0B6BCB]" />
           打卡统计
         </h3>
         <div class="grid grid-cols-3 gap-3 text-center mb-4">
@@ -351,8 +351,8 @@ const exportPDF = () => {
             <div class="text-xl font-bold text-gray-900">{{ report.checkinStats.totalCheckinDays }}</div>
             <div class="text-[10px] text-gray-500 mt-1">总打卡天数</div>
           </div>
-          <div class="bg-[#0EA5E9]/5 rounded-lg py-3">
-            <div class="text-xl font-bold text-[#0EA5E9]">{{ report.checkinStats.completeDays }}</div>
+          <div class="bg-[#0B6BCB]/5 rounded-lg py-3">
+            <div class="text-xl font-bold text-[#0B6BCB]">{{ report.checkinStats.completeDays }}</div>
             <div class="text-[10px] text-gray-500 mt-1">完成全部打卡</div>
           </div>
           <div class="bg-orange-50 rounded-lg py-3">
@@ -432,11 +432,11 @@ const exportPDF = () => {
         </div>
         <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden mb-2">
           <div
-            class="h-full rounded-full bg-gradient-to-r from-[#0EA5E9] to-[#7DD3FC] transition-all"
+            class="h-full rounded-full bg-gradient-to-r from-[#0B6BCB] to-[#7DD3FC] transition-all"
             :style="{ width: `${Math.min(targetInfo.progress * 100, 100)}%` }"
           ></div>
         </div>
-        <p class="text-xs" :class="targetInfo.achieved ? 'text-[#0EA5E9] font-bold' : 'text-gray-500'">
+        <p class="text-xs" :class="targetInfo.achieved ? 'text-[#0B6BCB] font-bold' : 'text-gray-500'">
           <template v-if="targetInfo.achieved">🎉 恭喜达成目标体重！</template>
           <template v-else>达成 {{ Math.round(targetInfo.progress * 100) }}%，距目标还差 {{ targetInfo.remaining?.toFixed(1) }}kg，继续加油！</template>
         </p>
@@ -489,7 +489,7 @@ const exportPDF = () => {
             :class="[
               'w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all',
               selectedCampId === camp.id
-                ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]'
+                ? 'border-[#0B6BCB] bg-green-50 text-[#0B6BCB]'
                 : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50',
             ]"
           >

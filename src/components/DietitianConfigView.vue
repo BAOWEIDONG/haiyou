@@ -28,8 +28,8 @@ interface ConfigItem {
 
 // 服务（对应用户端报告解读 + 健康答疑）
 const serviceItems = computed<ConfigItem[]>(() => [
-  { view: 'doctor-interpretation', title: '报告健康解读', desc: '解答用户勾选的体检指标', icon: FileSearch, color: '#0EA5E9', badge: pendingInterpretations.value },
-  { view: 'doctor-consult', title: '健康答疑', desc: '回复用户的健康留言', icon: MessageSquareText, color: '#0EA5E9', badge: pendingThreads.value },
+  { view: 'doctor-interpretation', title: '报告健康解读', desc: '解答用户勾选的体检指标', icon: FileSearch, color: '#0B6BCB', badge: pendingInterpretations.value },
+  { view: 'doctor-consult', title: '健康答疑', desc: '回复用户的健康留言', icon: MessageSquareText, color: '#0B6BCB', badge: pendingThreads.value },
 ]);
 
 // 管理（平台后台：用户登录所需账户 / 服务批次 / 科普订阅）
@@ -67,7 +67,7 @@ const configItems: ConfigItem[] = [
       <!-- 服务 -->
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
-          <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>服务
+          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>服务
         </h3>
         <div class="space-y-3">
           <button v-for="s in serviceItems" :key="s.view" @click="store.setCurrentView(s.view as never)"

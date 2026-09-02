@@ -21,7 +21,7 @@ const knowledge = computed<KnowledgeContent | null>(() =>
 );
 
 const ktypeMeta: Record<string, { label: string; cls: string }> = {
-  article: { label: '图文', cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]' },
+  article: { label: '图文', cls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]' },
   video: { label: '视频', cls: 'bg-purple-50 text-purple-500' },
 };
 
@@ -99,14 +99,14 @@ const blockHasText = (b: KnowledgeBlock) => b.type === 'text' && b.text.trim() !
             </div>
           </div>
         </button>
-        <div v-else class="relative w-full aspect-[16/10] bg-gradient-to-br from-[#0EA5E9]/10 to-purple-50 flex items-center justify-center">
-          <component :is="isActivity ? PlayCircle : Newspaper" class="w-12 h-12 text-[#0EA5E9]/60" />
+        <div v-else class="relative w-full aspect-[16/10] bg-gradient-to-br from-[#0B6BCB]/10 to-purple-50 flex items-center justify-center">
+          <component :is="isActivity ? PlayCircle : Newspaper" class="w-12 h-12 text-[#0B6BCB]/60" />
         </div>
 
         <!-- 标题 & 元信息（公众号推文头） -->
         <div class="px-5 pt-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-[11px] font-bold text-[#0EA5E9]">{{ source }}</span>
+            <span class="text-[11px] font-bold text-[#0B6BCB]">{{ source }}</span>
             <span v-if="typeBadge" :class="['text-[10px] font-bold px-1.5 py-0.5 rounded', typeBadge.cls]">{{ typeBadge.label }}</span>
           </div>
           <h1 class="text-[20px] font-black text-gray-900 leading-snug">{{ title }}</h1>

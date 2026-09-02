@@ -96,7 +96,7 @@ const feedActivities = computed(() =>
 );
 const feedKnowledge = computed(() => store.knowledgeContents);
 const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
-  article: { label: '图文', cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]', icon: Newspaper },
+  article: { label: '图文', cls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]', icon: Newspaper },
   video: { label: '视频', cls: 'bg-purple-50 text-purple-500', icon: PlayCircle },
 };
 const feedEmpty = computed(() =>
@@ -189,8 +189,8 @@ const showDailySummary = computed(() => dailySummary.value !== null && !dailySum
 const dailySummaryWeightColor = computed(() => {
   const wc = dailySummary.value?.weightChange;
   if (wc === null || wc === undefined || wc === 0) return 'text-gray-900';
-  if (isWeightLoss.value) return wc < 0 ? 'text-[#0EA5E9]' : 'text-orange-500';
-  return wc > 0 ? 'text-[#0EA5E9]' : 'text-orange-500';
+  if (isWeightLoss.value) return wc < 0 ? 'text-[#0B6BCB]' : 'text-orange-500';
+  return wc > 0 ? 'text-[#0B6BCB]' : 'text-orange-500';
 });
 const dismissDailySummary = () => {
   dailySummaryDismissed.value = true;
@@ -242,7 +242,7 @@ onMounted(() => {
 <template>
   <div class="flex min-h-full flex-col bg-[#F4F6F8] pb-28 font-sans relative">
     <!-- Dynamic Background Header -->
-    <div class="relative pt-[calc(env(safe-area-inset-top)+2.5rem)] px-6 pb-8 bg-gradient-to-br from-[#0EA5E9] via-[#0284C7] to-[#0284C7] rounded-b-[32px] shadow-[0_10px_34px_-14px_rgba(14,165,233,0.5)] overflow-hidden">
+    <div class="relative pt-[calc(env(safe-area-inset-top)+2.5rem)] px-6 pb-8 bg-gradient-to-br from-[#0B6BCB] via-[#12B5C2] to-[#12B5C2] rounded-b-[32px] shadow-[0_10px_34px_-14px_rgba(11,107,203,0.5)] overflow-hidden">
       <div class="absolute -top-12 -right-12 w-64 h-64 bg-white/15 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-16 -left-10 w-56 h-56 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -268,7 +268,7 @@ onMounted(() => {
         <div class="flex-1 min-w-0">
           <h2 class="text-2xl font-black text-white tracking-tight truncate">你好，{{ store.user?.name || '学员' }}</h2>
           <div class="flex items-start gap-2 mt-2">
-            <span class="text-[11px] font-bold text-[#0EA5E9] bg-white px-2 py-0.5 rounded-full tracking-wide shrink-0 mt-0.5">DAY {{ campDay }}</span>
+            <span class="text-[11px] font-bold text-[#0B6BCB] bg-white px-2 py-0.5 rounded-full tracking-wide shrink-0 mt-0.5">DAY {{ campDay }}</span>
           </div>
         </div>
         <!-- 今日五项打卡环形进度 -->
@@ -304,17 +304,17 @@ onMounted(() => {
       <div class="grid grid-cols-2 gap-4 items-stretch">
         <!-- 最新体重卡（含体重变化 + 目标进度） -->
         <Card :class="['flex flex-col justify-center p-5 border-0 relative overflow-hidden h-full transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-lg shadow-[0_4px_20px_-8px_rgba(15,23,42,0.14)]']" @click="guardCheckin('weight-checkin')">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0EA5E9]/20 to-teal-100 rounded-full blur-2xl transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none"></div>
+          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0B6BCB]/20 to-teal-100 rounded-full blur-2xl transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none"></div>
           <div class="relative z-10">
             <div class="flex items-center gap-1 mb-2">
-              <Target class="w-4 h-4 text-[#0EA5E9] shrink-0" />
+              <Target class="w-4 h-4 text-[#0B6BCB] shrink-0" />
               <div class="text-xs text-gray-500 font-bold truncate">当前体重</div>
             </div>
             <div class="flex items-end gap-1">
               <span class="text-3xl font-black text-gray-900 tracking-tighter truncate">{{ latestWeight ?? '--' }}</span>
               <span class="text-sm mb-1 text-gray-500 font-medium shrink-0">kg</span>
             </div>
-            <div v-if="weightChange !== null" :class="['text-[11px] font-bold mt-1.5 flex items-center gap-0.5', isWeightChangeGood === null ? 'text-gray-400' : isWeightChangeGood ? 'text-[#0EA5E9]' : 'text-orange-500']">
+            <div v-if="weightChange !== null" :class="['text-[11px] font-bold mt-1.5 flex items-center gap-0.5', isWeightChangeGood === null ? 'text-gray-400' : isWeightChangeGood ? 'text-[#0B6BCB]' : 'text-orange-500']">
               <TrendingDown v-if="weightChange < 0" class="w-3 h-3" />
               <TrendingUp v-else-if="weightChange > 0" class="w-3 h-3" />
               <Minus v-else class="w-3 h-3" />
@@ -322,7 +322,7 @@ onMounted(() => {
             </div>
             <div v-if="targetProgress !== null" class="mt-2">
               <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-700" :class="isWeightLoss ? 'bg-gradient-to-r from-[#0EA5E9] to-[#0284C7]' : 'bg-gradient-to-r from-[#1677FF] to-[#0958d9]'" :style="{ width: targetProgress + '%' }"></div>
+                <div class="h-full rounded-full transition-all duration-700" :class="isWeightLoss ? 'bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2]' : 'bg-gradient-to-r from-[#1677FF] to-[#0958d9]'" :style="{ width: targetProgress + '%' }"></div>
               </div>
               <div class="text-[10px] text-gray-400 mt-1">
                 <template v-if="gapToTarget !== null && gapToTarget <= 0">已达成{{ isWeightLoss ? '减重' : '增重' }}目标 🎉</template>
@@ -334,11 +334,11 @@ onMounted(() => {
 
         <!-- 连续坚持卡（个人化指标，无排名竞争） -->
         <Card class="flex flex-col justify-center p-5 cursor-pointer hover:shadow-lg transition-shadow border-0 shadow-[0_4px_20px_-8px_rgba(15,23,42,0.14)] relative overflow-hidden h-full" @click="store.setCurrentView('calendar')">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0EA5E9]/15 to-teal-100 rounded-full blur-2xl transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none"></div>
+          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0B6BCB]/15 to-teal-100 rounded-full blur-2xl transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none"></div>
           <div class="relative z-10 flex flex-col h-full justify-between">
             <div>
               <div class="flex items-center gap-1 mb-2">
-                <Flame class="w-4 h-4 text-[#0EA5E9] shrink-0" />
+                <Flame class="w-4 h-4 text-[#0B6BCB] shrink-0" />
                 <div class="text-xs text-gray-500 font-bold truncate">连续坚持</div>
               </div>
               <div class="flex items-end gap-1">
@@ -348,7 +348,7 @@ onMounted(() => {
             <div class="text-xs text-gray-500 font-medium mt-1 truncate">
               {{ currentStreak > 0 ? '保持节奏，健康每一天' : '今天开始，从打卡开始' }}
             </div>
-            <div class="text-xs text-[#0EA5E9] font-bold mt-0.5 truncate">
+            <div class="text-xs text-[#0B6BCB] font-bold mt-0.5 truncate">
               {{ todayAllDone ? '今日已全部完成 ✓' : '完成每日打卡，看见坚持的力量' }}
             </div>
           </div>
@@ -358,18 +358,18 @@ onMounted(() => {
       <!-- 每日打卡任务 -->
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5">
-          <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
+          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
           每日打卡任务
         </h3>
         <div class="grid grid-cols-3 gap-3">
-          <Card :class="['flex flex-col items-center justify-center py-6 border-0 shadow-sm card-enter relative overflow-hidden transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:ring-2 ring-[#0EA5E9] active:scale-[0.96]', visibleCards.includes(3) ? 'card-enter-active' : '']" @click="guardCheckin('exercise')">
-            <div class="absolute -top-6 -right-4 w-24 h-24 bg-gradient-to-br from-[#0EA5E9]/12 to-green-50 rounded-full blur-2xl pointer-events-none"></div>
+          <Card :class="['flex flex-col items-center justify-center py-6 border-0 shadow-sm card-enter relative overflow-hidden transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:ring-2 ring-[#0B6BCB] active:scale-[0.96]', visibleCards.includes(3) ? 'card-enter-active' : '']" @click="guardCheckin('exercise')">
+            <div class="absolute -top-6 -right-4 w-24 h-24 bg-gradient-to-br from-[#0B6BCB]/12 to-green-50 rounded-full blur-2xl pointer-events-none"></div>
             <div class="relative z-10 flex flex-col items-center">
-              <div :class="['w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-sm', campNotStarted ? 'bg-gray-200 text-gray-400' : todayExerciseDone ? 'bg-[#0EA5E9]/15 text-[#0EA5E9]' : 'bg-gradient-to-br from-[#0EA5E9] to-green-500 text-white animate-pulse hover:scale-110']">
+              <div :class="['w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-sm', campNotStarted ? 'bg-gray-200 text-gray-400' : todayExerciseDone ? 'bg-[#0B6BCB]/15 text-[#0B6BCB]' : 'bg-gradient-to-br from-[#0B6BCB] to-green-500 text-white animate-pulse hover:scale-110']">
                 <Activity class="h-6 w-6" />
               </div>
               <div class="text-sm font-bold text-gray-900 mb-0.5">运动打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</div>
+              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</div>
             </div>
           </Card>
 
@@ -380,7 +380,7 @@ onMounted(() => {
                 <Coffee class="h-6 w-6" />
               </div>
               <div class="text-sm font-bold text-gray-900 mb-0.5">饮食打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : todayDietLabel }}</div>
+              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : todayDietLabel }}</div>
             </div>
           </Card>
 
@@ -391,7 +391,7 @@ onMounted(() => {
                 <Scale class="h-6 w-6" />
               </div>
               <div class="text-sm font-bold text-gray-900 mb-0.5">体重打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0EA5E9] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</div>
+              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</div>
             </div>
           </Card>
         </div>
@@ -401,15 +401,15 @@ onMounted(() => {
       <!-- 健康活动（锻炼活动｜健康科普 tab 信息流，首页平铺；点击卡片直达文章详情，即公众号推送式） -->
       <div>
         <h3 class="text-sm font-bold text-gray-900 mb-3 mt-5 ml-1 flex items-center gap-1.5">
-          <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
+          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
           健康活动
         </h3>
 
         <div class="flex gap-2 mb-3 px-1">
-          <button @click="feedTab = 'exercise'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0EA5E9] text-[#0EA5E9] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
+          <button @click="feedTab = 'exercise'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
             锻炼活动
           </button>
-          <button @click="feedTab = 'knowledge'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'knowledge' ? 'border-[#0EA5E9] text-[#0EA5E9] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
+          <button @click="feedTab = 'knowledge'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'knowledge' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
             健康科普
           </button>
         </div>
@@ -435,7 +435,7 @@ onMounted(() => {
 
           <!-- 健康科普：图文预览卡片 -->
           <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.openArticle('knowledge', k)" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
-            <div class="relative h-36 bg-gradient-to-br from-[#0EA5E9]/10 to-purple-50">
+            <div class="relative h-36 bg-gradient-to-br from-[#0B6BCB]/10 to-purple-50">
               <img v-if="k.imageUrls[0]" :src="k.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
               <div v-else class="absolute inset-0 flex items-center justify-center">
                 <component :is="ktypeMeta[k.contentType].icon" class="w-10 h-10" />
@@ -465,7 +465,7 @@ onMounted(() => {
           <div class="w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 summary-slide-up">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-base font-black text-gray-900 flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#0EA5E9] to-teal-500 flex items-center justify-center">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#0B6BCB] to-teal-500 flex items-center justify-center">
                   <BookOpen class="w-4 h-4 text-white" />
                 </div>
                 昨日小结
@@ -483,7 +483,7 @@ onMounted(() => {
                 <div class="text-[10px] text-gray-500">饮食打卡</div>
               </div>
               <div class="bg-green-50 rounded-xl p-3 text-center">
-                <Activity class="w-4 h-4 text-[#0EA5E9] mx-auto mb-1" />
+                <Activity class="w-4 h-4 text-[#0B6BCB] mx-auto mb-1" />
                 <div class="text-lg font-black text-gray-900">{{ dailySummary!.exerciseMins }}<span class="text-[10px] font-normal text-gray-400 ml-0.5">分钟</span></div>
                 <div class="text-[10px] text-gray-500">运动时长</div>
               </div>
@@ -498,15 +498,15 @@ onMounted(() => {
             </div>
 
             <!-- 营养师一句话 -->
-            <div v-if="dailySummary!.comment" class="bg-[#0EA5E9]/5 border border-[#0EA5E9]/15 rounded-xl p-3 mb-4">
+            <div v-if="dailySummary!.comment" class="bg-[#0B6BCB]/5 border border-[#0B6BCB]/15 rounded-xl p-3 mb-4">
               <div class="flex items-center gap-1.5 mb-1">
-                <MessageCircle class="w-3 h-3 text-[#0EA5E9]" />
-                <span class="text-[10px] font-bold text-[#0EA5E9]">{{ (dailySummary!.comment as any).dietitianName || (dailySummary!.comment as any).coachName || '老师' }} 昨天对你说</span>
+                <MessageCircle class="w-3 h-3 text-[#0B6BCB]" />
+                <span class="text-[10px] font-bold text-[#0B6BCB]">{{ (dailySummary!.comment as any).dietitianName || (dailySummary!.comment as any).coachName || '老师' }} 昨天对你说</span>
               </div>
               <p class="text-xs text-gray-700 leading-relaxed line-clamp-2">{{ (dailySummary!.comment as any).dietitianComment || (dailySummary!.comment as any).coachComment }}</p>
             </div>
 
-            <button @click="dismissDailySummary" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:scale-[0.98] transition-transform shadow-lg shadow-[#0EA5E9]/20">
+            <button @click="dismissDailySummary" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:scale-[0.98] transition-transform shadow-lg shadow-[#0B6BCB]/20">
               开启今天 ->
             </button>
           </div>
@@ -526,7 +526,7 @@ onMounted(() => {
             :class="[
               'w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all',
               activeCampId === camp.id
-                ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]'
+                ? 'border-[#0B6BCB] bg-green-50 text-[#0B6BCB]'
                 : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50',
             ]"
           >
@@ -556,7 +556,7 @@ onMounted(() => {
 <style scoped>
 /* 激励语：渐变流光效果 */
 .motivational-gradient {
-  background: linear-gradient(90deg, #0EA5E9, #1677FF, #FF976A, #F59E0B, #0EA5E9);
+  background: linear-gradient(90deg, #0B6BCB, #1677FF, #FF976A, #F59E0B, #0B6BCB);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;

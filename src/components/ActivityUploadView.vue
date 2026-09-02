@@ -153,7 +153,7 @@ const handleSubmit = () => {
             <label class="text-sm font-medium text-gray-700 block mb-2">发布范围 <span class="text-red-500">*</span></label>
             <button
               @click="showCampPicker = true"
-              class="w-full px-3 py-2.5 border border-gray-200 rounded-xl flex items-center justify-between text-sm bg-white hover:border-[#0EA5E9] transition-colors"
+              class="w-full px-3 py-2.5 border border-gray-200 rounded-xl flex items-center justify-between text-sm bg-white hover:border-[#0B6BCB] transition-colors"
             >
               <span :class="selectedCampIds.length > 0 ? 'text-gray-900' : 'text-gray-400'">
                 {{ campDisplayName }}
@@ -260,13 +260,13 @@ const handleSubmit = () => {
             v-for="camp in camps"
             :key="camp.id"
             @click="toggleCamp(camp.id)"
-            :class="['w-full px-4 py-3 rounded-xl text-sm font-medium transition-colors text-left flex items-center justify-between', selectedCampIds.includes(camp.id) ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border border-[#0EA5E9]/30' : 'bg-gray-50 text-gray-700']"
+            :class="['w-full px-4 py-3 rounded-xl text-sm font-medium transition-colors text-left flex items-center justify-between', selectedCampIds.includes(camp.id) ? 'bg-[#0B6BCB]/10 text-[#0B6BCB] border border-[#0B6BCB]/30' : 'bg-gray-50 text-gray-700']"
           >
             <span>
               {{ camp.name }}
               <span class="text-[10px] text-gray-400 ml-1">{{ camp.status === 'active' ? '进行中' : '待开始' }}</span>
             </span>
-            <span v-if="selectedCampIds.includes(camp.id)" class="w-5 h-5 rounded-full bg-[#0EA5E9] flex items-center justify-center shrink-0">
+            <span v-if="selectedCampIds.includes(camp.id)" class="w-5 h-5 rounded-full bg-[#0B6BCB] flex items-center justify-center shrink-0">
               <Check class="w-3 h-3 text-white" />
             </span>
             <span v-else class="w-5 h-5 rounded-full border-2 border-gray-300 shrink-0"></span>
@@ -276,7 +276,7 @@ const handleSubmit = () => {
           <button @click="selectedCampIds = []" class="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-600">
             清空（全部服务批次）
           </button>
-          <button @click="showCampPicker = false" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-[#0EA5E9] text-white">
+          <button @click="showCampPicker = false" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-[#0B6BCB] text-white">
             确定{{ selectedCampIds.length > 0 ? `(${selectedCampIds.length})` : '' }}
           </button>
         </div>

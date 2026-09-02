@@ -16,13 +16,13 @@ const unreadCount = computed(() =>
 const services = [
   {
     key: 'interpretation-result', title: '报告健康解读', desc: '勾指标请营养师解读、看结论、追问',
-    icon: FileSearch, grad: 'from-[#0EA5E9]/16 via-white/40 to-white/0',
-    iconColor: 'bg-[#0EA5E9]/12 text-[#0EA5E9]', wm: 'text-[#0EA5E9]/12',
+    icon: FileSearch, grad: 'from-[#0B6BCB]/16 via-white/40 to-white/0',
+    iconColor: 'bg-[#0B6BCB]/12 text-[#0B6BCB]', wm: 'text-[#0B6BCB]/12',
   },
   {
     key: 'consult', title: '健康答疑', desc: '给健康顾问留言，索取电话/微信',
-    icon: MessageSquareText, grad: 'from-[#14B8A6]/16 via-white/40 to-white/0',
-    iconColor: 'bg-[#14B8A6]/12 text-[#14B8A6]', wm: 'text-[#14B8A6]/12',
+    icon: MessageSquareText, grad: 'from-[#12B5C2]/16 via-white/40 to-white/0',
+    iconColor: 'bg-[#12B5C2]/12 text-[#12B5C2]', wm: 'text-[#12B5C2]/12',
   },
   {
     key: 'personal-journey', title: '个人历程', desc: '服务记录 · 报告 · 数据趋势',
@@ -38,7 +38,7 @@ const services = [
 </script>
 
 <template>
-  <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
+  <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
     <NavBar title="健康服务" />
 
     <div class="flex-1 px-4 py-4 space-y-3" v-if="store.user">

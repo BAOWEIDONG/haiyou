@@ -15,7 +15,7 @@ const store = useAppStore();
 // ─── Tab 切换 ───
 const activeTab = ref<Role>('student');
 const tabs: { role: Role; label: string; icon: typeof Users; color: string }[] = [
-  { role: 'student', label: '学员', icon: UserCircle, color: '#0EA5E9' },
+  { role: 'student', label: '学员', icon: UserCircle, color: '#0B6BCB' },
   { role: 'coach', label: '教练', icon: Dumbbell, color: '#FF976A' },
   { role: 'dietitian', label: '营养师', icon: Stethoscope, color: '#1677FF' },
 ];
@@ -372,7 +372,7 @@ const switchTab = (role: Role) => {
         <button
           :class="[
             'shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
-            filterCampId === 'all' ? 'bg-[#0EA5E9] text-white' : 'bg-white text-gray-600 border border-gray-100',
+            filterCampId === 'all' ? 'bg-[#0B6BCB] text-white' : 'bg-white text-gray-600 border border-gray-100',
           ]"
           @click="filterCampId = 'all'"
         >
@@ -383,7 +383,7 @@ const switchTab = (role: Role) => {
           :key="camp.id"
           :class="[
             'shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
-            filterCampId === camp.id ? 'bg-[#0EA5E9] text-white' : 'bg-white text-gray-600 border border-gray-100',
+            filterCampId === camp.id ? 'bg-[#0B6BCB] text-white' : 'bg-white text-gray-600 border border-gray-100',
           ]"
           @click="filterCampId = camp.id"
         >
@@ -421,7 +421,7 @@ const switchTab = (role: Role) => {
               <div
                 :class="[
                   'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                  activeTab === 'student' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9]' :
+                  activeTab === 'student' ? 'bg-[#0B6BCB]/10 text-[#0B6BCB]' :
                   activeTab === 'coach' ? 'bg-[#FF976A]/10 text-[#FF976A]' :
                   'bg-[#1677FF]/10 text-[#1677FF]',
                 ]"
@@ -444,7 +444,7 @@ const switchTab = (role: Role) => {
                   <span
                     v-for="campId in account.campIds"
                     :key="campId"
-                    class="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#0EA5E9]/10 text-[#0EA5E9]"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#0B6BCB]/10 text-[#0B6BCB]"
                   >
                     {{ campNameMap[campId] || campId }}
                   </span>
@@ -599,7 +599,7 @@ const switchTab = (role: Role) => {
                 :class="[
                   'px-3 py-2 rounded-lg text-sm font-medium transition-colors border',
                   (editingAccount.campIds || []).includes(camp.id)
-                    ? 'bg-[#0EA5E9] text-white border-transparent'
+                    ? 'bg-[#0B6BCB] text-white border-transparent'
                     : 'bg-gray-50 text-gray-600 border-gray-200 active:bg-gray-100',
                 ]"
                 @click="
@@ -626,14 +626,14 @@ const switchTab = (role: Role) => {
               <div class="text-[10px] text-gray-400 mt-0.5">禁用后该手机号将无法登录</div>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold" :class="editingAccount.active ? 'text-[#0EA5E9]' : 'text-gray-400'">
+              <span class="text-xs font-bold" :class="editingAccount.active ? 'text-[#0B6BCB]' : 'text-gray-400'">
                 {{ editingAccount.active ? '已启用' : '已禁用' }}
               </span>
               <VanSwitch
                 :model-value="editingAccount.active"
                 @update:model-value="editingAccount.active = $event"
                 size="22px"
-                active-color="#0EA5E9"
+                active-color="#0B6BCB"
               />
             </div>
           </div>

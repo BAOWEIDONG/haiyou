@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{
 const attrs = useAttrs();
 
 const variants: Record<string, string> = {
-  primary: 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] active:bg-[#0369A1] shadow-sm',
+  primary: 'bg-[#0B6BCB] text-white hover:bg-[#0369A1] active:bg-[#0369A1] shadow-sm',
   secondary: 'border border-gray-200 bg-white text-gray-900 hover:bg-gray-50 active:bg-gray-100',
   outline: 'border border-gray-300 text-gray-700 bg-transparent hover:bg-gray-50',
   ghost: 'bg-transparent text-gray-700 hover:bg-gray-100',

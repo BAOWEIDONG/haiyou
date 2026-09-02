@@ -170,21 +170,21 @@ onMounted(() => {
           >
             <span :class="[
               'text-sm w-6 h-6 flex items-center justify-center rounded-full transition-all',
-              getStatus(d).completed ? 'bg-[#0EA5E9] text-white font-bold' :
-              isSameDay(d, today) ? 'font-bold text-[#0EA5E9]' : 'text-gray-700'
+              getStatus(d).completed ? 'bg-[#0B6BCB] text-white font-bold' :
+              isSameDay(d, today) ? 'font-bold text-[#0B6BCB]' : 'text-gray-700'
             ]">
               {{ format(d, 'd') }}
             </span>
             <div class="flex gap-0.5 mt-0.5 items-center justify-center">
               <!-- 服务批次标注：开班/结业 -->
-              <span v-if="getCampMarker(d)?.type === 'start'" class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded leading-tight">开始</span>
+              <span v-if="getCampMarker(d)?.type === 'start'" class="text-[8px] font-bold text-white bg-[#0B6BCB] px-1 rounded leading-tight">开始</span>
               <span v-else-if="getCampMarker(d)?.type === 'end'" class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded leading-tight">结束</span>
               <!-- Partial: show 5 dots (done=colored, missing=gray) -->
               <template v-else-if="!getStatus(d).completed && getStatus(d).completedCount > 0">
                 <div :class="['w-1 h-1 rounded-full', getStatus(d).hasBreakfast ? 'bg-[#FF976A]' : 'bg-gray-200']" />
                 <div :class="['w-1 h-1 rounded-full', getStatus(d).hasLunch ? 'bg-[#FF976A]' : 'bg-gray-200']" />
                 <div :class="['w-1 h-1 rounded-full', getStatus(d).hasDinner ? 'bg-[#FF976A]' : 'bg-gray-200']" />
-                <div :class="['w-1 h-1 rounded-full', getStatus(d).hasExercise ? 'bg-[#0EA5E9]' : 'bg-gray-200']" />
+                <div :class="['w-1 h-1 rounded-full', getStatus(d).hasExercise ? 'bg-[#0B6BCB]' : 'bg-gray-200']" />
                 <div :class="['w-1 h-1 rounded-full', getStatus(d).hasWeight ? 'bg-[#1677FF]' : 'bg-gray-200']" />
               </template>
             </div>
@@ -193,20 +193,20 @@ onMounted(() => {
 
         <div class="flex items-center justify-center gap-4 mt-6 pt-4 border-t border-gray-100 flex-wrap">
           <div class="flex items-center gap-1.5">
-            <div class="w-4 h-4 rounded-full bg-[#0EA5E9] flex items-center justify-center">
+            <div class="w-4 h-4 rounded-full bg-[#0B6BCB] flex items-center justify-center">
               <Check class="w-2.5 h-2.5 text-white" />
             </div>
             <span class="text-xs text-gray-500">全部完成</span>
           </div>
           <div class="flex items-center gap-1">
             <div class="w-1.5 h-1.5 rounded-full bg-[#FF976A]" />
-            <div class="w-1.5 h-1.5 rounded-full bg-[#0EA5E9]" />
+            <div class="w-1.5 h-1.5 rounded-full bg-[#0B6BCB]" />
             <div class="w-1.5 h-1.5 rounded-full bg-[#1677FF]" />
             <div class="w-1.5 h-1.5 rounded-full bg-gray-200" />
             <span class="text-xs text-gray-500 ml-0.5">部分完成</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="text-[8px] font-bold text-white bg-[#0EA5E9] px-1 rounded">开始</span>
+            <span class="text-[8px] font-bold text-white bg-[#0B6BCB] px-1 rounded">开始</span>
             <span class="text-[8px] font-bold text-white bg-[#FF976A] px-1 rounded">结束</span>
             <span class="text-xs text-gray-500">服务批次标注</span>
           </div>
@@ -221,7 +221,7 @@ onMounted(() => {
       <Card :class="['detail-enter', detailCards.includes(0) ? 'detail-enter-active' : '']">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2">
-            <div :class="['w-8 h-8 rounded-full flex items-center justify-center shrink-0', selectedStatus.completed ? 'bg-[#0EA5E9]' : 'bg-gray-100']">
+            <div :class="['w-8 h-8 rounded-full flex items-center justify-center shrink-0', selectedStatus.completed ? 'bg-[#0B6BCB]' : 'bg-gray-100']">
               <CheckCircle2 v-if="selectedStatus.completed" class="w-5 h-5 text-white" />
               <span v-else class="text-[11px] font-bold text-gray-400">{{ selectedStatus.completedCount }}/5</span>
             </div>
@@ -230,7 +230,7 @@ onMounted(() => {
               <div class="text-[10px] text-gray-400">早餐 · 午餐 · 晚餐 · 运动 · 体重</div>
             </div>
           </div>
-          <span :class="['text-xs font-bold', selectedStatus.completed ? 'text-[#0EA5E9]' : 'text-gray-400']">
+          <span :class="['text-xs font-bold', selectedStatus.completed ? 'text-[#0B6BCB]' : 'text-gray-400']">
             {{ selectedStatus.completedCount }}/5
           </span>
         </div>
@@ -240,41 +240,41 @@ onMounted(() => {
                   :class="['flex items-center gap-2 p-2 rounded-lg text-left transition-all', selectedStatus.hasBreakfast ? 'bg-orange-50' : 'bg-gray-50', isSelectedToday && !selectedStatus.hasBreakfast ? 'ring-1 ring-[#FF976A]/40 cursor-pointer active:scale-[0.97]' : 'cursor-default']">
             <Coffee class="w-4 h-4 shrink-0" :class="selectedStatus.hasBreakfast ? 'text-[#FF976A]' : 'text-gray-300'" />
             <span class="text-xs font-medium" :class="selectedStatus.hasBreakfast ? 'text-gray-900' : 'text-gray-400'">早餐</span>
-            <CheckCircle2 v-if="selectedStatus.hasBreakfast" class="w-3.5 h-3.5 text-[#0EA5E9] ml-auto shrink-0" />
+            <CheckCircle2 v-if="selectedStatus.hasBreakfast" class="w-3.5 h-3.5 text-[#0B6BCB] ml-auto shrink-0" />
             <span v-else class="text-[10px] ml-auto" :class="isSelectedToday ? 'text-[#FF976A] font-bold' : 'text-gray-300'">{{ isSelectedToday ? '去打卡 →' : '未打卡' }}</span>
           </button>
           <button type="button" @click="goCheckin('diet')" :disabled="!isSelectedToday"
                   :class="['flex items-center gap-2 p-2 rounded-lg text-left transition-all', selectedStatus.hasLunch ? 'bg-orange-50' : 'bg-gray-50', isSelectedToday && !selectedStatus.hasLunch ? 'ring-1 ring-[#FF976A]/40 cursor-pointer active:scale-[0.97]' : 'cursor-default']">
             <Coffee class="w-4 h-4 shrink-0" :class="selectedStatus.hasLunch ? 'text-[#FF976A]' : 'text-gray-300'" />
             <span class="text-xs font-medium" :class="selectedStatus.hasLunch ? 'text-gray-900' : 'text-gray-400'">午餐</span>
-            <CheckCircle2 v-if="selectedStatus.hasLunch" class="w-3.5 h-3.5 text-[#0EA5E9] ml-auto shrink-0" />
+            <CheckCircle2 v-if="selectedStatus.hasLunch" class="w-3.5 h-3.5 text-[#0B6BCB] ml-auto shrink-0" />
             <span v-else class="text-[10px] ml-auto" :class="isSelectedToday ? 'text-[#FF976A] font-bold' : 'text-gray-300'">{{ isSelectedToday ? '去打卡 →' : '未打卡' }}</span>
           </button>
           <button type="button" @click="goCheckin('diet')" :disabled="!isSelectedToday"
                   :class="['flex items-center gap-2 p-2 rounded-lg text-left transition-all', selectedStatus.hasDinner ? 'bg-orange-50' : 'bg-gray-50', isSelectedToday && !selectedStatus.hasDinner ? 'ring-1 ring-[#FF976A]/40 cursor-pointer active:scale-[0.97]' : 'cursor-default']">
             <Coffee class="w-4 h-4 shrink-0" :class="selectedStatus.hasDinner ? 'text-[#FF976A]' : 'text-gray-300'" />
             <span class="text-xs font-medium" :class="selectedStatus.hasDinner ? 'text-gray-900' : 'text-gray-400'">晚餐</span>
-            <CheckCircle2 v-if="selectedStatus.hasDinner" class="w-3.5 h-3.5 text-[#0EA5E9] ml-auto shrink-0" />
+            <CheckCircle2 v-if="selectedStatus.hasDinner" class="w-3.5 h-3.5 text-[#0B6BCB] ml-auto shrink-0" />
             <span v-else class="text-[10px] ml-auto" :class="isSelectedToday ? 'text-[#FF976A] font-bold' : 'text-gray-300'">{{ isSelectedToday ? '去打卡 →' : '未打卡' }}</span>
           </button>
           <button type="button" @click="goCheckin('exercise')" :disabled="!isSelectedToday"
-                  :class="['flex items-center gap-2 p-2 rounded-lg text-left transition-all', selectedStatus.hasExercise ? 'bg-green-50' : 'bg-gray-50', isSelectedToday && !selectedStatus.hasExercise ? 'ring-1 ring-[#0EA5E9]/40 cursor-pointer active:scale-[0.97]' : 'cursor-default']">
-            <Activity class="w-4 h-4 shrink-0" :class="selectedStatus.hasExercise ? 'text-[#0EA5E9]' : 'text-gray-300'" />
+                  :class="['flex items-center gap-2 p-2 rounded-lg text-left transition-all', selectedStatus.hasExercise ? 'bg-green-50' : 'bg-gray-50', isSelectedToday && !selectedStatus.hasExercise ? 'ring-1 ring-[#0B6BCB]/40 cursor-pointer active:scale-[0.97]' : 'cursor-default']">
+            <Activity class="w-4 h-4 shrink-0" :class="selectedStatus.hasExercise ? 'text-[#0B6BCB]' : 'text-gray-300'" />
             <span class="text-xs font-medium" :class="selectedStatus.hasExercise ? 'text-gray-900' : 'text-gray-400'">运动</span>
-            <CheckCircle2 v-if="selectedStatus.hasExercise" class="w-3.5 h-3.5 text-[#0EA5E9] ml-auto shrink-0" />
-            <span v-else class="text-[10px] ml-auto" :class="isSelectedToday ? 'text-[#0EA5E9] font-bold' : 'text-gray-300'">{{ isSelectedToday ? '去打卡 →' : '未打卡' }}</span>
+            <CheckCircle2 v-if="selectedStatus.hasExercise" class="w-3.5 h-3.5 text-[#0B6BCB] ml-auto shrink-0" />
+            <span v-else class="text-[10px] ml-auto" :class="isSelectedToday ? 'text-[#0B6BCB] font-bold' : 'text-gray-300'">{{ isSelectedToday ? '去打卡 →' : '未打卡' }}</span>
           </button>
           <button type="button" @click="goCheckin('weight-checkin')" :disabled="!isSelectedToday"
                   :class="['flex items-center gap-2 p-2 rounded-lg text-left transition-all', selectedStatus.hasWeight ? 'bg-blue-50' : 'bg-gray-50', isSelectedToday && !selectedStatus.hasWeight ? 'ring-1 ring-[#1677FF]/40 cursor-pointer active:scale-[0.97]' : 'cursor-default']">
             <Scale class="w-4 h-4 shrink-0" :class="selectedStatus.hasWeight ? 'text-[#1677FF]' : 'text-gray-300'" />
             <span class="text-xs font-medium" :class="selectedStatus.hasWeight ? 'text-gray-900' : 'text-gray-400'">体重</span>
-            <CheckCircle2 v-if="selectedStatus.hasWeight" class="w-3.5 h-3.5 text-[#0EA5E9] ml-auto shrink-0" />
+            <CheckCircle2 v-if="selectedStatus.hasWeight" class="w-3.5 h-3.5 text-[#0B6BCB] ml-auto shrink-0" />
             <span v-else class="text-[10px] ml-auto" :class="isSelectedToday ? 'text-[#1677FF] font-bold' : 'text-gray-300'">{{ isSelectedToday ? '去打卡 →' : '未打卡' }}</span>
           </button>
         </div>
 
         <!-- Status message + action buttons -->
-        <div v-if="selectedStatus.completed" class="text-center text-xs text-[#0EA5E9] font-bold py-1 flex items-center justify-center gap-1">
+        <div v-if="selectedStatus.completed" class="text-center text-xs text-[#0B6BCB] font-bold py-1 flex items-center justify-center gap-1">
           <CheckCircle2 class="w-3.5 h-3.5" /> 当天打卡已全部完成！
         </div>
         <div v-else-if="isSameDay(selectedDate, today)" class="space-y-2">
@@ -287,7 +287,7 @@ onMounted(() => {
             </button>
             <button v-if="!selectedStatus.hasExercise"
                     @click="goCheckin('exercise')"
-                    class="flex-1 py-2 rounded-lg bg-[#0EA5E9] text-white text-xs font-bold active:scale-95 transition-transform">
+                    class="flex-1 py-2 rounded-lg bg-[#0B6BCB] text-white text-xs font-bold active:scale-95 transition-transform">
               去运动打卡
             </button>
             <button v-if="!selectedStatus.hasWeight"
@@ -332,7 +332,7 @@ onMounted(() => {
       </Card>
 
       <Card v-if="dayExercises.length > 0" :class="['detail-enter', detailCards.includes(2) ? 'detail-enter-active' : '']">
-        <div class="flex items-center gap-2 text-[#0EA5E9] mb-3">
+        <div class="flex items-center gap-2 text-[#0B6BCB] mb-3">
           <Activity class="h-4 w-4" />
           <h4 class="font-bold text-sm">运动打卡</h4>
         </div>
@@ -372,8 +372,8 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <div v-if="ex.coachComment" class="mt-2 p-2.5 bg-[#0EA5E9]/5 rounded-lg border border-[#0EA5E9]/10">
-              <span class="text-xs font-bold text-[#0EA5E9]">{{ ex.coachName || '教练' }}批注</span>
+            <div v-if="ex.coachComment" class="mt-2 p-2.5 bg-[#0B6BCB]/5 rounded-lg border border-[#0B6BCB]/10">
+              <span class="text-xs font-bold text-[#0B6BCB]">{{ ex.coachName || '教练' }}批注</span>
               <p class="text-sm text-gray-700 mt-0.5">{{ ex.coachComment }}</p>
             </div>
           </div>

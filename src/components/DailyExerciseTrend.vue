@@ -127,21 +127,21 @@ const hasRecords = computed(() => dayRecords.value.length > 0);
           :style="{ width: '34px' }"
         >
           <span class="text-[9px] font-bold mb-0.5"
-                :class="idx === selectedIdx ? 'text-[#0EA5E9]' : 'text-gray-300 group-hover:text-[#0EA5E9]'">{{ d.totalDuration }}</span>
+                :class="idx === selectedIdx ? 'text-[#0B6BCB]' : 'text-gray-300 group-hover:text-[#0B6BCB]'">{{ d.totalDuration }}</span>
           <div
             class="w-6 rounded-t"
-            :class="idx === selectedIdx ? 'bg-[#0EA5E9]' : 'bg-[#0EA5E9]/35 group-hover:bg-[#0EA5E9]/60'"
+            :class="idx === selectedIdx ? 'bg-[#0B6BCB]' : 'bg-[#0B6BCB]/35 group-hover:bg-[#0B6BCB]/60'"
             :style="{ height: `${Math.max((d.totalDuration / maxDuration) * 72, 3)}px` }"
           ></div>
           <span class="text-[8px] text-gray-400 mt-1 whitespace-nowrap"
-                :class="idx === selectedIdx ? 'font-bold text-[#0EA5E9]' : ''">{{ fmtDay(d.date) }}</span>
+                :class="idx === selectedIdx ? 'font-bold text-[#0B6BCB]' : ''">{{ fmtDay(d.date) }}</span>
         </div>
       </div>
 
       <!-- 选中日统计 -->
       <div v-if="selectedDay" class="mt-2 pt-3 border-t border-gray-100 grid grid-cols-4 gap-2 text-center">
-        <div class="bg-[#0EA5E9]/5 rounded-lg py-2">
-          <div class="text-sm font-bold text-[#0EA5E9]">{{ selectedDay.totalDuration }}</div>
+        <div class="bg-[#0B6BCB]/5 rounded-lg py-2">
+          <div class="text-sm font-bold text-[#0B6BCB]">{{ selectedDay.totalDuration }}</div>
           <div class="text-[9px] text-gray-500">总时长(分)</div>
         </div>
         <div class="bg-[#FF976A]/5 rounded-lg py-2">

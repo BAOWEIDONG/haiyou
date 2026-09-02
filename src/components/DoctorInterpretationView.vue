@@ -28,7 +28,7 @@ const reply = (id: string) => {
 </script>
 
 <template>
-  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E9F7FF] to-[#FBFEFF]">
+  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
     <NavBar title="报告健康解读" :on-back="() => store.goBack()" />
     <div class="flex-1 px-4 py-4 space-y-3">
       <div class="text-[11px] text-gray-500 rounded-xl bg-blue-50 border border-blue-100 p-3 leading-relaxed">
@@ -43,7 +43,7 @@ const reply = (id: string) => {
         >
           <button @click="toggle(req.id)" class="w-full flex items-center justify-between p-4 text-left">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] flex items-center justify-center shrink-0">
+              <div class="h-10 w-10 rounded-full bg-[#0B6BCB]/10 text-[#0B6BCB] flex items-center justify-center shrink-0">
                 <MessageCircleQuestion class="h-5 w-5" />
               </div>
               <div class="min-w-0">
@@ -83,7 +83,7 @@ const reply = (id: string) => {
               <div
                 v-for="(ex, i) in req.exchanges"
                 :key="i"
-                :class="['p-3 rounded-xl text-[13px] leading-relaxed', ex.side === 'doctor' ? 'bg-[#0EA5E9]/8 ml-6' : 'bg-gray-100 mr-6']"
+                :class="['p-3 rounded-xl text-[13px] leading-relaxed', ex.side === 'doctor' ? 'bg-[#0B6BCB]/8 ml-6' : 'bg-gray-100 mr-6']"
               >
                 <div class="text-[10px] text-gray-400 mb-1">
                   {{ ex.side === 'doctor' ? '营养师 · ' + ex.authorName : ex.authorName }} · {{ ex.createdAt.slice(5, 16) }}
@@ -97,11 +97,11 @@ const reply = (id: string) => {
               v-model="draft"
               rows="3"
               placeholder="输入健康解读：减重成效、指标趋势、生活习惯建议（不写疾病诊断）…"
-              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0EA5E9] focus:outline-none resize-none"
+              class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
             />
             <button
               @click="reply(req.id)"
-              class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] text-white text-sm font-bold active:opacity-90"
+              class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90"
             >
               <Send class="w-4 h-4" /> 发送解读
             </button>

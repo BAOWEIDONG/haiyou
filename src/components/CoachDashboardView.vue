@@ -142,12 +142,12 @@ const selectCamp = (campId: string | null) => {
         </button>
       </div>
       <div class="flex items-center space-x-4">
-        <div class="h-14 w-14 rounded-full bg-[#0EA5E9] flex items-center justify-center shadow-md shrink-0">
+        <div class="h-14 w-14 rounded-full bg-[#0B6BCB] flex items-center justify-center shadow-md shrink-0">
           <UserCircle class="h-7 w-7 text-white" />
         </div>
         <div>
           <h2 class="text-xl font-bold text-gray-900">教练您好，{{ store.user?.name || '教练' }}</h2>
-          <p class="text-xs font-bold text-[#0EA5E9] uppercase tracking-wider mt-1">您当前负责 {{ campStudents.length }} 名学员</p>
+          <p class="text-xs font-bold text-[#0B6BCB] uppercase tracking-wider mt-1">您当前负责 {{ campStudents.length }} 名学员</p>
         </div>
       </div>
     </div>
@@ -175,7 +175,7 @@ const selectCamp = (campId: string | null) => {
           未运动 ({{ filteredIncomplete.length }})
         </button>
         <button
-          :class="['flex-1 py-2 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5', activeTab === 'completed' ? 'bg-[#0EA5E9] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900']"
+          :class="['flex-1 py-2 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5', activeTab === 'completed' ? 'bg-[#0B6BCB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'completed'"
         >
           <CheckCircle class="w-4 h-4" />
@@ -199,7 +199,7 @@ const selectCamp = (campId: string | null) => {
             v-model="searchQuery"
             type="text"
             placeholder="搜索学员姓名或手机号"
-            class="w-full pl-9 pr-9 py-2.5 bg-white/55 backdrop-blur-md border border-white/60 rounded-xl text-sm shadow-sm focus:outline-none focus:border-[#0EA5E9] transition-colors"
+            class="w-full pl-9 pr-9 py-2.5 bg-white/55 backdrop-blur-md border border-white/60 rounded-xl text-sm shadow-sm focus:outline-none focus:border-[#0B6BCB] transition-colors"
           />
           <button v-if="searchQuery" @click="searchQuery = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
             <X class="w-4 h-4" />
@@ -211,11 +211,11 @@ const selectCamp = (campId: string | null) => {
             <div
               v-for="student in pagedStudents"
               :key="student.id"
-              class="flex items-center justify-between p-4 rounded-2xl bg-white/55 backdrop-blur-md border border-white/60 cursor-pointer hover:border-[#0EA5E9] transition-colors shadow-sm mb-3"
+              class="flex items-center justify-between p-4 rounded-2xl bg-white/55 backdrop-blur-md border border-white/60 cursor-pointer hover:border-[#0B6BCB] transition-colors shadow-sm mb-3"
               @click="openStudent(student.id)"
             >
               <div class="flex items-start space-x-3">
-                <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center text-[#0EA5E9] shrink-0">
+                <div class="h-10 w-10 rounded-full bg-[#0B6BCB]/10 flex items-center justify-center text-[#0B6BCB] shrink-0">
                   <UserCircle class="h-6 w-6" />
                 </div>
                 <div>
@@ -238,9 +238,9 @@ const selectCamp = (campId: string | null) => {
                   </div>
                 </div>
               </div>
-              <div class="text-[#0EA5E9] font-bold">›</div>
+              <div class="text-[#0B6BCB] font-bold">›</div>
             </div>
-            <button v-if="hasMore" @click="loadMore" class="w-full py-2.5 mb-1 text-xs font-bold text-[#0EA5E9] bg-white/55 backdrop-blur-md border border-[#0EA5E9]/30 rounded-xl active:bg-green-50">
+            <button v-if="hasMore" @click="loadMore" class="w-full py-2.5 mb-1 text-xs font-bold text-[#0B6BCB] bg-white/55 backdrop-blur-md border border-[#0B6BCB]/30 rounded-xl active:bg-green-50">
               加载更多（还有 {{ remaining }} 名学员）
             </button>
           </template>
@@ -252,9 +252,9 @@ const selectCamp = (campId: string | null) => {
 
       <!-- 活动管理 -->
       <template v-if="activeTab === 'activities'">
-        <Card class="flex items-center justify-between p-4 cursor-pointer hover:border-[#0EA5E9] transition-colors bg-[#0EA5E9]/[0.06] mb-4" @click="store.setEditingActivity(null); store.setCurrentView('activity-upload')">
+        <Card class="flex items-center justify-between p-4 cursor-pointer hover:border-[#0B6BCB] transition-colors bg-[#0B6BCB]/[0.06] mb-4" @click="store.setEditingActivity(null); store.setCurrentView('activity-upload')">
           <div class="flex items-center space-x-3">
-            <div class="h-10 w-10 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center text-[#0EA5E9]">
+            <div class="h-10 w-10 rounded-full bg-[#0B6BCB]/10 flex items-center justify-center text-[#0B6BCB]">
               <FileText class="h-5 w-5" />
             </div>
             <div>
@@ -262,7 +262,7 @@ const selectCamp = (campId: string | null) => {
               <div class="text-[10px] text-gray-500">支持图文形式，添加活动介绍</div>
             </div>
           </div>
-          <div class="text-[#0EA5E9] font-bold">›</div>
+          <div class="text-[#0B6BCB] font-bold">›</div>
         </Card>
 
         <div class="flex items-center justify-between mt-4 mb-4">
@@ -313,7 +313,7 @@ const selectCamp = (campId: string | null) => {
             v-for="camp in coachCamps"
             :key="camp.id"
             @click="selectCamp(camp.id)"
-            :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', activeCampId === camp.id ? 'border-[#0EA5E9] bg-green-50 text-[#0EA5E9]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
+            :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all', activeCampId === camp.id ? 'border-[#0B6BCB] bg-green-50 text-[#0B6BCB]' : 'border-gray-200 bg-white text-gray-700 active:bg-gray-50']"
           >
             <div class="flex-1 text-left min-w-0"><span class="font-medium">{{ camp.name }}</span><div class="text-[10px] text-gray-400 mt-0.5">{{ campDateRange(camp) }}</div></div>
             <div class="flex items-center gap-2">
