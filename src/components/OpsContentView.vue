@@ -37,20 +37,19 @@ const doRemove = (id: string, name: string) => {
         v-for="k in list"
         :key="k.id"
         @click="store.openArticle('knowledge', k)"
-        class="w-full text-left rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 p-4 space-y-1.5 shadow-sm active:opacity-70"
+        class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] transition-transform"
       >
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex items-center gap-3 min-w-0 flex-1">
-            <img v-if="k.imageUrls[0]" :src="k.imageUrls[0]" class="w-14 h-14 rounded-lg object-cover shrink-0" loading="lazy" decoding="async" />
-            <div v-else class="w-14 h-14 rounded-lg bg-[#8B5CF6]/10 text-[#8B5CF6] flex items-center justify-center shrink-0"><component :is="k.contentType === 'article' ? Newspaper : Video" class="w-6 h-6" /></div>
-            <div class="min-w-0 flex-1">
-              <div class="text-sm font-bold text-gray-900 leading-snug">{{ k.title }}</div>
-              <div class="text-[11px] text-gray-400 mt-1">{{ roleLabel[k.authorRole] }} · {{ k.authorName }} · {{ k.contentType === 'article' ? '图文' : '视频' }}</div>
-            </div>
-          </div>
-          <span @click.stop="doRemove(k.id, k.title)" class="text-gray-300 active:opacity-60 shrink-0"><Trash2 class="w-4 h-4" /></span>
+        <div class="relative h-36 bg-gradient-to-br from-[#8B5CF6]/10 to-purple-50">
+          <img v-if="k.imageUrls[0]" :src="k.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <div v-else class="absolute inset-0 flex items-center justify-center text-[#8B5CF6]"><component :is="k.contentType === 'article' ? Newspaper : Video" class="w-10 h-10" /></div>
+          <span class="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/85 text-[#8B5CF6]">{{ k.contentType === 'article' ? '图文' : '视频' }}</span>
+          <span @click.stop="doRemove(k.id, k.title)" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/45 text-white flex items-center justify-center active:bg-black/60"><Trash2 class="w-4 h-4" /></span>
         </div>
-        <div v-if="k.summary" class="text-[12px] text-gray-500 leading-relaxed">{{ k.summary }}</div>
+        <div class="p-3">
+          <div class="text-sm font-bold text-gray-900 truncate">{{ k.title }}</div>
+          <div v-if="k.summary" class="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ k.summary }}</div>
+          <div class="text-[10px] text-gray-400 mt-1.5">{{ roleLabel[k.authorRole] }} · {{ k.authorName }} · {{ k.createdAt.slice(0, 10) }}</div>
+        </div>
       </button>
     </div>
   </div>

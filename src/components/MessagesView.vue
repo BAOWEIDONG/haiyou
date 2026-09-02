@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import { NavBar, StudentTabbar } from './ui';
-import { MessageCircle, Bell, ChevronRight, Activity, RefreshCw } from 'lucide-vue-next';
+import { MessageCircle, Bell, ChevronRight, Activity, RefreshCw, FileSearch, MessageSquareText } from 'lucide-vue-next';
 import { useTabSwipe } from '../lib/useTabSwipe';
 import { usePaged } from '../composables/usePaged';
 import { useDebounced } from '../composables/useDebounced';
@@ -54,12 +54,12 @@ const campWtRecs = computed(() => activeCampId.value ? store.getCampWeightRecord
 
 interface MessageItem {
   id: string;
-  type: 'dietitian' | 'coach';
+  type: 'dietitian' | 'coach' | 'interpretation' | 'consult';
   date: string; // yyyy-MM-dd HH:mm:ss
   title: string;
   body: string;
   unread: boolean;
-  targetView: 'diet' | 'exercise' | 'weight-checkin';
+  targetView: 'diet' | 'exercise' | 'weight-checkin' | 'interpretation-result' | 'consult';
   targetDate?: string; // yyyy-MM-dd for scroll-to-record
 }
 
@@ -92,11 +92,46 @@ const commentMessages = computed<MessageItem[]>(() => {
   ];
 });
 
+// ---- 报告健康解读已回 / 健康答疑已复（异步提醒，点击跳回对应线程） ----
+const interpretationMessages = computed<MessageItem[]>(() =>
+  store.interpretationRequests
+    .filter((r) => r.studentId === store.user?.id && r.status === 'answered')
+    .map((r) => {
+      const lastDoctor = [...r.exchanges].reverse().find((e) => e.side === 'doctor');
+      return {
+        id: `ir-${r.id}`,
+        type: 'interpretation' as const,
+        date: r.answeredAt || lastDoctor?.createdAt || r.createdAt,
+        title: `${r.doctorName || '营养师'} 已解读你的报告`,
+        body: lastDoctor?.text || '你的报告健康解读已完成，点开查看详情。',
+        unread: !r.read,
+        targetView: 'interpretation-result' as const,
+      };
+    }),
+);
+
+const consultMessages = computed<MessageItem[]>(() =>
+  store.consultThreads
+    .filter((t) => t.studentId === store.user?.id && t.status === 'answered')
+    .map((t) => {
+      const last = t.replies[t.replies.length - 1];
+      return {
+        id: `ct-${t.id}`,
+        type: 'consult' as const,
+        date: last?.createdAt || t.createdAt,
+        title: `${t.replierName || '健康顾问'} 已回复你的健康答疑`,
+        body: last?.text || t.question,
+        unread: !t.read,
+        targetView: 'consult' as const,
+      };
+    }),
+);
+
 // ---- 汇总排序 ----
-// 批注类消息按时间倒序；同一时间按优先级：营养师批注 > 教练批注
-const typePriority: Record<string, number> = { dietitian: 0, coach: 1 };
+// 批注/解读/答疑 统一按时间倒序；同一时间按优先级：营养师批注 > 报告解读 > 教练批注 > 健康答疑
+const typePriority: Record<string, number> = { dietitian: 0, interpretation: 1, coach: 2, consult: 3 };
 const allMessages = computed<MessageItem[]>(() =>
-  [...commentMessages.value]
+  [...commentMessages.value, ...interpretationMessages.value, ...consultMessages.value]
     .sort((a, b) => {
       const dc = b.date.localeCompare(a.date);
       if (dc !== 0) return dc;
@@ -104,24 +139,26 @@ const allMessages = computed<MessageItem[]>(() =>
     }),
 );
 
-// ---- 分类筛选：营养师批注 / 教练批注 ----
+// ---- 分类筛选：营养师批注 / 教练批注 / 报告解读 / 健康答疑 ----
 const filters = [
   { key: 'all', label: '全部' },
   { key: 'dietitian', label: '营养师批注' },
   { key: 'coach', label: '教练批注' },
+  { key: 'interpretation', label: '报告解读' },
+  { key: 'consult', label: '健康答疑' },
 ];
 const activeFilter = ref<string>('all');
 const sheetRoot = ref<HTMLElement | null>(null);
-useTabSwipe(sheetRoot, activeFilter, ['all', 'dietitian', 'coach']);
+useTabSwipe(sheetRoot, activeFilter, ['all', 'dietitian', 'coach', 'interpretation', 'consult']);
 const messages = computed<MessageItem[]>(() =>
   activeFilter.value === 'all'
     ? allMessages.value
     : allMessages.value.filter((m) => m.type === activeFilter.value),
 );
 
-// 未读数 = 批注(营养师+教练)，与各学员页底部「消息」Tab 角标口径一致。
+// 未读数 = 批注(营养师+教练)+报告解读+健康答疑，与各学员页底部「消息」Tab 角标口径一致。
 const unreadCount = computed(() =>
-  allMessages.value.filter((m) => m.unread && (m.type === 'dietitian' || m.type === 'coach')).length,
+  allMessages.value.filter((m) => m.unread).length,
 );
 // 长列表分页 + 防抖：默认只渲染前 20 条；打卡/批注等高频变化时列表重建合并为一次
 const debouncedMessages = useDebounced(messages, 300);
@@ -139,7 +176,11 @@ const sheetUnread = computed(() => tabUnread(activeFilter.value));
 const typeMeta = (type: MessageItem['type']) =>
   type === 'dietitian'
     ? { icon: MessageCircle, cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]', tag: '营养师批注', tagCls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]' }
-    : { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '教练批注', tagCls: 'bg-sky-50 text-sky-500' };
+    : type === 'coach'
+      ? { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '教练批注', tagCls: 'bg-sky-50 text-sky-500' }
+      : type === 'interpretation'
+        ? { icon: FileSearch, cls: 'bg-violet-50 text-[#8B5CF6]', tag: '报告解读', tagCls: 'bg-violet-50 text-[#8B5CF6]' }
+        : { icon: MessageSquareText, cls: 'bg-teal-50 text-[#14B8A6]', tag: '健康答疑', tagCls: 'bg-teal-50 text-[#14B8A6]' };
 
 const openMessage = (m: MessageItem) => {
   if (m.targetDate) {
@@ -216,7 +257,7 @@ const fmtDate = (d: string) => {
           <Bell class="w-8 h-8 text-gray-300" />
         </div>
         <div class="text-sm font-bold text-gray-600 mb-1">暂无消息</div>
-        <div class="text-xs text-gray-400">营养师/教练的批注反馈会出现在这里</div>
+        <div class="text-xs text-gray-400">营养师/教练的批注反馈，以及报告解读、健康答疑的回复会出现在这里</div>
       </div>
 
       <!-- 消息列表 -->
