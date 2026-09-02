@@ -48,5 +48,18 @@ export default defineConfig(({ mode }) => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    build: {
+      rollupOptions: {
+        output: {
+          // 拆出高频第三方库为独立缓存块，首屏主 bundle 显著瘦身（离线 H5 首开慢主因）
+          manualChunks: {
+            vue: ['vue', 'pinia'],
+            vant: ['vant'],
+            icons: ['lucide-vue-next'],
+            date: ['date-fns'],
+          },
+        },
+      },
+    },
   };
 });
