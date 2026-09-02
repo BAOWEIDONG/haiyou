@@ -11,12 +11,20 @@ const draft = ref('');
 
 const list = computed(() =>
   [...store.interpretationRequests].sort((a, b) => {
-    if (a.status !== b.status) return a.status === 'pending' ? -1 : 1;
+    // 医生端处理优先级：待解读 > 学员追问未读 > 已读完；同级按提交时间倒序
+    const pri = (r: { status: string; doctorUnread?: boolean }) =>
+      r.status === 'pending' ? 0 : r.doctorUnread ? 1 : 2;
+    const pa = pri(a), pb = pri(b);
+    if (pa !== pb) return pa - pb;
     return b.createdAt.localeCompare(a.createdAt);
   }),
 );
 
-const toggle = (id: string) => { openId.value = openId.value === id ? null : id; draft.value = ''; };
+const toggle = (id: string) => {
+  openId.value = openId.value === id ? null : id;
+  draft.value = '';
+  if (openId.value) store.markInterpretationDoctorRead(id);
+};
 
 const reply = (id: string) => {
   if (!draft.value.trim()) { showToast('请输入解读内容'); return; }
@@ -52,6 +60,7 @@ const reply = (id: string) => {
                   <span :class="['text-[10px] px-1.5 py-0.5 rounded-full', req.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600']">
                     {{ req.status === 'pending' ? '待解读' : '已解读' }}
                   </span>
+                  <span v-if="req.doctorUnread" class="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B6BCB] text-white">新追问</span>
                 </div>
                 <div class="text-[11px] text-gray-500 mt-1 truncate">{{ req.question }}</div>
                 <div class="flex flex-wrap gap-1 mt-1.5">

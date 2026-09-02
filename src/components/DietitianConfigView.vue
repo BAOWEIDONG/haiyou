@@ -14,8 +14,8 @@ import {
  */
 const store = useAppStore();
 
-const pendingInterpretations = computed(() => store.getPendingInterpretations().length);
-const pendingThreads = computed(() => store.getPendingThreads().length);
+const pendingInterpretations = computed(() => store.getOpenInterpretations().length);
+const pendingThreads = computed(() => store.getOpenThreads().length);
 
 interface ConfigItem {
   view: string;

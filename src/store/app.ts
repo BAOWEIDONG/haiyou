@@ -767,6 +767,7 @@ export const useAppStore = defineStore('app', () => {
       status: 'pending',
       createdAt: now,
       exchanges: [],
+      doctorUnread: false,
       read: false,
     };
     interpretationRequests.value.unshift(req);
@@ -783,6 +784,7 @@ export const useAppStore = defineStore('app', () => {
     req.answeredAt = now;
     req.exchanges.push({ text, authorName: user.value?.name || '营养师', side: 'doctor', createdAt: now });
     req.read = false;
+    req.doctorUnread = false; // 医生此刻回复，已读过学员内容
   }
 
   function followupInterpretation(id: string, text: string, side: 'user' | 'doctor' = 'user') {
@@ -795,7 +797,15 @@ export const useAppStore = defineStore('app', () => {
       createdAt: formatDateTimeStr(),
     });
     if (side === 'user') req.status = 'answered'; // 追问后保持已解读
+    if (side === 'user') req.doctorUnread = true; // 学员新追问 → 医生端未读提醒
     if (side === 'doctor') req.read = false;
+    if (side === 'doctor') req.doctorUnread = false;
+  }
+
+  /** 医生端已读该解读（清除医生端未读提醒） */
+  function markInterpretationDoctorRead(id: string) {
+    const req = interpretationRequests.value.find((r) => r.id === id);
+    if (req) req.doctorUnread = false;
   }
 
   function markInterpretationRead(id: string) {
@@ -814,9 +824,9 @@ export const useAppStore = defineStore('app', () => {
   function getStudentInterpretations(studentId: string) {
     return interpretationRequests.value.filter((r) => r.studentId === studentId);
   }
-  /** 医生端待解读队列 */
-  function getPendingInterpretations() {
-    return interpretationRequests.value.filter((r) => r.status === 'pending');
+  /** 医生端待处理解读（待解读 + 学员追问未读），供工作台角标 */
+  function getOpenInterpretations() {
+    return interpretationRequests.value.filter((r) => r.status === 'pending' || r.doctorUnread);
   }
 
   function askConsult(studentId: string, topic: string, question: string, studentPhone = '') {
@@ -829,6 +839,7 @@ export const useAppStore = defineStore('app', () => {
       createdAt: formatDateTimeStr(),
       status: 'pending',
       replies: [],
+      doctorUnread: false,
       read: false,
     };
     consultThreads.value.unshift(thread);
@@ -844,6 +855,7 @@ export const useAppStore = defineStore('app', () => {
     t.replierRole = user.value?.role === 'coach' ? 'coach' : 'dietitian';
     t.replies.push({ text, authorName: user.value?.name || '营养师', side: 'staff', createdAt: formatDateTimeStr() });
     t.read = false;
+    t.doctorUnread = false; // 医生此刻回复，已读过学员内容
   }
 
   function studentReplyConsult(id: string, text: string) {
@@ -851,6 +863,13 @@ export const useAppStore = defineStore('app', () => {
     if (!t) return;
     t.replies.push({ text, authorName: studentName(t.studentId), side: 'student', createdAt: formatDateTimeStr() });
     t.status = 'answered';
+    t.doctorUnread = true; // 学员新追答 → 医生端未读提醒
+  }
+
+  /** 医生端已读该答疑（清除医生端未读提醒） */
+  function markThreadDoctorRead(id: string) {
+    const t = consultThreads.value.find((x) => x.id === id);
+    if (t) t.doctorUnread = false;
   }
 
   function markThreadRead(id: string) {
@@ -861,8 +880,9 @@ export const useAppStore = defineStore('app', () => {
   function getStudentThreads(studentId: string) {
     return consultThreads.value.filter((t) => t.studentId === studentId);
   }
-  function getPendingThreads() {
-    return consultThreads.value.filter((t) => t.status === 'pending');
+  /** 医生端待处理答疑（待回复 + 学员追答未读），供工作台角标 */
+  function getOpenThreads() {
+    return consultThreads.value.filter((t) => t.status === 'pending' || t.doctorUnread);
   }
 
   function addKnowledgeContent(data: Omit<KnowledgeContent, 'id' | 'createdAt'>) {
@@ -969,14 +989,16 @@ export const useAppStore = defineStore('app', () => {
     answerInterpretation,
     followupInterpretation,
     markInterpretationRead,
+    markInterpretationDoctorRead,
     getStudentInterpretations,
-    getPendingInterpretations,
+    getOpenInterpretations,
     askConsult,
     staffReplyConsult,
     studentReplyConsult,
     markThreadRead,
+    markThreadDoctorRead,
     getStudentThreads,
-    getPendingThreads,
+    getOpenThreads,
     addKnowledgeContent,
     deleteKnowledgeContent,
     studentName,

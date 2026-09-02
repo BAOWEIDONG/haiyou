@@ -58,6 +58,12 @@ const ask = (id: string) => {
           </button>
 
           <div v-if="openId === req.id" class="border-t border-gray-100 p-4 space-y-3">
+            <!-- 学员提交的完整问题（对齐营养师端展示口径） -->
+            <div v-if="req.question" class="rounded-xl bg-blue-50/60 p-3">
+              <div class="text-[10px] font-bold text-blue-600 mb-1">我提交的问题</div>
+              <div class="text-[13px] text-gray-800 leading-relaxed whitespace-pre-wrap">{{ req.question }}</div>
+            </div>
+
             <!-- 我上传的报告材料 -->
             <div v-if="req.materialImages && req.materialImages.length > 0" class="rounded-xl bg-blue-50/60 p-3">
               <div class="text-[10px] font-bold text-blue-600 mb-2">我上传的报告材料 · 点击查看</div>

@@ -12,12 +12,20 @@ const draft = ref('');
 
 const list = computed<ConsultThread[]>(() =>
   [...store.consultThreads].sort((a, b) => {
-    if (a.status !== b.status) return a.status === 'pending' ? -1 : 1;
+    // 医生端处理优先级：待回复 > 学员追答未读 > 已读完；同级按提交时间倒序
+    const pri = (t: { status: string; doctorUnread?: boolean }) =>
+      t.status === 'pending' ? 0 : t.doctorUnread ? 1 : 2;
+    const pa = pri(a), pb = pri(b);
+    if (pa !== pb) return pa - pb;
     return b.createdAt.localeCompare(a.createdAt);
   }),
 );
 
-const toggle = (id: string) => { openId.value = openId.value === id ? null : id; draft.value = ''; };
+const toggle = (id: string) => {
+  openId.value = openId.value === id ? null : id;
+  draft.value = '';
+  if (openId.value) store.markThreadDoctorRead(id);
+};
 
 const reply = (id: string) => {
   if (!draft.value.trim()) { showToast('请输入回复'); return; }
@@ -53,6 +61,7 @@ const reply = (id: string) => {
                   <span :class="['text-[10px] px-1.5 py-0.5 rounded-full', t.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600']">
                     {{ t.status === 'pending' ? '待回复' : '已回复' }}
                   </span>
+                  <span v-if="t.doctorUnread" class="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B6BCB] text-white">新回复</span>
                 </div>
                 <div class="text-[13px] font-medium text-gray-800 mt-0.5">{{ t.topic }}</div>
                 <div class="text-[11px] text-gray-500 mt-1 line-clamp-2">{{ t.question }}</div>

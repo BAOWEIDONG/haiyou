@@ -305,6 +305,8 @@ export interface InterpretationRequest {
   answeredAt?: string;
   /** 解读+追问往返 */
   exchanges: InterpretationExchange[];
+  /** 医生端未读：学员在此后追加过追问/新内容时置 true，医生读取或回复后清 */
+  doctorUnread?: boolean;
   /** 学员是否已读最新解读 */
   read?: boolean;
 }
@@ -332,6 +334,8 @@ export interface ConsultThread {
   }[];
   /** 学员可选填的联系手机号，必要时电话回访 */
   studentPhone?: string;
+  /** 医生端未读：学员在此后追加过新回复时置 true，医生读取或回复后清 */
+  doctorUnread?: boolean;
   /** 学员是否已读最新回复 */
   read?: boolean;
 }
