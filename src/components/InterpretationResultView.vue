@@ -58,6 +58,21 @@ const ask = (id: string) => {
           </button>
 
           <div v-if="openId === req.id" class="border-t border-gray-100 p-4 space-y-3">
+            <!-- 我上传的报告材料 -->
+            <div v-if="req.materialImages && req.materialImages.length > 0" class="rounded-xl bg-blue-50/60 p-3">
+              <div class="text-[10px] font-bold text-blue-600 mb-2">我上传的报告材料 · 点击查看</div>
+              <div class="grid grid-cols-3 gap-2">
+                <button
+                  v-for="(img, i) in req.materialImages"
+                  :key="i"
+                  @click="store.openImagePreview(req.materialImages!, i)"
+                  class="relative aspect-[3/4] rounded-lg overflow-hidden border border-blue-100 active:opacity-70"
+                >
+                  <img :src="img" loading="lazy" decoding="async" class="w-full h-full object-cover" />
+                </button>
+              </div>
+            </div>
+
             <div v-if="req.exchanges.length > 0" class="space-y-2">
               <div
                 v-for="(ex, i) in req.exchanges"

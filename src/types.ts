@@ -289,6 +289,8 @@ export interface InterpretationRequest {
   campId?: string;
   /** 希望解读的指标名（来自健康档案，可多选） */
   indicatorNames: string[];
+  /** 学员提交时上传的报告材料图片（化验单/体检单等），营养师解读时查看 */
+  materialImages?: string[];
   /** 用户留言 */
   question: string;
   /** pending 待解读 / answered 已解读 / closed 已关闭 */

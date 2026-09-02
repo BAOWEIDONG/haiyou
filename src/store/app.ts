@@ -748,13 +748,14 @@ export const useAppStore = defineStore('app', () => {
   // ============================================================================
   const _seq = { n: 0 };
 
-  function submitInterpretationRequest(studentId: string, indicatorNames: string[], question: string) {
+  function submitInterpretationRequest(studentId: string, indicatorNames: string[], question: string, materialImages: string[] = []) {
     const now = formatDateTimeStr();
     const req: InterpretationRequest = {
       id: `ir_${Date.now()}_${_seq.n++}`,
       studentId,
       campId: getStudentCampId(studentId) || undefined,
       indicatorNames,
+      materialImages,
       question,
       status: 'pending',
       createdAt: now,
