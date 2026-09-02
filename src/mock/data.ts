@@ -675,6 +675,9 @@ Object.values(MOCK_STUDENT_WEIGHTS).forEach((records) => {
 
 /** 营期/期列表 */
 export const MOCK_CAMPS: Camp[] = [
+  // 「开放营期」兜底批次：开放登录自动建档的学员一律归入这里（见 store.openStudentLogin）；
+  // 无起止日期，长期进行中，由运营在账户管理中可另行调整学员归属
+  { id: 'open', name: '开放营期', status: 'active' },
   { id: 'camp1', name: '第一期', startDate: dateStr(-15), endDate: dateStr(13), status: 'active' },
   { id: 'camp2', name: '第二期', startDate: dateStr(-2), endDate: dateStr(26), status: 'active' },
   { id: 'camp3', name: '第三期', startDate: dateStr(7), endDate: dateStr(35), status: 'upcoming' },

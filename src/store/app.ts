@@ -539,13 +539,17 @@ export const useAppStore = defineStore('app', () => {
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     const createdAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-    const defaultCamp = camps.value.find((c) => c.status === 'active')?.id || 'camp1';
+    // 开放登录：未知手机号一律归入「开放营期」兜底批次；若该批次被删则回退第一个活跃期，再无则第一个
+    const defaultCamp =
+      camps.value.find((c) => c.id === 'open')
+      || camps.value.find((c) => c.status === 'active')
+      || camps.value[0];
     const account: Account = {
       id: `s_${phone}_${now.getTime()}`,
       phone,
       name: `学员${phone.slice(-4)}`,
       role: 'student',
-      campIds: [defaultCamp],
+      campIds: defaultCamp ? [defaultCamp.id] : [],
       active: true,
       createdAt,
     };
