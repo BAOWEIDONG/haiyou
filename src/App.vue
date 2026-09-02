@@ -32,12 +32,10 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
   'coach-student-detail': () => import('./components/CoachStudentDetailView.vue'),
   'coach-unannotated-list': () => import('./components/CoachUnannotatedListView.vue'),
   'activity-upload': () => import('./components/ActivityUploadView.vue'),
-  'activities-list': () => import('./components/ActivitiesListView.vue'),
   'dietitian-dashboard': () => import('./components/DietitianDashboardView.vue'),
   'dietitian-student-detail': () => import('./components/DietitianStudentDetailView.vue'),
   'dietitian-unannotated-list': () => import('./components/DietitianUnannotatedListView.vue'),
   'metric-config': () => import('./components/MetricConfigView.vue'),
-  'enterprise-report': () => import('./components/EnterpriseReportView.vue'),
   'camp-report': () => import('./components/CampReportView.vue'),
   'personal-journey': () => import('./components/PersonalJourneyView.vue'),
   messages: () => import('./components/MessagesView.vue'),
@@ -48,7 +46,7 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
   'interpretation-request': () => import('./components/InterpretationRequestView.vue'),
   'interpretation-result': () => import('./components/InterpretationResultView.vue'),
   consult: () => import('./components/ConsultView.vue'),
-  knowledge: () => import('./components/KnowledgeView.vue'),
+  'article-detail': () => import('./components/ArticleDetailView.vue'),
   // 健康团队服务（并入营养师「配置」：报告解读 + 健康答疑）
   'doctor-interpretation': () => import('./components/DoctorInterpretationView.vue'),
   'doctor-consult': () => import('./components/DoctorConsultView.vue'),
@@ -59,9 +57,9 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
 
 // 各角色底部 tab 与常用子页（角色预取，配合下方全量预取双保险）
 const ROLE_TABS: Record<string, string[]> = {
-  student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'knowledge'],
-  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-service-pack', 'ops-content', 'enterprise-report'],
-  coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload', 'activities-list'],
+  student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'article-detail'],
+  dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-service-pack', 'ops-content'],
+  coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload'],
 };
 let prefetchedRole = false;
 let prefetchedAll = false;

@@ -44,10 +44,8 @@ export type View =
   | 'dietitian-dashboard'
   | 'dietitian-student-detail'
   | 'dietitian-unannotated-list'
-  | 'activities-list'
   | 'video-player'
   | 'camp-report'
-  | 'enterprise-report'
   | 'personal-journey'
   | 'metric-config'
   | 'messages'
@@ -58,7 +56,7 @@ export type View =
   | 'interpretation-request'
   | 'interpretation-result'
   | 'consult'
-  | 'knowledge'
+  | 'article-detail'
   // 健康团队服务（并入营养师「配置」：报告解读 + 健康答疑）
   | 'doctor-interpretation'
   | 'doctor-consult'
@@ -474,6 +472,14 @@ export const useAppStore = defineStore('app', () => {
 
   function openVideoPreview(url: string) {
     videoPreview.value = { url };
+  }
+
+  /** 学员端「健康活动」当前正在阅读的文章（锻炼活动 / 健康科普，公众号推送式详情） */
+  const activeArticle = ref<{ kind: 'activity' | 'knowledge'; item: CoachActivityRecord | KnowledgeContent } | null>(null);
+
+  function openArticle(kind: 'activity' | 'knowledge', item: CoachActivityRecord | KnowledgeContent) {
+    activeArticle.value = { kind, item };
+    setCurrentView('article-detail');
   }
 
   function getMealTimeConfig(campId: string): MealTimeConfig {
@@ -918,6 +924,8 @@ export const useAppStore = defineStore('app', () => {
     deleteMetricConfig,
     openImagePreview,
     openVideoPreview,
+    activeArticle,
+    openArticle,
     closeVideoPreview,
     camps,
     accounts,

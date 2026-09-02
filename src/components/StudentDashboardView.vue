@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronRight, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, PlayCircle, Newspaper, Radio } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, PlayCircle, Newspaper, Radio } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 
@@ -399,18 +399,12 @@ onMounted(() => {
       </div>
 
       <!-- 健康服务（四小板块：报告解读 / 健康答疑 / 个人历程 / 健康活动[订阅+锻炼]） -->
-      <!-- 健康活动（锻炼活动｜健康科普 tab 信息流，首页平铺） -->
+      <!-- 健康活动（锻炼活动｜健康科普 tab 信息流，首页平铺；点击卡片直达文章详情，即公众号推送式） -->
       <div>
-        <div class="flex items-center justify-between mb-1 mt-5">
-          <h3 class="text-sm font-bold text-gray-900 ml-1 flex items-center gap-1.5">
-            <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
-            健康活动
-          </h3>
-          <button @click="store.setCurrentView(feedTab === 'exercise' ? 'activities-list' : 'knowledge')" class="text-[11px] text-gray-400 font-medium flex items-center gap-0.5 shrink-0">
-            查看全部
-            <ChevronRight class="w-3 h-3" />
-          </button>
-        </div>
+        <h3 class="text-sm font-bold text-gray-900 mb-3 mt-5 ml-1 flex items-center gap-1.5">
+          <div class="w-1.5 h-4 bg-[#0EA5E9] rounded-full"></div>
+          健康活动
+        </h3>
 
         <div class="flex gap-2 mb-3 px-1">
           <button @click="feedTab = 'exercise'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0EA5E9] text-[#0EA5E9] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
@@ -423,7 +417,7 @@ onMounted(() => {
 
         <div class="space-y-3">
           <!-- 锻炼活动：图文预览卡片 -->
-          <button v-if="feedTab === 'exercise'" v-for="a in feedActivities" :key="a.id" @click="store.setCurrentView('activities-list')" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
+          <button v-if="feedTab === 'exercise'" v-for="a in feedActivities" :key="a.id" @click="store.openArticle('activity', a)" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
             <div class="relative h-36 bg-gradient-to-br from-[#1677FF]/10 to-blue-50">
               <img v-if="a.imageUrls[0]" :src="a.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
               <div v-else class="absolute inset-0 flex items-center justify-center">
@@ -441,7 +435,7 @@ onMounted(() => {
           </button>
 
           <!-- 健康科普：图文预览卡片 -->
-          <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.setCurrentView('knowledge')" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
+          <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.openArticle('knowledge', k)" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
             <div class="relative h-36 bg-gradient-to-br from-[#0EA5E9]/10 to-purple-50">
               <img v-if="k.imageUrls[0]" :src="k.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
               <div v-else class="absolute inset-0 flex items-center justify-center">

@@ -3,14 +3,14 @@ import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { DietitianTabbar } from './ui';
 import {
-  Settings, LogOut, FileSearch, MessageSquareText, Users, Package, BarChart3, Newspaper, Activity, ShieldCheck,
+  Settings, LogOut, FileSearch, MessageSquareText, Users, Package, Newspaper, Activity, ShieldCheck,
 } from 'lucide-vue-next';
 
 /**
  * 营养师端「配置」tab（服务/管理/配置三段融合）。医生端+运营端已并入营养师。
  * 只保留被学员端实际消费的后台功能：解读/答疑（对应用户报告解读/健康答疑）、
- * 账户/服务包/企业看板/科普（对应用户登录/服务批次/订阅）、健康档案指标（对应用户体检档案）。
- * 与学员端无关的孤立后台（转介/随访/线索台账/用户画像/合规/结业统计）已删除。
+ * 账户/服务包/科普（对应用户登录/服务批次/订阅）、健康档案指标（对应用户体检档案）。
+ * 与学员端无关的孤立后台（转介/随访/线索台账/用户画像/合规/结业统计/企业履约看板）已删除。
  */
 const store = useAppStore();
 
@@ -32,11 +32,10 @@ const serviceItems = computed<ConfigItem[]>(() => [
   { view: 'doctor-consult', title: '健康答疑', desc: '回复用户的健康留言', icon: MessageSquareText, color: '#0EA5E9', badge: pendingThreads.value },
 ]);
 
-// 管理（平台后台：用户登录所需账户 / 服务批次 / 企业履约 / 科普订阅）
+// 管理（平台后台：用户登录所需账户 / 服务批次 / 科普订阅）
 const manageItems: ConfigItem[] = [
   { view: 'account-manage', title: '账户管理', desc: '各角色手机号与服务批次', icon: Users, color: '#FF976A' },
   { view: 'ops-service-pack', title: '服务包与权益', desc: '权益批次/有效期/服务范围', icon: Package, color: '#FF976A' },
-  { view: 'enterprise-report', title: '企业履约看板', desc: '脱敏聚合：参与/活跃/达标', icon: BarChart3, color: '#8B5CF6' },
   { view: 'ops-content', title: '科普内容', desc: '发布健康科普/视频/直播', icon: Newspaper, color: '#8B5CF6' },
 ];
 
