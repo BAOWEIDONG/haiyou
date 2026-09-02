@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
 import { ROLE_LABEL, type CoachActivityRecord, type KnowledgeContent } from '../types';
-import { Newspaper, Play, PlayCircle, Radio, User } from 'lucide-vue-next';
+import { Newspaper, Play, PlayCircle, User } from 'lucide-vue-next';
 
 /**
  * 学员端「健康活动」文章详情页（公众号推送式阅读页）。
@@ -23,7 +23,6 @@ const knowledge = computed<KnowledgeContent | null>(() =>
 const ktypeMeta: Record<string, { label: string; cls: string }> = {
   article: { label: '图文', cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]' },
   video: { label: '视频', cls: 'bg-purple-50 text-purple-500' },
-  live: { label: '直播', cls: 'bg-red-50 text-red-500' },
 };
 
 const title = computed(() => (isActivity.value ? activity.value?.title || '' : knowledge.value?.title || ''));

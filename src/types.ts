@@ -341,8 +341,8 @@ export interface KnowledgeContent {
   /** 作者（医生/营养师/康复教练） */
   authorRole: Role;
   authorName: string;
-  /** 知识分类：科普图文 / 短视频 / 直播 */
-  contentType: 'article' | 'video' | 'live';
+  /** 知识分类：科普图文 / 短视频 */
+  contentType: 'article' | 'video';
   createdAt: string;
   videoUrls?: string[];
   /** 可见范围：空/未填 = 全部订阅用户可见（内部置空） */

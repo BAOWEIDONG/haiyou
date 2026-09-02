@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar, StudentTabbar } from './ui';
-import { FileSearch, MessageSquareText, BookOpen, ClipboardList, ChevronRight } from 'lucide-vue-next';
+import { FileSearch, MessageSquareText, BookOpen, ClipboardList } from 'lucide-vue-next';
 
 const store = useAppStore();
 
@@ -25,16 +25,16 @@ const services = [
     <NavBar title="健康服务" />
 
     <div class="flex-1 px-4 py-4 space-y-3" v-if="store.user">
-      <div class="space-y-3">
-        <button v-for="s in services" :key="s.key" @click="store.setCurrentView(s.key as never)" class="w-full flex items-center gap-3 p-4 text-left rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.98] transition-transform active:bg-white">
-          <div :class="['w-12 h-12 rounded-xl flex items-center justify-center shrink-0', s.tone]">
-            <component :is="s.icon" class="h-6 w-6" />
+      <div class="grid grid-cols-2 gap-3">
+        <button v-for="s in services" :key="s.key" @click="store.setCurrentView(s.key as never)" class="flex flex-col items-start gap-2 p-4 text-left rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.97] transition-transform active:bg-white overflow-hidden relative">
+          <div :class="['w-11 h-11 rounded-2xl flex items-center justify-center shrink-0', s.tone]">
+            <component :is="s.icon" class="h-5 w-5" />
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-bold text-gray-900">{{ s.title }}</div>
-            <div class="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{{ s.desc }}</div>
+          <div class="min-w-0">
+            <div class="text-sm font-bold text-gray-900 leading-snug">{{ s.title }}</div>
+            <div class="text-[11px] text-gray-400 mt-1 leading-relaxed">{{ s.desc }}</div>
           </div>
-          <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
+          <span class="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-[#0EA5E9]/40"></span>
         </button>
       </div>
 

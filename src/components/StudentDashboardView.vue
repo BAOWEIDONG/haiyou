@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, PlayCircle, Newspaper, Radio } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, PlayCircle, Newspaper } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 
@@ -98,7 +98,6 @@ const feedKnowledge = computed(() => store.knowledgeContents);
 const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
   article: { label: '图文', cls: 'bg-[#0EA5E9]/10 text-[#0EA5E9]', icon: Newspaper },
   video: { label: '视频', cls: 'bg-purple-50 text-purple-500', icon: PlayCircle },
-  live: { label: '直播', cls: 'bg-red-50 text-red-500', icon: Radio },
 };
 const feedEmpty = computed(() =>
   feedTab.value === 'exercise' ? feedActivities.value.length === 0 : feedKnowledge.value.length === 0,
