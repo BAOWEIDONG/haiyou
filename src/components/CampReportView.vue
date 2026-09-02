@@ -314,13 +314,13 @@ const exportPDF = () => {
         <div v-else class="text-center text-sm text-gray-400 py-6">暂无体重记录</div>
       </Card>
 
-      <!-- 体成分变化 -->
-      <Card>
+      <!-- 体成分变化（无数据时整卡隐藏，对齐化验指标卡"有才展示"，体重/打卡/建议仍在 -->
+      <Card v-if="bodyCompositionMetrics.some((m) => m.beforeValue !== null || m.afterValue !== null)">
         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
           <Activity class="h-4 w-4 text-[#1677FF]" />
           体成分检测变化
         </h3>
-        <div v-if="bodyCompositionMetrics.some((m) => m.beforeValue !== null || m.afterValue !== null)" class="space-y-3">
+        <div class="space-y-3">
           <div
             v-for="m in bodyCompositionMetrics.filter(m => m.beforeValue !== null || m.afterValue !== null)"
             :key="m.configId"
@@ -337,7 +337,6 @@ const exportPDF = () => {
             </div>
           </div>
         </div>
-        <div v-else class="text-center text-sm text-gray-400 py-6">本服务批次暂无体成分检测数据</div>
       </Card>
 
       <!-- 打卡统计 -->

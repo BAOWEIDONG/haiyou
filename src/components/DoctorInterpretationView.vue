@@ -63,6 +63,12 @@ const reply = (id: string) => {
           </button>
 
           <div v-if="openId === req.id" class="border-t border-gray-100 p-4 space-y-3">
+            <!-- 学员提交的完整问题/想解读的内容 -->
+            <div class="rounded-xl bg-blue-50 border border-blue-100 p-3">
+              <div class="text-[10px] font-bold text-[#0B6BCB] mb-1">学员待解读问题</div>
+              <div class="text-[13px] text-gray-800 leading-relaxed whitespace-pre-wrap">{{ req.question }}</div>
+            </div>
+
             <!-- 学员上传的报告材料（化验单/体检单），解读据此出具 -->
             <div v-if="req.materialImages && req.materialImages.length > 0" class="rounded-xl bg-gray-50 p-3">
               <div class="text-[10px] font-bold text-gray-500 mb-2 flex items-center gap-1">报告材料 · 点击查看</div>

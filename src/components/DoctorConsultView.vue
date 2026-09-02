@@ -61,6 +61,12 @@ const reply = (id: string) => {
           </button>
 
           <div v-if="openId === t.id" class="border-t border-gray-100 p-4 space-y-3">
+            <!-- 学员提交的完整问题 -->
+            <div class="rounded-xl bg-blue-50 border border-blue-100 p-3">
+              <div class="text-[10px] font-bold text-[#0B6BCB] mb-1">学员问题</div>
+              <div class="text-[13px] text-gray-800 leading-relaxed whitespace-pre-wrap">{{ t.question }}</div>
+            </div>
+
             <div v-if="t.replies.length > 0" class="space-y-2">
               <div
                 v-for="(r, i) in t.replies"
