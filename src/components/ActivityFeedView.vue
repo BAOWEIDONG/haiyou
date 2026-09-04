@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useAppStore } from '../store/app';
 import { StudentTabbar } from './ui';
 import { Newspaper, PlayCircle, BookOpen } from 'lucide-vue-next';
@@ -22,6 +22,58 @@ const banners = computed(() => store.activityConfig.banners);
 function openBanner(b: { title: string; image: string; url: string }) {
   if (b.url && /^https?:\/\//i.test(b.url)) window.open(b.url, '_blank');
 }
+
+// ---- Banner 自动轮播：默认每 4s 前进一页；用户触摸/滚轮滑动时暂停，静置 8s 后恢复 ----
+const bannerTrack = ref<HTMLElement | null>(null);
+const bannerIndex = ref(0);
+let autoTimer: number | undefined = undefined;
+let resumeTimer: number | undefined = undefined;
+let pausing = false;
+
+function scrollBannerTo(i: number) {
+  const el = bannerTrack.value;
+  if (!el || !el.children[i]) return;
+  el.scrollTo({ left: (el.children[i] as HTMLElement).offsetLeft, behavior: 'smooth' });
+}
+function startAutoBanner() {
+  stopAutoBanner();
+  autoTimer = window.setInterval(() => {
+    if (pausing) return;
+    const n = banners.value.length;
+    if (n <= 1) return;
+    bannerIndex.value = (bannerIndex.value + 1) % n;
+    scrollBannerTo(bannerIndex.value);
+  }, 4000);
+}
+function stopAutoBanner() {
+  if (autoTimer) window.clearInterval(autoTimer);
+  autoTimer = undefined;
+}
+function pauseBanner() {
+  pausing = true;
+  stopAutoBanner();
+  if (resumeTimer) window.clearTimeout(resumeTimer);
+  resumeTimer = window.setTimeout(() => {
+    pausing = false;
+    startAutoBanner();
+  }, 8000);
+}
+// 用户手动滑动时同步当前页（便于恢复后从该页继续轮播）
+function onBannerScroll() {
+  const el = bannerTrack.value;
+  if (!el) return;
+  const center = el.scrollLeft + el.clientWidth / 2;
+  let best = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i < el.children.length; i++) {
+    const c = el.children[i] as HTMLElement;
+    const d = Math.abs(c.offsetLeft - center);
+    if (d < bestDist) { bestDist = d; best = i; }
+  }
+  bannerIndex.value = best;
+}
+onMounted(() => startAutoBanner());
+onBeforeUnmount(() => { stopAutoBanner(); if (resumeTimer) window.clearTimeout(resumeTimer); });
 
 const feedActivities = computed(() =>
   [...store.coachActivities].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
@@ -52,9 +104,13 @@ const unreadCount = computed(() =>
       <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 慢病管控科普</p>
     </div>
 
-    <!-- 顶部 Banner 运营位（外链跳转；无 Banner 时隐藏） -->
+    <!-- 顶部 Banner 运营位（外链跳转；边缘对齐；自动 4s 轮播，滑动暂停·静置恢复） -->
     <div v-if="banners.length" class="px-5 pt-2">
-      <div class="flex gap-2.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-5 px-5 pb-1">
+      <div
+        ref="bannerTrack"
+        @touchstart.passive="pauseBanner" @mousedown="pauseBanner" @wheel.passive="pauseBanner" @scroll="onBannerScroll"
+        class="flex gap-2.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-1"
+      >
         <button
           v-for="b in banners" :key="b.id"
           @click="openBanner(b)"

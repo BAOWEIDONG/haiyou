@@ -878,13 +878,14 @@ export const useAppStore = defineStore('app', () => {
     return interpretationRequests.value.filter((r) => r.status === 'pending' || r.doctorUnread);
   }
 
-  function askConsult(studentId: string, topic: string, question: string, studentPhone = '') {
+  function askConsult(studentId: string, topic: string, question: string, studentPhone = '', images: string[] = []) {
     const thread: ConsultThread = {
       id: `ct_${Date.now()}_${_seq.n++}`,
       studentId,
       topic,
       question,
       studentPhone: studentPhone.trim() || undefined,
+      images: images.length ? images : undefined,
       createdAt: formatDateTimeStr(),
       status: 'pending',
       replies: [],
@@ -895,22 +896,22 @@ export const useAppStore = defineStore('app', () => {
     return thread.id;
   }
 
-  function staffReplyConsult(id: string, text: string) {
+  function staffReplyConsult(id: string, text: string, images: string[] = []) {
     const t = consultThreads.value.find((x) => x.id === id);
     if (!t) return;
     t.status = 'answered';
     t.replierId = user.value?.id || 'd1';
     t.replierName = user.value?.name || '营养师';
     t.replierRole = user.value?.role === 'coach' ? 'coach' : 'dietitian';
-    t.replies.push({ text, authorName: user.value?.name || '营养师', side: 'staff', createdAt: formatDateTimeStr() });
+    t.replies.push({ text, authorName: user.value?.name || '营养师', side: 'staff', createdAt: formatDateTimeStr(), images: images.length ? images : undefined });
     t.read = false;
     t.doctorUnread = false; // 医生此刻回复，已读过学员内容
   }
 
-  function studentReplyConsult(id: string, text: string) {
+  function studentReplyConsult(id: string, text: string, images: string[] = []) {
     const t = consultThreads.value.find((x) => x.id === id);
     if (!t) return;
-    t.replies.push({ text, authorName: studentName(t.studentId), side: 'student', createdAt: formatDateTimeStr() });
+    t.replies.push({ text, authorName: studentName(t.studentId), side: 'student', createdAt: formatDateTimeStr(), images: images.length ? images : undefined });
     t.status = 'answered';
     t.doctorUnread = true; // 学员新追答 → 医生端未读提醒
   }

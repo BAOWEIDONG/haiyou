@@ -26,14 +26,14 @@ const services = [
     iconColor: 'bg-[#12B5C2]/12 text-[#12B5C2]', wm: 'text-[#12B5C2]/12',
   },
   {
-    key: 'personal-journey', title: '个人历程', desc: '服务记录 · 报告 · 数据趋势',
-    icon: BookOpen, grad: 'from-[#FF976A]/20 via-white/40 to-white/0',
-    iconColor: 'bg-[#FF976A]/15 text-[#FF976A]', wm: 'text-[#FF976A]/14',
-  },
-  {
     key: 'health-profile', title: '我的健康档案', desc: '体检指标 · 上传报告 · 编辑档案',
     icon: ClipboardList, grad: 'from-[#6366F1]/16 via-white/40 to-white/0',
     iconColor: 'bg-[#6366F1]/12 text-[#6366F1]', wm: 'text-[#6366F1]/12',
+  },
+  {
+    key: 'personal-journey', title: '个人历程', desc: '服务记录 · 报告 · 数据趋势',
+    icon: BookOpen, grad: 'from-[#FF976A]/20 via-white/40 to-white/0',
+    iconColor: 'bg-[#FF976A]/15 text-[#FF976A]', wm: 'text-[#FF976A]/14',
   },
 ];
 </script>

@@ -331,7 +331,11 @@ export interface ConsultThread {
     authorName: string;
     side: 'student' | 'staff';
     createdAt: string;
+    /** 该条回复附带的图片（学员可上传，压缩后 dataURL 存储） */
+    images?: string[];
   }[];
+  /** 发起提问时附带的图片 */
+  images?: string[];
   /** 学员可选填的联系手机号，必要时电话回访 */
   studentPhone?: string;
   /** 医生端未读：学员在此后追加过新回复时置 true，医生读取或回复后清 */

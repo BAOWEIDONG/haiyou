@@ -463,11 +463,11 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
           <div
             v-for="r in reports" :key="r.id"
             class="flex items-center gap-3 rounded-xl border border-gray-100 p-2.5 cursor-pointer hover:bg-gray-50/70 transition-colors"
-            @click="openReportImg(r)"
+            @click="store.setCurrentView('interpretation-result' as never)"
           >
             <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center shrink-0">
-              <FileText v-if="!r.images.some((i) => i.type === 'image')" class="w-6 h-6 text-[#0B6BCB]" />
-              <img loading="lazy" decoding="async" v-else :src="r.images.find((i) => i.type === 'image')?.url" class="w-full h-full object-cover" />
+              <i v-if="!r.images.some((i) => i.type === 'image')" class="w-6 h-6 text-[#0B6BCB] not-italic">📄</i>
+              <img loading="lazy" decoding="async" v-else :src="r.images.find((i) => i.type === 'image')?.url" @click.stop="openReportImg(r)" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium text-gray-900 truncate">{{ r.title || '体检报告' }}</div>
