@@ -6,7 +6,7 @@ import { NavBar, Card } from './ui';
 import { Popup as VanPopup, showToast, showConfirmDialog, Switch as VanSwitch } from 'vant';
 import {
   Plus, Trash2, Edit3, Users, UserCircle, Dumbbell, Stethoscope,
-  Phone, Search, X, Settings2, UserPlus, ShieldCheck, ShieldOff,
+  Phone, Search, X, Settings2, UserPlus, ShieldCheck, ShieldOff, HeartPulse, Scale,
 } from 'lucide-vue-next';
 import type { Account, Camp, Role } from '../types';
 
@@ -307,6 +307,55 @@ const switchTab = (role: Role) => {
           size="24px"
           active-color="#FF976A"
         />
+      </div>
+
+      <!-- 服务产品配置（医院采购口径：健康减重 / 慢病管理） -->
+      <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3">
+        <div>
+          <div class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+            <Settings2 class="w-4 h-4 text-[#0B6BCB]" />
+            服务产品配置
+          </div>
+          <div class="text-[10px] text-gray-400 mt-1 leading-relaxed">
+            按医院采购勾选启用的服务产品，决定学员端底部菜单与服务入口的显示。减重=健康减重，慢病=五高慢病管理。
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex-1 pr-3">
+            <div class="text-sm font-medium text-gray-800 flex items-center gap-1.5">
+              <Scale class="w-4 h-4 text-[#0B6BCB]" />
+              健康减重服务
+            </div>
+            <div class="text-[10px] text-gray-400 mt-0.5 leading-relaxed">
+              开启=学员端显示「首页」个人打卡/健康活动信息流；关闭则隐藏。
+            </div>
+          </div>
+          <VanSwitch
+            :model-value="store.enabledServices.bmi"
+            @update:model-value="store.setServiceEnabled('bmi', $event)"
+            size="24px"
+            active-color="#0B6BCB"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex-1 pr-3">
+            <div class="text-sm font-medium text-gray-800 flex items-center gap-1.5">
+              <HeartPulse class="w-4 h-4 text-[#B6523E]" />
+              慢病管理服务
+            </div>
+            <div class="text-[10px] text-gray-400 mt-0.5 leading-relaxed">
+              开启=学员端底部显示「健康」慢病看台（五高指标录入/趋势）；关闭则隐藏。
+            </div>
+          </div>
+          <VanSwitch
+            :model-value="store.enabledServices.chronic"
+            @update:model-value="store.setServiceEnabled('chronic', $event)"
+            size="24px"
+            active-color="#B6523E"
+          />
+        </div>
       </div>
 
       <!-- 服务批次管理 -->

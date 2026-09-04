@@ -5,7 +5,8 @@ import { useDebounced } from '../composables/useDebounced';
 import { useAppStore } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, DietitianTabbar } from './ui';
-import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown } from 'lucide-vue-next';
+import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren } from 'lucide-vue-next';
+import { judgeRecord } from '../lib/chronic';
 import { Popup as VanPopup } from 'vant';
 
 const store = useAppStore();
@@ -104,6 +105,16 @@ const openStudent = (id: string) => {
 };
 
 const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+
+// ─── 五高异常预警 ───
+const chronicAlertCount = computed(() => {
+  let n = 0;
+  for (const s of store.getAllStudents()) {
+    const rec = store.getLatestChronic(s.id);
+    if (rec && judgeRecord(rec.values, s.gender).level !== 'normal') n++;
+  }
+  return n;
+});
 </script>
 
 <template>
@@ -126,6 +137,22 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
     </div>
 
     <div class="flex-1 px-5 space-y-4 relative -mt-2">
+      <!-- 五高异常预警横幅 -->
+      <button
+        v-if="chronicAlertCount > 0"
+        @click="store.setCurrentView('dietitian-chronic-alerts')"
+        class="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-[#B6523E]/10 to-[#FF976A]/10 border border-[#B6523E]/25 text-left active:opacity-90 transition-opacity"
+      >
+        <div class="h-10 w-10 rounded-xl bg-[#B6523E] flex items-center justify-center shrink-0">
+          <Siren class="h-5 w-5 text-white" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-[#B6523E]">{{ chronicAlertCount }} 名学员存在异常关注指标</div>
+          <div class="text-[11px] text-gray-500 mt-0.5">五高慢病预警 · 点击查看全部</div>
+        </div>
+        <span class="text-[#B6523E] font-bold text-lg">›</span>
+      </button>
+
       <!-- 服务批次切换 -->
       <div class="flex items-center gap-2 mb-1">
         <button

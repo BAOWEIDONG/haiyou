@@ -363,3 +363,41 @@ export interface KnowledgeContent {
 export type KnowledgeBlock =
   | { type: 'text'; text: string }
   | { type: 'image'; url: string };
+
+// ============================================================================
+//  慢病（五高 + 同型半胱氨酸）管理域
+//  ---------------------------------------------------------------------------
+//  六指标族：血压/血糖/血脂/尿酸/体重BMI/同型半胱氨酸；逐项独立记录（适老化）。
+//  阈值判定统一走 lib/chronic.ts，学员端「健康看台」与营养师端「五高异常预警」共用。
+// ============================================================================
+
+/** 一次慢病测量记录（同一数据下可含多个指标族字段） */
+export interface ChronicValues {
+  systolic?: number;            // 血压 收缩压 mmHg
+  diastolic?: number;           // 血压 舒张压 mmHg
+  glucoseFasting?: number;      // 血糖 空腹 mmol/L
+  glucosePostprandial?: number; // 血糖 餐后2h mmol/L
+  glucoseHba1c?: number;        // 血糖 糖化血红蛋白 %
+  ldl?: number;                 // 血脂 低密度脂蛋白 mmol/L
+  tg?: number;                  // 血脂 甘油三酯 mmol/L
+  tc?: number;                  // 血脂 总胆固醇 mmol/L
+  hdl?: number;                 // 血脂 高密度脂蛋白 mmol/L
+  uricAcid?: number;            // 尿酸 μmol/L
+  weight?: number;              // 体重 kg
+  height?: number;              // 身高 cm
+  bmi?: number;                 // BMI（可由 weight/height 计算）
+  homocysteine?: number;        // 同型半胱氨酸 μmol/L
+}
+
+/** 慢病测量记录（学员端录入，营养师端预警依据） */
+export interface ChronicRecord {
+  id: string;
+  studentId: string;
+  /** 所属服务批次 */
+  campId?: string;
+  /** 测量时间 yyyy-MM-dd HH:mm:ss */
+  date: string;
+  values: ChronicValues;
+  /** 记录来源场景备注（选填） */
+  note?: string;
+}

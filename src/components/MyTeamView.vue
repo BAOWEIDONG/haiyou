@@ -6,12 +6,13 @@ import { FileSearch, MessageSquareText, BookOpen, ClipboardList, ChevronRight } 
 
 const store = useAppStore();
 
-// 消息未读数（store 级统一口径；本页即底部「健康」Tab）
+// 消息未读数（store 级统一口径；本页即底部「我的」Tab）
 const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
 );
 
-// 健康服务统一入口（首页不重复展示，统一由此进入；锻炼/知识订阅在首页「健康活动」信息流平铺）
+// 个人功能统一入口（原来的「健康服务」hub；底部导航改造后改名「我的」承载个人功能）
+// 锻炼/知识订阅在首页「健康活动」信息流平铺；慢病六指标在底部「健康」tab 看台
 // 每项带专属浅色渐变 + 图标色块 + 水印，竖排整宽展示
 const services = [
   {
@@ -39,7 +40,7 @@ const services = [
 
 <template>
   <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
-    <NavBar title="健康服务" />
+    <NavBar title="我的" />
 
     <div class="flex-1 px-4 py-4 space-y-3" v-if="store.user">
       <div class="grid grid-cols-1 gap-3">
@@ -68,6 +69,6 @@ const services = [
       </div>
     </div>
 
-    <StudentTabbar anchor="health" :badge="unreadCount > 0 ? unreadCount : undefined" />
+    <StudentTabbar anchor="mine" :badge="unreadCount > 0 ? unreadCount : undefined" />
   </div>
 </template>

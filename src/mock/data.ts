@@ -1,4 +1,4 @@
-import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent } from '../types';
+import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord } from '../types';
 import type { MetricValue } from '../lib/medicalData';
 
 function dateStr(offsetDays: number): string {
@@ -817,3 +817,22 @@ export const MOCK_KNOWLEDGE_CONTENTS = [
     campIds: [],
   },
 ] as KnowledgeContent[];
+
+/** 慢病（五高）测量记录种子：为演示「健康看台」与营养师端「五高异常预警」提供数据。
+ *  部分学员刻意带异常（血压/血糖/尿酸/LDL）以触发医生端预警，便于演示两端联动。 */
+export const MOCK_CHRONIC_RECORDS: ChronicRecord[] = [
+  // s1 李明（男，血压/血脂临界，随记录改善）
+  { id: 'cr_s1_1', studentId: 's1', campId: 'camp1', date: iso(-14, '08:30:00'), values: { systolic: 148, diastolic: 92, glucoseFasting: 5.8, ldl: 3.1, tg: 1.9, bmi: 26.5, weight: 78, height: 172 } },
+  { id: 'cr_s1_2', studentId: 's1', campId: 'camp1', date: iso(-9, '08:15:00'), values: { systolic: 142, diastolic: 88, glucoseFasting: 5.6, glucosePostprandial: 7.2, ldl: 2.9, tg: 1.7, bmi: 26.1, weight: 76.8 } },
+  { id: 'cr_s1_3', studentId: 's1', campId: 'camp1', date: iso(-3, '08:40:00'), values: { systolic: 135, diastolic: 85, glucoseFasting: 5.4, glucosePostprandial: 6.8, ldl: 2.6, tg: 1.5, bmi: 25.6, weight: 75.4, homocysteine: 14.2 } },
+  // s3 张伟（男，45 岁，血压高 + 尿酸高，触发预警）
+  { id: 'cr_s3_1', studentId: 's3', campId: 'camp1', date: iso(-13, '07:20:00'), values: { systolic: 168, diastolic: 102, glucoseFasting: 6.4, uricAcid: 455, tg: 2.1, bmi: 27.8, weight: 82, homocysteine: 16.5 } },
+  { id: 'cr_s3_2', studentId: 's3', campId: 'camp1', date: iso(-6, '07:30:00'), values: { systolic: 165, diastolic: 100, glucoseFasting: 6.6, glucoseHba1c: 6.8, uricAcid: 468, tg: 2.3, bmi: 27.5, homocysteine: 17.9 } },
+  { id: 'cr_s3_3', studentId: 's3', campId: 'camp1', date: iso(-1, '07:10:00'), values: { systolic: 162, diastolic: 98, glucoseFasting: 6.5, glucoseHba1c: 6.9, uricAcid: 472, tc: 5.6, bmi: 27.3, homocysteine: 18.4 } },
+  // s7 郑爽（女，糖尿病前期/血脂异常，触发预警）
+  { id: 'cr_s7_1', studentId: 's7', campId: 'camp2', date: iso(-8, '08:00:00'), values: { systolic: 128, diastolic: 82, glucoseFasting: 6.9, glucosePostprandial: 9.2, glucoseHba1c: 6.6, ldl: 3.4, tg: 2.6, bmi: 23.1, weight: 58, height: 158 } },
+  { id: 'cr_s7_2', studentId: 's7', campId: 'camp2', date: iso(-2, '08:10:00'), values: { systolic: 126, diastolic: 80, glucoseFasting: 6.8, glucosePostprandial: 8.9, glucoseHba1c: 6.7, ldl: 3.3, tg: 2.5, bmi: 23.0, uricAcid: 312 } },
+  // s10 孙悟空（男，基本达标，作为对照）
+  { id: 'cr_s10_1', studentId: 's10', campId: 'camp2', date: iso(-7, '09:00:00'), values: { systolic: 121, diastolic: 78, glucoseFasting: 5.1, glucosePostprandial: 6.3, ldl: 2.3, tg: 1.2, tc: 4.2, hdl: 1.2, uricAcid: 372, bmi: 22.4, weight: 66, height: 172 } },
+  { id: 'cr_s10_2', studentId: 's10', campId: 'camp2', date: iso(-1, '08:45:00'), values: { systolic: 119, diastolic: 76, glucoseFasting: 5.0, glucosePostprandial: 6.1, ldl: 2.2, tg: 1.1, uricAcid: 365, bmi: 22.2, homocysteine: 10.9 } },
+];

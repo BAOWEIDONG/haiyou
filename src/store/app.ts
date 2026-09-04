@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
-import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent } from '../types';
+import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
   MOCK_DIET_RECORDS,
@@ -15,9 +15,11 @@ import {
   MOCK_INTERPRETATION_REQUESTS,
   MOCK_CONSULT_THREADS,
   MOCK_KNOWLEDGE_CONTENTS,
+  MOCK_CHRONIC_RECORDS,
 } from '../mock/data';
 import * as api from '../lib/api';
 import { latestOrFirstId } from '../lib/camps';
+import type { ChronicGroupKey } from '../lib/chronic';
 
 /** 生成 yyyy-MM-dd HH:mm:ss 格式的当前时间字符串（全站统一格式） */
 function formatDateTimeStr(): string {
@@ -63,7 +65,12 @@ export type View =
   // 内容订阅（并入营养师「配置·管理」）
   | 'ops-content'
   // 内容管理·全屏发布图文（健康科普正文编辑）
-  | 'ops-content-new';
+  | 'ops-content-new'
+  // 慢病（五高）管理域
+  | 'chronic-dashboard'     // 健康 tab：慢病六指标健康看台
+  | 'chronic-record'        // 慢病测量录入（适老化逐项）
+  | 'chronic-detail'        // 单指标族趋势 + 达标率
+  | 'dietitian-chronic-alerts'; // 营养师端：五高异常预警列表
 
 export const useAppStore = defineStore('app', () => {
   const user = ref<User | null>(null);
@@ -125,6 +132,16 @@ export const useAppStore = defineStore('app', () => {
   const consultThreads = ref<ConsultThread[]>([...MOCK_CONSULT_THREADS]);
   /** 医院健康知识内容（D8/U9/O5） */
   const knowledgeContents = ref<KnowledgeContent[]>([...MOCK_KNOWLEDGE_CONTENTS]);
+  /** 慢病（五高+同型半胱氨酸）测量记录（学员健康看台与营养师预警共用） */
+  const chronicRecords = ref<ChronicRecord[]>([...MOCK_CHRONIC_RECORDS]);
+  /** 平台服务产品启停（医院采购配置）：bmi=健康减重，chronic=慢病管理；控制学员端底部菜单与各服务入口显隐 */
+  const enabledServices = ref<{ bmi: boolean; chronic: boolean }>({ bmi: true, chronic: true });
+  function setServiceEnabled(service: 'bmi' | 'chronic', v: boolean) {
+    enabledServices.value = { ...enabledServices.value, [service]: v };
+  }
+  /** 当前打开的慢病指标族（单指标趋势页） */
+  const activeChronicGroup = ref<ChronicGroupKey | null>(null);
+  function setActiveChronicGroup(g: ChronicGroupKey | null) { activeChronicGroup.value = g; }
   /** 当前打开的解读/答疑线程 ID（医生端查看某条） */
   const activeRequestId = ref<string | null>(null);
   const activeThreadId = ref<string | null>(null);
@@ -174,11 +191,13 @@ export const useAppStore = defineStore('app', () => {
     students, weightRecords, exerciseRecords, dietRecords, coachActivities,
     metricConfigs, camps, accounts, mealTimeConfigByCamp,
     interpretationRequests, consultThreads, knowledgeContents, studentRequiresPreRegister,
+    chronicRecords, enabledServices,
   ];
   const bizNames = [
     'students', 'weightRecords', 'exerciseRecords', 'dietRecords', 'coachActivities',
     'metricConfigs', 'camps', 'accounts', 'mealTimeConfigByCamp',
     'interpretationRequests', 'consultThreads', 'knowledgeContents', 'studentRequiresPreRegister',
+    'chronicRecords', 'enabledServices',
   ] as const;
   function persistBiz() {
     const snap: Record<string, unknown> = {};
@@ -358,8 +377,8 @@ export const useAppStore = defineStore('app', () => {
   }
 
   /** 底部 Tab 根页面（切换时去重，避免历史栈无限增长） */
-  // 学员端底部Tab：首页/消息/健康；教练/营养师端各自的底部Tab根页
-  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
+  // 学员端底部Tab：首页/健康(慢病)/消息/我的；教练/营养师端各自的底部Tab根页
+  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'my-team', 'chronic-dashboard', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
 
   /** 学员详情流视图：在此流内继承 detailSelectedCampId，离开则清空（不污染全局 selectedCampId） */
   const DETAIL_FLOW_VIEWS: View[] = ['dietitian-student-detail', 'coach-student-detail'];
@@ -894,6 +913,26 @@ export const useAppStore = defineStore('app', () => {
     knowledgeContents.value = knowledgeContents.value.filter((k) => k.id !== id);
   }
 
+  // ─── 慢病（五高）记录域 ───
+  function getStudentChronicRecords(studentId: string): ChronicRecord[] {
+    return chronicRecords.value
+      .filter((r) => r.studentId === studentId)
+      .sort((a, b) => b.date.localeCompare(a.date)); // 最新在前
+  }
+  /** 取某学员最新一条慢病记录（无则 null） */
+  function getLatestChronic(studentId: string): ChronicRecord | null {
+    const list = getStudentChronicRecords(studentId);
+    return list.length > 0 ? list[0] : null;
+  }
+  function addChronicRecord(data: Omit<ChronicRecord, 'id' | 'date'> & { date?: string }) {
+    const rec: ChronicRecord = { ...data, id: `cr_${Date.now()}_${_seq.n++}`, date: data.date || formatDateTimeStr() };
+    chronicRecords.value.unshift(rec);
+    return rec.id;
+  }
+  function removeChronicRecord(id: string) {
+    chronicRecords.value = chronicRecords.value.filter((r) => r.id !== id);
+  }
+
   return {
     user,
     campMessages,
@@ -1002,5 +1041,15 @@ export const useAppStore = defineStore('app', () => {
     addKnowledgeContent,
     deleteKnowledgeContent,
     studentName,
+    // 慢病（五高）
+    chronicRecords,
+    enabledServices,
+    setServiceEnabled,
+    activeChronicGroup,
+    setActiveChronicGroup,
+    getStudentChronicRecords,
+    getLatestChronic,
+    addChronicRecord,
+    removeChronicRecord,
   };
 });
