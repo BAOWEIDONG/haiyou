@@ -317,113 +317,101 @@ const todayDietLabel = computed(() => {
       </div>
     </div>
 
-    <div class="flex-1 px-5 pt-5 space-y-6 relative z-20">
-      <!-- 今日状态：体重 / 连续坚持 + 每日打卡（去白卡，与慢病同风格对齐；点击可跳转） -->
-      <template v-if="store.enabledServices.bmi">
-      <section>
-        <div class="flex items-center gap-1.5 mb-2.5">
+    <div class="flex-1 px-5 pt-5 space-y-5 relative z-20">
+      <!-- 今日状态 大白卡（减重模块，随 enabledServices.bmi 显隐；体重/连续坚持可点击跳转） -->
+      <section v-if="store.enabledServices.bmi" class="bg-white rounded-3xl shadow-sm border border-white/70 p-5">
+        <div class="flex items-center gap-1.5 mb-4">
           <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
           <h3 class="text-sm font-bold text-gray-900">今日状态</h3>
+          <span class="text-[10px] text-gray-400 ml-auto">打卡记录你的一天</span>
         </div>
 
-        <!-- 体重 / 连续坚持（两块对齐 tile，点击可跳转） -->
-        <div class="grid grid-cols-2 gap-2.5">
-          <button
-            @click="guardCheckin('weight-checkin')"
-            :class="['rounded-2xl bg-white shadow-sm border border-white/70 p-4 text-left relative overflow-hidden transition-all', campNotStarted ? 'cursor-not-allowed opacity-60' : 'cursor-pointer active:scale-[0.98]']"
-          >
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#0B6BCB]/15 to-teal-100 rounded-full blur-2xl transform translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
-            <div class="relative z-10">
-              <div class="flex items-center gap-1 mb-2">
-                <Target class="w-4 h-4 text-[#0B6BCB] shrink-0" />
-                <span class="text-xs text-gray-500 font-bold">当前体重</span>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- 当前体重（可点击 → 体重打卡） -->
+          <button @click="guardCheckin('weight-checkin')" :class="['min-w-0 text-left', campNotStarted ? 'cursor-not-allowed opacity-60' : 'cursor-pointer active:opacity-80']">
+            <div class="flex items-center gap-1 mb-2">
+              <Target class="w-4 h-4 text-[#0B6BCB] shrink-0" />
+              <span class="text-xs text-gray-500 font-bold">当前体重</span>
+            </div>
+            <div class="flex items-end gap-1">
+              <span class="text-3xl font-black text-gray-900 tracking-tighter">{{ latestWeight ?? '--' }}</span>
+              <span class="text-sm mb-1 text-gray-500 font-medium">kg</span>
+            </div>
+            <div v-if="weightChange !== null" :class="['text-[11px] font-bold mt-1.5 flex items-center gap-0.5', isWeightChangeGood === null ? 'text-gray-400' : isWeightChangeGood ? 'text-[#0B6BCB]' : 'text-orange-500']">
+              <TrendingDown v-if="weightChange < 0" class="w-3 h-3" />
+              <TrendingUp v-else-if="weightChange > 0" class="w-3 h-3" />
+              <Minus v-else class="w-3 h-3" />
+              较开始时 {{ weightChange > 0 ? '+' : '' }}{{ weightChange }}kg
+            </div>
+            <div v-if="targetProgress !== null" class="mt-2">
+              <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-700" :class="isWeightLoss ? 'bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2]' : 'bg-gradient-to-r from-[#1677FF] to-[#0958d9]'" :style="{ width: targetProgress + '%' }"></div>
               </div>
-              <div class="flex items-end gap-1">
-                <span class="text-3xl font-black text-gray-900 tracking-tighter">{{ latestWeight ?? '--' }}</span>
-                <span class="text-sm mb-1 text-gray-500 font-medium">kg</span>
-              </div>
-              <div v-if="weightChange !== null" :class="['text-[11px] font-bold mt-1.5 flex items-center gap-0.5', isWeightChangeGood === null ? 'text-gray-400' : isWeightChangeGood ? 'text-[#0B6BCB]' : 'text-orange-500']">
-                <TrendingDown v-if="weightChange < 0" class="w-3 h-3" />
-                <TrendingUp v-else-if="weightChange > 0" class="w-3 h-3" />
-                <Minus v-else class="w-3 h-3" />
-                较开始时 {{ weightChange > 0 ? '+' : '' }}{{ weightChange }}kg
-              </div>
-              <div v-if="targetProgress !== null" class="mt-2">
-                <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full transition-all duration-700" :class="isWeightLoss ? 'bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2]' : 'bg-gradient-to-r from-[#1677FF] to-[#0958d9]'" :style="{ width: targetProgress + '%' }"></div>
-                </div>
-                <div class="text-[10px] text-gray-400 mt-1">
-                  <template v-if="gapToTarget !== null && gapToTarget <= 0">已达成{{ isWeightLoss ? '减重' : '增重' }}目标 🎉</template>
-                  <template v-else>距{{ isWeightLoss ? '减重' : '增重' }}目标 {{ Math.abs(gapToTarget) }}kg · {{ targetProgress }}%</template>
-                </div>
+              <div class="text-[10px] text-gray-400 mt-1">
+                <template v-if="gapToTarget !== null && gapToTarget <= 0">已达成{{ isWeightLoss ? '减重' : '增重' }}目标 🎉</template>
+                <template v-else>距{{ isWeightLoss ? '减重' : '增重' }}目标 {{ Math.abs(gapToTarget) }}kg · {{ targetProgress }}%</template>
               </div>
             </div>
           </button>
 
-          <button
-            @click="store.setCurrentView('calendar')"
-            class="rounded-2xl bg-white shadow-sm border border-white/70 p-4 text-left relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex flex-col"
-          >
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#FF976A]/20 to-amber-50 rounded-full blur-2xl transform translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
-            <div class="relative z-10 w-full">
-              <div class="flex items-center gap-1 mb-2">
-                <Flame class="w-4 h-4 text-[#FF976A] shrink-0" />
-                <span class="text-xs text-gray-500 font-bold">连续坚持</span>
-              </div>
-              <div class="flex items-end gap-1">
-                <span class="text-3xl font-black text-gray-900 tracking-tighter">{{ currentStreak }}<span class="text-sm text-gray-400 font-medium mb-1"> 天</span></span>
-              </div>
+          <!-- 连续坚持（可点击 → 打卡日历） -->
+          <button @click="store.setCurrentView('calendar')" class="min-w-0 border-l border-gray-100 pl-4 text-left cursor-pointer active:opacity-80">
+            <div class="flex items-center gap-1 mb-2">
+              <Flame class="w-4 h-4 text-[#FF976A] shrink-0" />
+              <span class="text-xs text-gray-500 font-bold">连续坚持</span>
             </div>
-            <div class="mt-auto pt-2">
-              <div class="text-xs text-gray-500 font-medium truncate">{{ currentStreak > 0 ? '保持节奏，健康每一天' : '今天开始，从打卡开始' }}</div>
-              <div class="text-xs text-[#0B6BCB] font-bold mt-0.5 truncate">{{ todayAllDone ? '今日已全部完成 ✓' : '完成每日打卡，看见坚持的力量' }}</div>
+            <div class="flex items-end gap-1">
+              <span class="text-3xl font-black text-gray-900 tracking-tighter">{{ currentStreak }}<span class="text-sm text-gray-400 font-medium mb-1"> 天</span></span>
             </div>
+            <div class="text-xs text-gray-500 font-medium mt-1.5 truncate">{{ currentStreak > 0 ? '保持节奏，健康每一天' : '今天开始，从打卡开始' }}</div>
+            <div class="text-xs text-[#0B6BCB] font-bold mt-0.5 truncate">{{ todayAllDone ? '今日已全部完成 ✓' : '完成每日打卡，看见坚持的力量' }}</div>
           </button>
         </div>
 
-        <!-- 每日打卡任务（三块轻量 tile，与慢病同风格） -->
-        <div class="grid grid-cols-3 gap-2.5 mt-2.5">
-          <button @click="guardCheckin('exercise')" :class="['rounded-2xl flex flex-col items-center justify-center gap-1.5 py-5 transition-transform', campNotStarted ? 'opacity-50 bg-white/60 border border-white/70 cursor-not-allowed' : 'bg-white shadow-sm border border-white/70 cursor-pointer active:scale-[0.96]']">
-            <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayExerciseDone ? 'bg-[#0B6BCB]/12 text-[#0B6BCB]' : 'bg-[#0B6BCB]/8 text-[#0B6BCB]']">
-              <Activity class="h-5 w-5" />
-            </div>
-            <span class="text-xs font-bold text-gray-900">运动</span>
-            <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : (todayExerciseDone ? '已完成 ✓' : '打卡') }}</span>
-          </button>
-          <button @click="guardCheckin('diet')" :class="['rounded-2xl flex flex-col items-center justify-center gap-1.5 py-5 transition-transform', campNotStarted ? 'opacity-50 bg-white/60 border border-white/70 cursor-not-allowed' : 'bg-white shadow-sm border border-white/70 cursor-pointer active:scale-[0.96]']">
-            <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayDietDone ? 'bg-[#FF976A]/14 text-[#FF976A]' : 'bg-[#FF976A]/10 text-[#FF976A]']">
-              <Coffee class="h-5 w-5" />
-            </div>
-            <span class="text-xs font-bold text-gray-900">饮食</span>
-            <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : todayDietLabel }}</span>
-          </button>
-          <button @click="guardCheckin('weight-checkin')" :class="['rounded-2xl flex flex-col items-center justify-center gap-1.5 py-5 transition-transform', campNotStarted ? 'opacity-50 bg-white/60 border border-white/70 cursor-not-allowed' : 'bg-white shadow-sm border border-white/70 cursor-pointer active:scale-[0.96]']">
-            <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayWeightDone ? 'bg-[#1677FF]/12 text-[#1677FF]' : 'bg-[#1677FF]/8 text-[#1677FF]']">
-              <Scale class="h-5 w-5" />
-            </div>
-            <span class="text-xs font-bold text-gray-900">体重</span>
-            <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : (todayWeightDone ? '已完成 ✓' : '打卡') }}</span>
-          </button>
-        </div>
-      </section>
-      </template><!-- /今日状态 -->
-
-      <!-- 慢病追踪：3列对齐网格（体重BMI 排最后） -->
-      <section v-if="store.enabledServices.chronic">
-        <div class="flex items-center justify-between mb-2.5">
-          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-            <div class="w-1.5 h-4 bg-[#B6523E] rounded-full"></div>慢病追踪
-          </h3>
-          <div class="flex items-center gap-1.5">
-            <button @click="store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-white border border-[#0B6BCB]/20 shadow-sm active:opacity-80">+ 记录指标</button>
-            <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-white border border-gray-200 shadow-sm active:opacity-80">五高看台 ›</button>
+        <!-- 每日打卡任务（三列进度） -->
+        <div class="border-t border-gray-100 mt-4 pt-4">
+          <div class="grid grid-cols-3 gap-2">
+            <button @click="guardCheckin('exercise')" :class="['flex flex-col items-center gap-1.5 py-1 transition-transform cursor-pointer', campNotStarted ? 'opacity-50' : 'active:scale-95']">
+              <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayExerciseDone ? 'bg-[#0B6BCB]/12 text-[#0B6BCB]' : 'bg-[#0B6BCB]/8 text-[#0B6BCB]']">
+                <Activity class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold text-gray-900">运动打卡</span>
+              <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</span>
+            </button>
+            <button @click="guardCheckin('diet')" :class="['flex flex-col items-center gap-1.5 py-1 transition-transform cursor-pointer', campNotStarted ? 'opacity-50' : 'active:scale-95']">
+              <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayDietDone ? 'bg-[#FF976A]/14 text-[#FF976A]' : 'bg-[#FF976A]/10 text-[#FF976A]']">
+                <Coffee class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold text-gray-900">饮食打卡</span>
+              <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : todayDietLabel }}</span>
+            </button>
+            <button @click="guardCheckin('weight-checkin')" :class="['flex flex-col items-center gap-1.5 py-1 transition-transform cursor-pointer', campNotStarted ? 'opacity-50' : 'active:scale-95']">
+              <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayWeightDone ? 'bg-[#1677FF]/12 text-[#1677FF]' : 'bg-[#1677FF]/8 text-[#1677FF]']">
+                <Scale class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold text-gray-900">体重打卡</span>
+              <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</span>
+            </button>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-2.5">
+      </section>
+
+      <!-- 健康指标 大白卡（慢病模块，随 enabledServices.chronic 显隐；体重BMI 排最后） -->
+      <section v-if="store.enabledServices.chronic" class="bg-white rounded-3xl shadow-sm border border-white/70 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+            <div class="w-1.5 h-4 bg-[#B6523E] rounded-full"></div>健康指标
+          </h3>
+          <div class="flex items-center gap-1.5">
+            <button @click="store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-[#0B6BCB]/6 active:opacity-80">+ 记录指标</button>
+            <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-gray-50 active:opacity-80">五高看台 ›</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
           <button
             v-for="c in chronicMiniCards" :key="c.key"
             @click="c.hasValue ? openChronicGroup(c.key) : store.setCurrentView('chronic-record')"
-            :class="['rounded-2xl p-3 flex flex-col min-h-[96px] text-left transition-opacity', c.hasValue ? 'bg-white shadow-sm border border-white/70 active:opacity-90' : 'bg-white/50 border border-dashed border-gray-200 active:opacity-80']"
+            :class="['rounded-xl p-3 flex flex-col min-h-[92px] text-left transition-opacity', c.hasValue ? 'bg-[#F6F8FB] active:opacity-90' : 'bg-transparent border border-dashed border-gray-200 active:opacity-80']"
           >
             <template v-if="c.hasValue">
               <div class="flex items-center justify-between gap-1">
@@ -444,16 +432,16 @@ const todayDietLabel = computed(() => {
             </template>
           </button>
         </div>
-        <p v-if="!chronicMiniHasAny" class="text-[10px] text-gray-400 mt-2 text-center">还没有慢病测量记录，点「记录指标」录入血压 / 血糖 / 血脂，首页直接看数据</p>
+        <p v-if="!chronicMiniHasAny" class="text-[10px] text-gray-400 mt-3 text-center">还没有健康指标测量记录，点「记录指标」录入血压 / 血糖 / 血脂，首页直接看数据</p>
       </section>
 
-      <!-- 服务咨询（报告解读 / 给医生留言） -->
+      <!-- 服务咨询 大白卡（报告解读 / 给医生留言） -->
       <section>
         <div class="flex items-center gap-1.5 mb-2.5">
           <div class="w-1.5 h-4 bg-[#12B5C2] rounded-full"></div>
           <h3 class="text-sm font-bold text-gray-900">服务咨询</h3>
         </div>
-        <div class="rounded-2xl bg-white shadow-sm border border-white/70 overflow-hidden divide-y divide-gray-100">
+        <div class="rounded-3xl bg-white shadow-sm border border-white/70 overflow-hidden divide-y divide-gray-100">
           <button
             v-for="b in consultButtons" :key="b.key"
             @click="store.setCurrentView(b.key as never)"
