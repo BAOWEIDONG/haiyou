@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
-import { Card, GenderAvatar, StudentTabbar } from './ui';
+import { GenderAvatar, StudentTabbar } from './ui';
 import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, ChevronRight } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
@@ -251,16 +251,6 @@ const todayDietLabel = computed(() => {
   if (count >= 3) return '已完成 ✓';
   return `已记 ${count} 餐`;
 });
-
-// 卡片入场动画
-const visibleCards = ref<number[]>([]);
-
-onMounted(() => {
-  const delays = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
-  delays.forEach((delay, idx) => {
-    setTimeout(() => visibleCards.value.push(idx), delay);
-  });
-});
 </script>
 
 <template>
@@ -324,77 +314,25 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 px-5 pt-5 space-y-5 relative z-20">
-      <!-- 咨询快捷钮（常显：报告解读 / 给医生留言） -->
-      <div class="grid grid-cols-2 gap-3">
-        <button
-          v-for="b in consultButtons" :key="b.key"
-          @click="store.setCurrentView(b.key as never)"
-          class="flex items-center gap-3 p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.98] transition-transform text-left"
-        >
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="`background:${b.color}14; color:${b.color}`">
-            <component :is="b.icon" class="h-5 w-5" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-bold text-gray-900">{{ b.title }}</div>
-            <div class="text-[10px] text-gray-400 mt-0.5 truncate">{{ b.desc }}</div>
-          </div>
-          <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
-        </button>
-      </div>
-
-      <!-- 慢病追踪：横滑指标卡，直接展示最新值（随服务配置 chronic 显隐） -->
-      <div v-if="store.enabledServices.chronic" class="pt-0.5">
-        <div class="flex items-center justify-between mb-2.5">
-          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-            <div class="w-1.5 h-4 bg-[#B6523E] rounded-full"></div>慢病追踪
-          </h3>
-          <div class="flex items-center gap-1.5">
-            <button @click="store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-white/70 border border-[#0B6BCB]/20 shadow-sm active:opacity-80">+ 记录指标</button>
-            <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-white/70 border border-gray-200 shadow-sm active:opacity-80">五高看台 ›</button>
-          </div>
-        </div>
-        <div class="flex gap-2.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-5 px-5 pb-1">
-          <button
-            v-for="c in chronicMiniCards.filter(x => x.hasValue)" :key="c.key"
-            @click="openChronicGroup(c.key)"
-            class="flex-none w-[30%] snap-start rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm p-3 text-left active:opacity-90 transition-opacity"
-          >
-            <div class="flex items-center justify-between gap-1">
-              <span class="text-[11px] font-bold text-gray-500 truncate">{{ c.title }}</span>
-              <span :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
-            </div>
-            <div class="mt-2 flex items-end gap-1">
-              <span class="text-2xl font-black tabular-nums leading-none" :class="LEVEL_META[c.level].text">{{ c.primaryValue ?? '—' }}</span>
-              <span class="text-[10px] text-gray-400 mb-0.5">{{ c.primaryUnit }}</span>
-            </div>
-            <div class="text-[9px] text-gray-400 mt-1.5 truncate">{{ c.primaryLabel || '暂无数据' }}</div>
-          </button>
-          <button
-            v-if="!chronicMiniHasAny"
-            @click="store.setCurrentView('chronic-record')"
-            class="flex-none w-[52%] snap-start rounded-2xl border-2 border-dashed border-[#B6523E]/30 bg-white/40 text-[#B6523E] p-3.5 text-left active:opacity-80"
-          >
-            <div class="text-[11px] font-bold">还没有慢病测量记录</div>
-            <div class="text-[10px] text-gray-400 mt-1 leading-relaxed">点「记录指标」录入血压 / 血糖 / 血脂，首页直接看数据</div>
-          </button>
-        </div>
-      </div>
-
-      <!-- 健康减重记录（随服务配置 bmi 显隐） -->
+      <!-- 今日状态：体重 / 连续坚持 + 每日打卡（统一面板，减少散落方块） -->
       <template v-if="store.enabledServices.bmi">
-      <!-- 体重 + 连续坚持（2列卡片） -->
-      <div class="grid grid-cols-2 gap-4 items-stretch">
-        <!-- 最新体重卡（含体重变化 + 目标进度） -->
-        <Card :class="['flex flex-col justify-center p-5 border-0 relative overflow-hidden h-full transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-lg shadow-[0_4px_20px_-8px_rgba(15,23,42,0.14)]']" @click="guardCheckin('weight-checkin')">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0B6BCB]/20 to-teal-100 rounded-full blur-2xl transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none"></div>
-          <div class="relative z-10">
+      <section class="bg-white rounded-3xl shadow-sm border border-white/70 p-5">
+        <div class="flex items-center gap-1.5 mb-4">
+          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
+          <h3 class="text-sm font-bold text-gray-900">今日状态</h3>
+          <span class="text-[10px] text-gray-400 ml-auto">打卡记录你的一天</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- 当前体重（含变化 + 目标进度） -->
+          <div class="min-w-0">
             <div class="flex items-center gap-1 mb-2">
               <Target class="w-4 h-4 text-[#0B6BCB] shrink-0" />
-              <div class="text-xs text-gray-500 font-bold truncate">当前体重</div>
+              <span class="text-xs text-gray-500 font-bold">当前体重</span>
             </div>
             <div class="flex items-end gap-1">
-              <span class="text-3xl font-black text-gray-900 tracking-tighter truncate">{{ latestWeight ?? '--' }}</span>
-              <span class="text-sm mb-1 text-gray-500 font-medium shrink-0">kg</span>
+              <span class="text-3xl font-black text-gray-900 tracking-tighter">{{ latestWeight ?? '--' }}</span>
+              <span class="text-sm mb-1 text-gray-500 font-medium">kg</span>
             </div>
             <div v-if="weightChange !== null" :class="['text-[11px] font-bold mt-1.5 flex items-center gap-0.5', isWeightChangeGood === null ? 'text-gray-400' : isWeightChangeGood ? 'text-[#0B6BCB]' : 'text-orange-500']">
               <TrendingDown v-if="weightChange < 0" class="w-3 h-3" />
@@ -412,73 +350,106 @@ onMounted(() => {
               </div>
             </div>
           </div>
-        </Card>
 
-        <!-- 连续坚持卡（个人化指标，无排名竞争） -->
-        <Card class="flex flex-col justify-center p-5 cursor-pointer hover:shadow-lg transition-shadow border-0 shadow-[0_4px_20px_-8px_rgba(15,23,42,0.14)] relative overflow-hidden h-full" @click="store.setCurrentView('calendar')">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0B6BCB]/15 to-teal-100 rounded-full blur-2xl transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none"></div>
-          <div class="relative z-10 flex flex-col h-full justify-between">
-            <div>
-              <div class="flex items-center gap-1 mb-2">
-                <Flame class="w-4 h-4 text-[#0B6BCB] shrink-0" />
-                <div class="text-xs text-gray-500 font-bold truncate">连续坚持</div>
-              </div>
-              <div class="flex items-end gap-1">
-                <span class="text-[28px] font-black text-gray-900 tracking-tighter truncate">{{ currentStreak }}<span class="text-sm text-gray-400 font-medium mb-1"> 天</span></span>
-              </div>
+          <!-- 连续坚持 -->
+          <div class="min-w-0 border-l border-gray-100 pl-4">
+            <div class="flex items-center gap-1 mb-2">
+              <Flame class="w-4 h-4 text-[#FF976A] shrink-0" />
+              <span class="text-xs text-gray-500 font-bold">连续坚持</span>
             </div>
-            <div class="text-xs text-gray-500 font-medium mt-1 truncate">
-              {{ currentStreak > 0 ? '保持节奏，健康每一天' : '今天开始，从打卡开始' }}
+            <div class="flex items-end gap-1">
+              <span class="text-3xl font-black text-gray-900 tracking-tighter">{{ currentStreak }}<span class="text-sm text-gray-400 font-medium mb-1"> 天</span></span>
             </div>
-            <div class="text-xs text-[#0B6BCB] font-bold mt-0.5 truncate">
-              {{ todayAllDone ? '今日已全部完成 ✓' : '完成每日打卡，看见坚持的力量' }}
-            </div>
+            <div class="text-xs text-gray-500 font-medium mt-1.5 truncate">{{ currentStreak > 0 ? '保持节奏，健康每一天' : '今天开始，从打卡开始' }}</div>
+            <div class="text-xs text-[#0B6BCB] font-bold mt-0.5 truncate">{{ todayAllDone ? '今日已全部完成 ✓' : '完成每日打卡，看见坚持的力量' }}</div>
           </div>
-        </Card>
-      </div>
-
-      <!-- 每日打卡任务 -->
-      <div>
-        <h3 class="text-sm font-bold text-gray-900 mb-3 ml-1 flex items-center gap-1.5">
-          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
-          每日打卡任务
-        </h3>
-        <div class="grid grid-cols-3 gap-3">
-          <Card :class="['flex flex-col items-center justify-center py-6 border-0 shadow-sm card-enter relative overflow-hidden transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:ring-2 ring-[#0B6BCB] active:scale-[0.96]', visibleCards.includes(3) ? 'card-enter-active' : '']" @click="guardCheckin('exercise')">
-            <div class="absolute -top-6 -right-4 w-24 h-24 bg-gradient-to-br from-[#0B6BCB]/12 to-green-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10 flex flex-col items-center">
-              <div :class="['w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-sm', campNotStarted ? 'bg-gray-200 text-gray-400' : todayExerciseDone ? 'bg-[#0B6BCB]/15 text-[#0B6BCB]' : 'bg-gradient-to-br from-[#0B6BCB] to-green-500 text-white animate-pulse hover:scale-110']">
-                <Activity class="h-6 w-6" />
-              </div>
-              <div class="text-sm font-bold text-gray-900 mb-0.5">运动打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</div>
-            </div>
-          </Card>
-
-          <Card :class="['flex flex-col items-center justify-center py-6 border-0 shadow-sm card-enter relative overflow-hidden transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:ring-2 ring-[#FF976A] active:scale-[0.96]', visibleCards.includes(4) ? 'card-enter-active' : '']" @click="guardCheckin('diet')">
-            <div class="absolute -top-6 -right-4 w-24 h-24 bg-gradient-to-br from-[#FF976A]/12 to-orange-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10 flex flex-col items-center">
-              <div :class="['w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-sm', campNotStarted ? 'bg-gray-200 text-gray-400' : todayDietDone ? 'bg-[#FF976A]/15 text-[#FF976A]' : 'bg-gradient-to-br from-[#FF976A] to-orange-400 text-white animate-pulse hover:scale-110']">
-                <Coffee class="h-6 w-6" />
-              </div>
-              <div class="text-sm font-bold text-gray-900 mb-0.5">饮食打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : todayDietLabel }}</div>
-            </div>
-          </Card>
-
-          <Card :class="['flex flex-col items-center justify-center py-6 border-0 shadow-sm card-enter relative overflow-hidden transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:ring-2 ring-[#1677FF] active:scale-[0.96]', visibleCards.includes(5) ? 'card-enter-active' : '']" @click="guardCheckin('weight-checkin')">
-            <div class="absolute -top-6 -right-4 w-24 h-24 bg-gradient-to-br from-[#1677FF]/12 to-blue-50 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="relative z-10 flex flex-col items-center">
-              <div :class="['w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-sm', campNotStarted ? 'bg-gray-200 text-gray-400' : todayWeightDone ? 'bg-[#1677FF]/15 text-[#1677FF]' : 'bg-gradient-to-br from-[#1677FF] to-blue-500 text-white animate-pulse hover:scale-110']">
-                <Scale class="h-6 w-6" />
-              </div>
-              <div class="text-sm font-bold text-gray-900 mb-0.5">体重打卡</div>
-              <div :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '服务批次未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</div>
-            </div>
-          </Card>
         </div>
+
+        <!-- 每日打卡任务 -->
+        <div class="border-t border-gray-100 mt-4 pt-4">
+          <div class="grid grid-cols-3 gap-2">
+            <button @click="guardCheckin('exercise')" :class="['flex flex-col items-center gap-1.5 py-1 transition-transform cursor-pointer', campNotStarted ? 'opacity-50' : 'active:scale-95']">
+              <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayExerciseDone ? 'bg-[#0B6BCB]/12 text-[#0B6BCB]' : 'bg-[#0B6BCB]/8 text-[#0B6BCB]']">
+                <Activity class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold text-gray-900">运动打卡</span>
+              <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayExerciseDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : (todayExerciseDone ? '已完成 ✓' : '记录消耗') }}</span>
+            </button>
+            <button @click="guardCheckin('diet')" :class="['flex flex-col items-center gap-1.5 py-1 transition-transform cursor-pointer', campNotStarted ? 'opacity-50' : 'active:scale-95']">
+              <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayDietDone ? 'bg-[#FF976A]/14 text-[#FF976A]' : 'bg-[#FF976A]/10 text-[#FF976A]']">
+                <Coffee class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold text-gray-900">饮食打卡</span>
+              <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayDietDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : todayDietLabel }}</span>
+            </button>
+            <button @click="guardCheckin('weight-checkin')" :class="['flex flex-col items-center gap-1.5 py-1 transition-transform cursor-pointer', campNotStarted ? 'opacity-50' : 'active:scale-95']">
+              <div :class="['w-10 h-10 rounded-full flex items-center justify-center', campNotStarted ? 'bg-gray-100 text-gray-400' : todayWeightDone ? 'bg-[#1677FF]/12 text-[#1677FF]' : 'bg-[#1677FF]/8 text-[#1677FF]']">
+                <Scale class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold text-gray-900">体重打卡</span>
+              <span :class="['text-[10px]', campNotStarted ? 'text-gray-400' : todayWeightDone ? 'text-[#0B6BCB] font-bold' : 'text-gray-400']">{{ campNotStarted ? '未开始' : (todayWeightDone ? '已完成 ✓' : '见证蜕变') }}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+      </template><!-- /今日状态 -->
+
+      <!-- 慢病追踪：3列对齐网格，直接展示最新值（随服务配置 chronic 显隐） -->
+      <div v-if="store.enabledServices.chronic">
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+            <div class="w-1.5 h-4 bg-[#B6523E] rounded-full"></div>慢病追踪
+          </h3>
+          <div class="flex items-center gap-1.5">
+            <button @click="store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-white border border-[#0B6BCB]/20 shadow-sm active:opacity-80">+ 记录指标</button>
+            <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-white border border-gray-200 shadow-sm active:opacity-80">五高看台 ›</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2.5">
+          <button
+            v-for="c in chronicMiniCards" :key="c.key"
+            @click="c.hasValue ? openChronicGroup(c.key) : store.setCurrentView('chronic-record')"
+            :class="['rounded-2xl p-3 flex flex-col min-h-[96px] text-left transition-opacity', c.hasValue ? 'bg-white shadow-sm border border-white/70 active:opacity-90' : 'bg-white/50 border border-dashed border-gray-200 active:opacity-80']"
+          >
+            <template v-if="c.hasValue">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[11px] font-bold text-gray-500 truncate">{{ c.title }}</span>
+                <span :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
+              </div>
+              <div class="mt-auto pt-2 flex items-end gap-1">
+                <span class="text-[22px] font-black tabular-nums leading-none" :class="LEVEL_META[c.level].text">{{ c.primaryValue ?? '—' }}</span>
+                <span class="text-[10px] text-gray-400 mb-0.5">{{ c.primaryUnit }}</span>
+              </div>
+              <div class="text-[9px] text-gray-400 mt-1 truncate">{{ c.primaryLabel || '暂无数据' }}</div>
+            </template>
+            <template v-else>
+              <div class="flex-1 flex flex-col items-center justify-center gap-1.5">
+                <span class="text-[11px] font-bold text-gray-400">{{ c.title }}</span>
+                <span class="text-[10px] text-gray-400">未录入</span>
+              </div>
+            </template>
+          </button>
+        </div>
+        <p v-if="!chronicMiniHasAny" class="text-[10px] text-gray-400 mt-2 text-center">还没有慢病测量记录，点「记录指标」录入血压 / 血糖 / 血脂，首页直接看数据</p>
       </div>
-      </template><!-- /健康减重记录 -->
+
+      <!-- 服务咨询（报告解读 / 给医生留言） -->
+      <section class="bg-white rounded-3xl shadow-sm border border-white/70 overflow-hidden divide-y divide-gray-100">
+        <button
+          v-for="b in consultButtons" :key="b.key"
+          @click="store.setCurrentView(b.key as never)"
+          class="w-full flex items-center gap-3 p-4 active:bg-gray-50 transition-colors text-left"
+        >
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="`background:${b.color}14; color:${b.color}`">
+            <component :is="b.icon" class="h-5 w-5" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold text-gray-900">{{ b.title }}</div>
+            <div class="text-[10px] text-gray-400 mt-0.5">{{ b.desc }}</div>
+          </div>
+          <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
+        </button>
+      </section>
 
       </div>
     <StudentTabbar anchor="health" :badge="unreadCount > 0 ? unreadCount : undefined" />
