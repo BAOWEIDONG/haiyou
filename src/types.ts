@@ -423,3 +423,14 @@ export interface StudentReport {
   /** 转录营养师姓名 */
   interpretedBy?: string;
 }
+
+/** 活动页顶部运营位 Banner（营养师在「活动页设置」维护） */
+export interface ActivityBanner {
+  id: string;
+  /** 标题 / 角标文案 */
+  title: string;
+  /** 展示图（营养师上传；空则显示渐变占位） */
+  image: string;
+  /** 点击跳转外部链接（http/https），空则不跳转 */
+  url: string;
+}

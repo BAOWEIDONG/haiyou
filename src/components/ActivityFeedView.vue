@@ -15,6 +15,14 @@ const user = computed(() => store.user);
 
 const feedTab = ref<'exercise' | 'knowledge'>('exercise');
 
+// 两个资讯 tab 的名称由营养师在「活动页设置」自定义（默认 锻炼活动/健康科普）
+const tabs = computed(() => store.activityConfig.tabs);
+const banners = computed(() => store.activityConfig.banners);
+
+function openBanner(b: { title: string; image: string; url: string }) {
+  if (b.url && /^https?:\/\//i.test(b.url)) window.open(b.url, '_blank');
+}
+
 const feedActivities = computed(() =>
   [...store.coachActivities].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
 );
@@ -41,16 +49,35 @@ const unreadCount = computed(() =>
         <BookOpen class="w-4 h-4" /> 活动资讯
       </div>
       <h2 class="text-xl font-bold text-gray-900 mt-1">健康活动</h2>
-      <p class="text-[11px] text-gray-500 mt-0.5">锻炼活动 · 健康科普 · 慢病管控科普</p>
+      <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 慢病管控科普</p>
+    </div>
+
+    <!-- 顶部 Banner 运营位（外链跳转；无 Banner 时隐藏） -->
+    <div v-if="banners.length" class="px-5 pt-2">
+      <div class="flex gap-2.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-5 px-5 pb-1">
+        <button
+          v-for="b in banners" :key="b.id"
+          @click="openBanner(b)"
+          class="flex-none w-[72%] snap-start aspect-[16/7] rounded-2xl overflow-hidden relative text-left active:opacity-90 transition-opacity shadow-sm"
+        >
+          <img loading="lazy" decoding="async" v-if="b.image" :src="b.image" class="absolute inset-0 w-full h-full object-cover" alt="" />
+          <div v-else class="absolute inset-0 w-full h-full bg-gradient-to-br from-[#0B6BCB] to-[#12B5C2]"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-2.5 flex items-end justify-between">
+            <span class="text-white text-[13px] font-bold drop-shadow truncate">{{ b.title }}</span>
+            <span v-if="b.url" class="text-[9px] text-white/85 bg-black/25 rounded-full px-2 py-0.5 shrink-0 ml-2">查看 ›</span>
+          </div>
+        </button>
+      </div>
     </div>
 
     <div class="px-5 pt-2">
       <div class="flex gap-2 mb-2">
         <button @click="feedTab = 'exercise'" :class="['px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white shadow-sm' : 'border-transparent text-gray-500 bg-white/60']">
-          锻炼活动
+          {{ tabs.exercise }}
         </button>
         <button @click="feedTab = 'knowledge'" :class="['px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors', feedTab === 'knowledge' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white shadow-sm' : 'border-transparent text-gray-500 bg-white/60']">
-          健康科普
+          {{ tabs.knowledge }}
         </button>
       </div>
     </div>

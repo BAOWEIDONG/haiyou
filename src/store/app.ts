@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
-import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues } from '../types';
+import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues, ActivityBanner } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
   MOCK_DIET_RECORDS,
@@ -74,7 +74,8 @@ export type View =
   | 'dietitian-chronic-alerts' // 营养师端：五高异常预警列表
   // 本轮信息架构重构：健康主页改名「活动」信息流 + 体检报告转录
   | 'activity'              // 学员端「活动」tab：科普图文/活动资讯信息流
-  | 'report-transcribe';    // 营养师端：学员体检报告转录健康档案
+  | 'report-transcribe'    // 营养师端：学员体检报告转录健康档案
+  | 'dietitian-activity-config'; // 营养师「配置」：活动页两个资讯 tab 名称 + 顶部 Banner 运营位
 
 export const useAppStore = defineStore('app', () => {
   const user = ref<User | null>(null);
@@ -145,6 +146,29 @@ export const useAppStore = defineStore('app', () => {
   function setServiceEnabled(service: 'bmi' | 'chronic', v: boolean) {
     enabledServices.value = { ...enabledServices.value, [service]: v };
   }
+  /** 活动页配置：两个资讯 tab 的自定义名称 + 顶部 Banner 运营位（营养师在「活动页设置」维护） */
+  const activityConfig = ref<{ tabs: { exercise: string; knowledge: string }; banners: ActivityBanner[] }>({
+    tabs: { exercise: '锻炼活动', knowledge: '健康科普' },
+    banners: [
+      { id: 'banner_1', title: '健康科普季 · 慢病预防', image: '', url: '' },
+      { id: 'banner_2', title: '科学减重训练营', image: '', url: '' },
+    ],
+  });
+  function setActivityTabNames(tabs: { exercise: string; knowledge: string }) {
+    activityConfig.value = { ...activityConfig.value, tabs };
+  }
+  function addActivityBanner(b: { title: string; image: string; url: string }) {
+    activityConfig.value = { ...activityConfig.value, banners: [...activityConfig.value.banners, { id: `ban_${Date.now()}_${_seq.n++}`, ...b }] };
+  }
+  function updateActivityBanner(id: string, b: { title: string; image: string; url: string }) {
+    activityConfig.value = {
+      ...activityConfig.value,
+      banners: activityConfig.value.banners.map((x) => (x.id === id ? { ...x, ...b } : x)),
+    };
+  }
+  function removeActivityBanner(id: string) {
+    activityConfig.value = { ...activityConfig.value, banners: activityConfig.value.banners.filter((x) => x.id !== id) };
+  }
   /** 当前打开的慢病指标族（单指标趋势页） */
   const activeChronicGroup = ref<ChronicGroupKey | null>(null);
   function setActiveChronicGroup(g: ChronicGroupKey | null) { activeChronicGroup.value = g; }
@@ -197,13 +221,13 @@ export const useAppStore = defineStore('app', () => {
     students, weightRecords, exerciseRecords, dietRecords, coachActivities,
     metricConfigs, camps, accounts, mealTimeConfigByCamp,
     interpretationRequests, consultThreads, knowledgeContents, studentRequiresPreRegister,
-    chronicRecords, enabledServices, studentReports,
+    chronicRecords, enabledServices, studentReports, activityConfig,
   ];
   const bizNames = [
     'students', 'weightRecords', 'exerciseRecords', 'dietRecords', 'coachActivities',
     'metricConfigs', 'camps', 'accounts', 'mealTimeConfigByCamp',
     'interpretationRequests', 'consultThreads', 'knowledgeContents', 'studentRequiresPreRegister',
-    'chronicRecords', 'enabledServices', 'studentReports',
+    'chronicRecords', 'enabledServices', 'studentReports', 'activityConfig',
   ] as const;
   function persistBiz() {
     const snap: Record<string, unknown> = {};
@@ -1101,6 +1125,11 @@ export const useAppStore = defineStore('app', () => {
     chronicRecords,
     enabledServices,
     setServiceEnabled,
+    activityConfig,
+    setActivityTabNames,
+    addActivityBanner,
+    updateActivityBanner,
+    removeActivityBanner,
     activeChronicGroup,
     setActiveChronicGroup,
     getStudentChronicRecords,

@@ -5,10 +5,10 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, HeartPulse, ChevronRight } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, ChevronRight } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
-import { judgeRecord, LEVEL_META } from '../lib/chronic';
+import { judgeGroup, groupFields, CHRONIC_GROUPS, LEVEL_META, type ChronicGroupKey } from '../lib/chronic';
 
 const store = useAppStore();
 
@@ -94,13 +94,38 @@ const consultButtons = [
   { key: 'interpretation-result', title: '报告解读', desc: '上传报告，请营养师解读指标', icon: FileSearch, color: '#0B6BCB' },
   { key: 'consult', title: '给医生留言', desc: '健康疑问，向顾问留言咨询', icon: MessageSquareText, color: '#FF976A' },
 ];
-// 慢病看台入口摘要（随服务配置 chronic 显隐）
+// 慢病看台入口摘要（最新一条；慢病追踪模块据此直显数值）
 const chronicLatest = computed(() => (store.user ? store.getLatestChronic(store.user.id) : null));
-const chronicJudge = computed(() => {
+
+// ─── 首页「慢病追踪」横滑指标卡（直接展示最新值，点卡进单指标趋势） ─────
+const CHRONIC_ACCENT: Record<string, string> = {
+  bp: '#0B6BCB', glucose: '#10B981', lipid: '#FF976A', uric: '#8B5CF6', bmi: '#12B5C2', hcy: '#A5772D',
+};
+function chronicMini(g: ChronicGroupKey) {
+  const gf = groupFields(g);
+  const gender = store.user?.gender;
   const rec = chronicLatest.value;
-  if (!rec) return null;
-  return judgeRecord(rec.values, store.user?.gender);
-});
+  const level = rec ? judgeGroup(rec.values, g, gender).level : 'normal';
+  const primaryDef = gf.find((f) => f.display && rec && rec.values[f.key] != null);
+  const primaryValue = primaryDef && rec ? (rec.values[primaryDef.key] as number) : undefined;
+  const hasValue = rec != null && gf.some((f) => f.display && rec.values[f.key] != null);
+  return {
+    key: g,
+    title: CHRONIC_GROUPS.find((x) => x.key === g)!.title,
+    level,
+    primaryLabel: primaryDef?.label || '',
+    primaryValue,
+    primaryUnit: primaryDef?.unit || '',
+    hasValue,
+    accent: CHRONIC_ACCENT[g] as string,
+  };
+}
+const chronicMiniCards = computed(() => CHRONIC_GROUPS.map((g) => chronicMini(g.key)));
+const chronicMiniHasAny = computed(() => chronicMiniCards.value.some((c) => c.hasValue));
+function openChronicGroup(g: ChronicGroupKey) {
+  store.setActiveChronicGroup(g);
+  store.setCurrentView('chronic-detail');
+}
 
 // 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
@@ -317,31 +342,43 @@ onMounted(() => {
         </button>
       </div>
 
-      <!-- 慢病记录入口（随服务配置 chronic 显隐） -->
-      <button
-        v-if="store.enabledServices.chronic"
-        @click="store.setCurrentView('chronic-dashboard')"
-        class="w-full flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-[#B6523E]/8 via-white/60 to-white/0 border border-white/70 shadow-sm active:opacity-90 transition-opacity text-left relative overflow-hidden"
-      >
-        <div class="w-12 h-12 rounded-2xl bg-[#B6523E]/12 text-[#B6523E] flex items-center justify-center shrink-0">
-          <HeartPulse class="h-6 w-6" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2">
-            <span class="text-[15px] font-bold text-gray-800">慢病管理 · 五高看台</span>
-            <span v-if="chronicJudge" class="text-[10px] px-1.5 py-0.5 rounded-full" :class="LEVEL_META[chronicJudge.level].bg + ' ' + LEVEL_META[chronicJudge.level].text">
-              {{ chronicJudge.level === 'normal' ? '达标' : chronicJudge.level === 'off' ? '关注' : '异常' }}
-            </span>
-          </div>
-          <div class="text-[11px] text-gray-500 mt-1 leading-relaxed">
-            <template v-if="chronicLatest">
-              最近测量 {{ chronicLatest.date.slice(0, 16) }} · 血压/血糖/血脂等逐项记录
-            </template>
-            <template v-else>记录血压/血糖/血脂等，看看五项指标达标率</template>
+      <!-- 慢病追踪：横滑指标卡，直接展示最新值（随服务配置 chronic 显隐） -->
+      <div v-if="store.enabledServices.chronic" class="pt-0.5">
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+            <div class="w-1.5 h-4 bg-[#B6523E] rounded-full"></div>慢病追踪
+          </h3>
+          <div class="flex items-center gap-1.5">
+            <button @click="store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-white/70 border border-[#0B6BCB]/20 shadow-sm active:opacity-80">+ 记录指标</button>
+            <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-white/70 border border-gray-200 shadow-sm active:opacity-80">五高看台 ›</button>
           </div>
         </div>
-        <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
-      </button>
+        <div class="flex gap-2.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-5 px-5 pb-1">
+          <button
+            v-for="c in chronicMiniCards.filter(x => x.hasValue)" :key="c.key"
+            @click="openChronicGroup(c.key)"
+            class="flex-none w-[30%] snap-start rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm p-3 text-left active:opacity-90 transition-opacity"
+          >
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[11px] font-bold text-gray-500 truncate">{{ c.title }}</span>
+              <span :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
+            </div>
+            <div class="mt-2 flex items-end gap-1">
+              <span class="text-2xl font-black tabular-nums leading-none" :class="LEVEL_META[c.level].text">{{ c.primaryValue ?? '—' }}</span>
+              <span class="text-[10px] text-gray-400 mb-0.5">{{ c.primaryUnit }}</span>
+            </div>
+            <div class="text-[9px] text-gray-400 mt-1.5 truncate">{{ c.primaryLabel || '暂无数据' }}</div>
+          </button>
+          <button
+            v-if="!chronicMiniHasAny"
+            @click="store.setCurrentView('chronic-record')"
+            class="flex-none w-[52%] snap-start rounded-2xl border-2 border-dashed border-[#B6523E]/30 bg-white/40 text-[#B6523E] p-3.5 text-left active:opacity-80"
+          >
+            <div class="text-[11px] font-bold">还没有慢病测量记录</div>
+            <div class="text-[10px] text-gray-400 mt-1 leading-relaxed">点「记录指标」录入血压 / 血糖 / 血脂，首页直接看数据</div>
+          </button>
+        </div>
+      </div>
 
       <!-- 健康减重记录（随服务配置 bmi 显隐） -->
       <template v-if="store.enabledServices.bmi">

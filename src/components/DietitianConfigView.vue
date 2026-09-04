@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { DietitianTabbar } from './ui';
 import {
-  Settings, LogOut, FileSearch, MessageSquareText, Users, Newspaper, Activity, ShieldCheck,
+  Settings, LogOut, FileSearch, MessageSquareText, Users, Newspaper, Activity, ShieldCheck, SlidersHorizontal,
 } from 'lucide-vue-next';
 
 /**
@@ -41,6 +41,7 @@ const manageItems: ConfigItem[] = [
 // 配置（对应用户端健康档案/打卡）
 const configItems: ConfigItem[] = [
   { view: 'metric-config', title: '健康档案指标', desc: '体检指标项与参考区间', icon: Activity, color: '#FF976A' },
+  { view: 'dietitian-activity-config', title: '活动页设置', desc: '资讯分类名 + 顶部 Banner', icon: SlidersHorizontal, color: '#12B5C2' },
 ];
 </script>
 
