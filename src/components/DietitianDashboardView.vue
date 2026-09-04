@@ -5,7 +5,7 @@ import { useDebounced } from '../composables/useDebounced';
 import { useAppStore } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, DietitianTabbar } from './ui';
-import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren } from 'lucide-vue-next';
+import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren, FileText } from 'lucide-vue-next';
 import { judgeRecord } from '../lib/chronic';
 import { Popup as VanPopup } from 'vant';
 
@@ -115,6 +115,10 @@ const chronicAlertCount = computed(() => {
   }
   return n;
 });
+// ─── 体检报告待解读（健康档案转录） ───
+const reportPendingCount = computed(() =>
+  store.getReportStudents().reduce((n, s) => n + s.reports.filter((r) => r.status === 'pending').length, 0),
+);
 </script>
 
 <template>
@@ -151,6 +155,21 @@ const chronicAlertCount = computed(() => {
           <div class="text-[11px] text-gray-500 mt-0.5">五高慢病预警 · 点击查看全部</div>
         </div>
         <span class="text-[#B6523E] font-bold text-lg">›</span>
+      </button>
+
+      <!-- 体检报告健康档案转录横幅 -->
+      <button
+        @click="store.setCurrentView('report-transcribe')"
+        class="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-[#0B6BCB]/10 to-[#12B5C2]/10 border border-[#0B6BCB]/25 text-left active:opacity-90 transition-opacity"
+      >
+        <div class="h-10 w-10 rounded-xl bg-[#0B6BCB] flex items-center justify-center shrink-0">
+          <FileText class="h-5 w-5 text-white" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-[#0B6BCB]">{{ reportPendingCount }} 份体检报告待解读</div>
+          <div class="text-[11px] text-gray-500 mt-0.5">录入学员健康档案 · 点击查看</div>
+        </div>
+        <span class="text-[#0B6BCB] font-bold text-lg">›</span>
       </button>
 
       <!-- 服务批次切换 -->

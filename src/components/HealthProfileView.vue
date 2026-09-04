@@ -4,34 +4,44 @@ import { useAppStore } from '../store/app';
 import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { NavBar, Card, StudentTabbar } from './ui';
-import { Activity, FileText, ClipboardList, Stethoscope, UploadCloud, X, Pencil, ChevronRight, ChevronDown } from 'lucide-vue-next';
+import { Activity, FileText, ClipboardList, UploadCloud, X, Pencil, ChevronRight } from 'lucide-vue-next';
 import { Popup as VanPopup, TimePicker as VanTimePicker } from 'vant';
-import { buildMedicalData } from '../lib/medicalData';
-import { MOCK_METRIC_VALUES, MOCK_STUDENT_METRIC_VALUES } from '../mock/data';
+import { CHRONIC_GROUPS, judgeRecord, fieldDef, LEVEL_META, type AlarmLevel } from '../lib/chronic';
+import type { StudentReport } from '../types';
 
 const store = useAppStore();
 
-// 未读批注数（tabbar badge）
 // 消息未读数（批注 + 系统通知，store 级统一，与各学员页「消息」Tab 角标一致）
 const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
 );
 
-// Build medical data from dynamic configs + per-student mock values, with gender-aware abnormal detection
-const medicalData = computed(() => {
-  const studentId = store.user?.id;
-  const values = (studentId && MOCK_STUDENT_METRIC_VALUES[studentId]) || MOCK_METRIC_VALUES;
-  return buildMedicalData(store.metricConfigs, values, store.user?.gender);
-});
+// ─── 体检报告 / 健康档案（学员上传 → 营养师转录结构化指标） ─────────
+const reports = computed(() => (store.user ? store.getStudentReports(store.user.id) : []));
+const doneReports = computed(() => reports.value.filter((r) => r.status === 'done'));
+/** 已解读报告的结构化字段，按指标族分组（仅列有值字段；判定复用慢病口径） */
+function transcribedGroups(values: any): { g: { key: string; title: string }; fields: { key: string; label: string; unit: string; range: string; value: number; level: AlarmLevel }[] }[] {
+  if (!values) return [];
+  const judge = judgeRecord(values, store.user?.gender);
+  return CHRONIC_GROUPS.map((g) => {
+    const fields = judge.fields
+      .filter((f) => fieldDef(f.key).group === (g.key as any))
+      .map((f) => ({ key: f.key as string, label: f.label, unit: f.unit, range: fieldDef(f.key).range, value: f.value, level: f.level }));
+    return { g, fields };
+  }).filter((x) => x.fields.length > 0);
+}
 
-// Collapsible category state - default all expanded (empty set = nothing collapsed)
-const collapsedCats = ref<Set<string>>(new Set());
-const toggleCat = (title: string) => {
-  const next = new Set(collapsedCats.value);
-  if (next.has(title)) next.delete(title);
-  else next.add(title);
-  collapsedCats.value = next;
+const nowStr = () => {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 };
+function openReportImg(r: StudentReport) {
+  const pdf = r.images.find((i) => i.type === 'pdf');
+  if (pdf) { window.open(pdf.url, '_blank'); return; }
+  const urls = r.images.filter((i) => i.type === 'image').map((i) => i.url).filter(Boolean);
+  if (urls.length) store.openImagePreview(urls, 0);
+}
 
 const qData = ref<any>(null);
 const showUploadModal = ref(false);
@@ -97,25 +107,19 @@ const handleModalFileSelect = async (e: Event) => {
 
 const handleConfirmUpload = () => {
   if (pendingReports.value.length === 0) return;
-  const updated = [...(qData.value?.medicalReports || []), ...pendingReports.value];
-  const newQData = { ...(qData.value || {}), medicalReports: updated };
-  qData.value = newQData;
-  try {
-    localStorage.setItem('submitted_questionnaire', JSON.stringify(newQData));
-  } catch (e) {
-    // ignore
-  }
+  if (!store.user) return;
+  store.addStudentReport({
+    studentId: store.user.id,
+    title: '体检报告',
+    images: pendingReports.value,
+    date: nowStr(),
+  });
   pendingReports.value = [];
   showUploadModal.value = false;
 };
 
 const removePendingReport = (idx: number) => {
   pendingReports.value = pendingReports.value.filter((_, i) => i !== idx);
-};
-
-const openReport = (r: any) => {
-  if (r.type === 'pdf') window.open(r.url, '_blank');
-  else store.openImagePreview([r.url], 0);
 };
 
 // ─── 编辑功能 ─────────────────────────────────────
@@ -439,72 +443,78 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
         </Card>
       </template>
 
-      <Card class="bg-orange-50 border-orange-100">
-        <p class="text-xs text-orange-800">
-          提示：以下数据在服务结束后进行更新。橙色字体表示该指标超出医学参考范围。结束后数据若为空，显示为"待更新"；若报告中未包含该项，显示为"未检测"。
-        </p>
-      </Card>
-
-      <Card v-for="(cat, idx) in medicalData" :key="idx" class="p-0 overflow-hidden shadow-sm border border-gray-100">
-        <div @click="toggleCat(cat.title)" class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2 cursor-pointer hover:bg-gray-100/80 transition-colors select-none">
-          <Stethoscope class="w-4 h-4 text-[#1677FF]" />
-          <h3 class="font-bold text-gray-900 text-sm">{{ cat.title }}</h3>
-          <span class="text-[10px] text-gray-400">{{ cat.items.length }} 项</span>
-          <ChevronDown :class="['ml-auto w-4 h-4 text-gray-400 transition-transform duration-300', collapsedCats.has(cat.title) ? '-rotate-90' : '']" />
+      <!-- 体检报告上传 + 营养师转录的健康档案 -->
+      <Card>
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="font-bold text-gray-900 flex items-center gap-2">
+            <FileText class="h-4 w-4 text-[#0B6BCB]" />
+            我的体检报告
+          </h3>
+          <button @click="handleUploadReport" class="text-[#0B6BCB] text-xs font-medium flex items-center gap-0.5 hover:opacity-80">
+            <UploadCloud class="h-3.5 w-3.5" /> 上传报告
+          </button>
         </div>
-        <div v-show="!collapsedCats.has(cat.title)" class="divide-y divide-gray-50">
-          <div v-for="(item, iIdx) in cat.items" :key="iIdx" class="p-4">
-            <div class="flex justify-between items-center mb-3">
-              <div class="font-bold text-gray-900 text-sm">{{ item.name }}</div>
-              <div class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium tracking-wide">
-                参考: {{ item.normalRange }} {{ item.unit }}
-              </div>
-            </div>
+        <p class="text-[11px] text-gray-400 mb-3">上传后由营养师解读并录入结构化健康档案</p>
 
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-gray-50 p-2 rounded-lg flex flex-col justify-center items-center">
-                <span class="text-[10px] text-gray-500 mb-1 font-medium">开始时</span>
-                <div class="text-sm">
-                  <template v-if="item.beforeValue === null"><span class="text-gray-400">-- 待上传</span></template>
-                  <template v-else-if="item.beforeValue === undefined || item.beforeValue === ''"><span class="text-gray-400">-- 未检测</span></template>
-                  <span v-else :class="item.isBeforeOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">{{ item.beforeValue }}</span>
-                  <span v-if="item.beforeValue !== null && item.beforeValue !== undefined && item.beforeValue !== '' && item.unit" class="text-[10px] text-gray-500 ml-1">{{ item.unit }}</span>
-                </div>
-              </div>
-              <div class="bg-[#0B6BCB]/5 p-2 rounded-lg flex flex-col justify-center items-center border border-[#0B6BCB]/10">
-                <span class="text-[10px] text-[#0B6BCB] font-bold mb-1">结束时</span>
-                <div class="text-sm">
-                  <template v-if="item.afterValue === null"><span class="text-gray-400">-- 待更新</span></template>
-                  <template v-else-if="item.afterValue === undefined || item.afterValue === ''"><span class="text-gray-400">-- 未检测</span></template>
-                  <span v-else :class="item.isAfterOut ? 'text-orange-500 font-bold' : 'text-gray-900 font-medium'">{{ item.afterValue }}</span>
-                  <span v-if="item.afterValue !== null && item.afterValue !== undefined && item.afterValue !== '' && item.unit" class="text-[10px] text-gray-500 ml-1">{{ item.unit }}</span>
-                </div>
-              </div>
+        <div v-if="reports.length === 0" class="text-center text-xs text-gray-400 py-8">
+          暂无体检报告，点击右上角「上传」提交
+        </div>
+        <div v-else class="space-y-2.5">
+          <div
+            v-for="r in reports" :key="r.id"
+            class="flex items-center gap-3 rounded-xl border border-gray-100 p-2.5 cursor-pointer hover:bg-gray-50/70 transition-colors"
+            @click="openReportImg(r)"
+          >
+            <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center shrink-0">
+              <FileText v-if="!r.images.some((i) => i.type === 'image')" class="w-6 h-6 text-[#0B6BCB]" />
+              <img loading="lazy" decoding="async" v-else :src="r.images.find((i) => i.type === 'image')?.url" class="w-full h-full object-cover" />
             </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900 truncate">{{ r.title || '体检报告' }}</div>
+              <div class="text-[10px] text-gray-400 mt-0.5">{{ r.images.length }} 个文件 · {{ r.date }}</div>
+            </div>
+            <span
+              :class="['text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', r.status === 'done' ? 'bg-[#0B6BCB]/10 text-[#0B6BCB]' : 'bg-amber-50 text-amber-600']"
+            >{{ r.status === 'done' ? '已解读' : '待解读' }}</span>
           </div>
         </div>
       </Card>
 
-      <Card v-if="qData?.medicalReports && qData.medicalReports.length > 0">
-        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-          <FileText class="h-4 w-4 text-[#0B6BCB]" />
-          个人医疗报告
+      <!-- 健康档案：营养师已转录的结构化指标 -->
+      <Card v-if="doneReports.length > 0">
+        <h3 class="font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <ClipboardList class="h-4 w-4 text-[#0B6BCB]" />
+          健康档案 · 营养师录入指标
         </h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div
-            v-for="(r, idx) in qData.medicalReports"
-            :key="idx"
-            class="relative rounded-lg overflow-hidden border border-gray-100 shadow-sm aspect-[3/4] cursor-pointer hover:opacity-90 transition-opacity"
-            @click="openReport(r)"
-          >
-            <div v-if="r.type === 'pdf'" class="w-full min-h-full flex flex-col items-center justify-center bg-gray-50 text-[#0B6BCB]">
-              <FileText class="w-8 h-8 mb-1" />
-              <span class="text-[10px] text-gray-500 truncate px-1">{{ r.name || 'PDF报告' }}</span>
+        <div class="space-y-4 mt-3">
+          <div v-for="r in doneReports" :key="r.id">
+            <div class="text-xs text-gray-400 mb-1.5 flex items-center gap-1.5">
+              解读于 {{ r.interpretedAt }} · {{ r.interpretedBy }}
             </div>
-            <img loading="lazy" decoding="async" v-else :src="r.url" :alt="`报告 ${idx + 1}`" class="w-full min-h-full object-cover" />
-            <div class="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm text-white text-[10px] p-1.5 text-center truncate">
-              {{ r.type === 'pdf' ? (r.name || `报告 ${idx + 1}`) : `报告 ${idx + 1}` }}
+            <template v-if="transcribedGroups(r.values).length">
+              <div v-for="grp in transcribedGroups(r.values)" :key="grp.g.key" class="mb-3">
+                <div class="text-[11px] font-bold text-gray-500 mb-1.5 flex items-center gap-1">
+                  <Activity class="h-3 w-3 text-[#0B6BCB]" /> {{ grp.g.title }}
+                </div>
+                <div class="rounded-xl bg-gray-50 divide-y divide-white">
+                  <div v-for="f in grp.fields" :key="f.key" class="flex items-center justify-between px-3 py-2">
+                    <span class="text-xs text-gray-500">{{ f.label }}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm tabular-nums font-semibold" :class="LEVEL_META[f.level].text">
+                        {{ f.value }}<span class="text-[10px] text-gray-400 ml-0.5">{{ f.unit }}</span>
+                      </span>
+                      <span :class="['text-[9px] px-1.5 py-px rounded-full font-bold', LEVEL_META[f.level].bg, LEVEL_META[f.level].text]">{{ LEVEL_META[f.level].label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div v-else class="text-xs text-gray-400 bg-gray-50 rounded-xl p-3">
+              本报告暂无可录入的结构化指标
             </div>
+            <p v-if="r.note" class="text-[11px] text-gray-500 bg-[#0B6BCB]/5 border-l-2 border-[#0B6BCB] p-2.5 rounded-r-lg whitespace-pre-wrap leading-relaxed mt-1">
+              {{ r.note }}
+            </p>
           </div>
         </div>
       </Card>
@@ -521,7 +531,7 @@ function onTimePickerConfirm({ selectedValues }: { selectedValues: string[] }) {
       />
     </VanPopup>
 
-    <!-- Bottom Nav：首页 / 活动(显隐随服务批次) / 消息 / 档案；高亮由 anchor 推导 -->
-    <StudentTabbar anchor="health" :badge="unreadCount > 0 ? unreadCount : undefined" />
+    <!-- Bottom Nav：健康 / 活动 / 消息 / 我的；高亮由 anchor 推导 -->
+    <StudentTabbar anchor="mine" :badge="unreadCount > 0 ? unreadCount : undefined" />
   </div>
 </template>

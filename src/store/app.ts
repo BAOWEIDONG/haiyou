@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
-import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord } from '../types';
+import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
   MOCK_DIET_RECORDS,
@@ -16,6 +16,7 @@ import {
   MOCK_CONSULT_THREADS,
   MOCK_KNOWLEDGE_CONTENTS,
   MOCK_CHRONIC_RECORDS,
+  MOCK_STUDENT_REPORTS,
 } from '../mock/data';
 import * as api from '../lib/api';
 import { latestOrFirstId } from '../lib/camps';
@@ -67,10 +68,13 @@ export type View =
   // 内容管理·全屏发布图文（健康科普正文编辑）
   | 'ops-content-new'
   // 慢病（五高）管理域
-  | 'chronic-dashboard'     // 健康 tab：慢病六指标健康看台
+  | 'chronic-dashboard'     // 慢病六指标健康看台（健康主页「慢病记录」入口）
   | 'chronic-record'        // 慢病测量录入（适老化逐项）
   | 'chronic-detail'        // 单指标族趋势 + 达标率
-  | 'dietitian-chronic-alerts'; // 营养师端：五高异常预警列表
+  | 'dietitian-chronic-alerts' // 营养师端：五高异常预警列表
+  // 本轮信息架构重构：健康主页改名「活动」信息流 + 体检报告转录
+  | 'activity'              // 学员端「活动」tab：科普图文/活动资讯信息流
+  | 'report-transcribe';    // 营养师端：学员体检报告转录健康档案
 
 export const useAppStore = defineStore('app', () => {
   const user = ref<User | null>(null);
@@ -134,6 +138,8 @@ export const useAppStore = defineStore('app', () => {
   const knowledgeContents = ref<KnowledgeContent[]>([...MOCK_KNOWLEDGE_CONTENTS]);
   /** 慢病（五高+同型半胱氨酸）测量记录（学员健康看台与营养师预警共用） */
   const chronicRecords = ref<ChronicRecord[]>([...MOCK_CHRONIC_RECORDS]);
+  /** 学员体检报告及其营养师转录的健康档案 */
+  const studentReports = ref<StudentReport[]>([...MOCK_STUDENT_REPORTS]);
   /** 平台服务产品启停（医院采购配置）：bmi=健康减重，chronic=慢病管理；控制学员端底部菜单与各服务入口显隐 */
   const enabledServices = ref<{ bmi: boolean; chronic: boolean }>({ bmi: true, chronic: true });
   function setServiceEnabled(service: 'bmi' | 'chronic', v: boolean) {
@@ -191,13 +197,13 @@ export const useAppStore = defineStore('app', () => {
     students, weightRecords, exerciseRecords, dietRecords, coachActivities,
     metricConfigs, camps, accounts, mealTimeConfigByCamp,
     interpretationRequests, consultThreads, knowledgeContents, studentRequiresPreRegister,
-    chronicRecords, enabledServices,
+    chronicRecords, enabledServices, studentReports,
   ];
   const bizNames = [
     'students', 'weightRecords', 'exerciseRecords', 'dietRecords', 'coachActivities',
     'metricConfigs', 'camps', 'accounts', 'mealTimeConfigByCamp',
     'interpretationRequests', 'consultThreads', 'knowledgeContents', 'studentRequiresPreRegister',
-    'chronicRecords', 'enabledServices',
+    'chronicRecords', 'enabledServices', 'studentReports',
   ] as const;
   function persistBiz() {
     const snap: Record<string, unknown> = {};
@@ -377,8 +383,8 @@ export const useAppStore = defineStore('app', () => {
   }
 
   /** 底部 Tab 根页面（切换时去重，避免历史栈无限增长） */
-  // 学员端底部Tab：首页/健康(慢病)/消息/我的；教练/营养师端各自的底部Tab根页
-  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'my-team', 'chronic-dashboard', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
+  // 学员端底部Tab：健康(/首页记录台) / 活动(信息流) / 消息 / 我的；教练/营养师端各自的底部Tab根页
+  const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'my-team', 'activity', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
 
   /** 学员详情流视图：在此流内继承 detailSelectedCampId，离开则清空（不污染全局 selectedCampId） */
   const DETAIL_FLOW_VIEWS: View[] = ['dietitian-student-detail', 'coach-student-detail'];
@@ -933,6 +939,56 @@ export const useAppStore = defineStore('app', () => {
     chronicRecords.value = chronicRecords.value.filter((r) => r.id !== id);
   }
 
+  // ─── 学员体检报告 / 健康档案转录域 ───
+  /** 某学员上传的体检报告（新→旧） */
+  function getStudentReports(studentId: string): StudentReport[] {
+    return studentReports.value
+      .filter((r) => r.studentId === studentId)
+      .sort((a, b) => b.date.localeCompare(a.date));
+  }
+  /** 全体有报告的学员（营养师转录队列用）：按最早待解读优先，其次报告日期 */
+  function getReportStudents(): { student: { id: string; name: string; age?: number; gender?: string; phone?: string }; reports: StudentReport[] }[] {
+    const byStudent = new Map<string, StudentReport[]>();
+    for (const r of studentReports.value) {
+      const arr = byStudent.get(r.studentId) || [];
+      arr.push(r);
+      byStudent.set(r.studentId, arr);
+    }
+    const out: { student: { id: string; name: string; age?: number; gender?: string; phone?: string }; reports: StudentReport[] }[] = [];
+    for (const [sid, list] of byStudent) {
+      const acc = accounts.value.find((a) => a.id === sid && a.role === 'student');
+      const stInfo = students.value.find((s) => s.id === sid);
+      out.push({
+        student: { id: sid, name: acc?.name || '未填写', age: stInfo?.age, gender: stInfo?.gender, phone: acc?.phone || '' },
+        reports: list.sort((a, b) => a.date.localeCompare(b.date)),
+      });
+    }
+    // 待解读(pending)优先，其次无任何 pending 的按最近报告
+    out.sort((a, b) => {
+      const ap = a.reports.some((r) => r.status === 'pending') ? 0 : 1;
+      const bp = b.reports.some((r) => r.status === 'pending') ? 0 : 1;
+      return ap - bp || b.reports[b.reports.length - 1].date.localeCompare(a.reports[a.reports.length - 1].date);
+    });
+    return out;
+  }
+  /** 当前活跃报告（营养师端转录中） */
+  const activeReportId = ref<string | null>(null);
+  function setActiveReportId(id: string | null) { activeReportId.value = id; }
+  /** 学员新增上传体检报告 */
+  function addStudentReport(data: Omit<StudentReport, 'id' | 'status'>) {
+    const rep: StudentReport = { ...data, id: `rep_${Date.now()}_${_seq.n++}`, status: 'pending' };
+    studentReports.value.unshift(rep);
+    return rep.id;
+  }
+  /** 营养师转录：填入结构化指标 + 解读结论，状态 待解读→已录入 */
+  function transcribeReport(id: string, values: Partial<ChronicValues>, note: string, by: string) {
+    studentReports.value = studentReports.value.map((r) =>
+      r.id === id
+        ? { ...r, status: 'done', values: { ...r.values, ...values }, note: note.trim(), interpretedAt: formatDateTimeStr(), interpretedBy: by }
+        : r,
+    );
+  }
+
   return {
     user,
     campMessages,
@@ -1051,5 +1107,13 @@ export const useAppStore = defineStore('app', () => {
     getLatestChronic,
     addChronicRecord,
     removeChronicRecord,
+    // 体检报告 / 健康档案
+    studentReports,
+    getStudentReports,
+    getReportStudents,
+    activeReportId,
+    setActiveReportId,
+    addStudentReport,
+    transcribeReport,
   };
 });

@@ -401,3 +401,25 @@ export interface ChronicRecord {
   /** 记录来源场景备注（选填） */
   note?: string;
 }
+
+/** 学员体检报告及其营养师转录的健康档案 */
+export interface StudentReport {
+  id: string;
+  studentId: string;
+  /** 报告标题（如"2026-08 入职体检"，选填） */
+  title?: string;
+  /** 上传的体检报告图片/PDF（拍照或相册，可多张） */
+  images: { url: string; type: 'image' | 'pdf'; name?: string }[];
+  /** 报告日期（单据日期，无则用上传时间） */
+  date: string;
+  /** pending=待营养师解读转录；done=已转录成结构化健康档案 */
+  status: 'pending' | 'done';
+  /** 营养师转录的结构化指标（复用慢性字段口径） */
+  values?: Partial<ChronicValues>;
+  /** 营养师解读结论文本 */
+  note?: string;
+  /** 转录时间 yyyy-MM-dd HH:mm:ss */
+  interpretedAt?: string;
+  /** 转录营养师姓名 */
+  interpretedBy?: string;
+}

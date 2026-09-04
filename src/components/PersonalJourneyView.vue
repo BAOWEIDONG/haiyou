@@ -398,7 +398,7 @@ const exportPDF = () => {
       </template>
     </div>
 
-    <StudentTabbar anchor="dashboard" print-hidden :badge="unreadCount > 0 ? unreadCount : undefined" />
+    <StudentTabbar anchor="mine" print-hidden :badge="unreadCount > 0 ? unreadCount : undefined" />
   </div>
 </template>
 

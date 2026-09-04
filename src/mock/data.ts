@@ -1,4 +1,4 @@
-import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord } from '../types';
+import type { WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport } from '../types';
 import type { MetricValue } from '../lib/medicalData';
 
 function dateStr(offsetDays: number): string {
@@ -835,4 +835,24 @@ export const MOCK_CHRONIC_RECORDS: ChronicRecord[] = [
   // s10 孙悟空（男，基本达标，作为对照）
   { id: 'cr_s10_1', studentId: 's10', campId: 'camp2', date: iso(-7, '09:00:00'), values: { systolic: 121, diastolic: 78, glucoseFasting: 5.1, glucosePostprandial: 6.3, ldl: 2.3, tg: 1.2, tc: 4.2, hdl: 1.2, uricAcid: 372, bmi: 22.4, weight: 66, height: 172 } },
   { id: 'cr_s10_2', studentId: 's10', campId: 'camp2', date: iso(-1, '08:45:00'), values: { systolic: 119, diastolic: 76, glucoseFasting: 5.0, glucosePostprandial: 6.1, ldl: 2.2, tg: 1.1, uricAcid: 365, bmi: 22.2, homocysteine: 10.9 } },
+];
+
+/** 学员上传的体检报告（含营养师转录档案；s3 一张待解读 pending 演示营养师队列） */
+export const MOCK_STUDENT_REPORTS: StudentReport[] = [
+  {
+    id: 'rep_s1_1', studentId: 's1', title: '2026-08 入职体检', date: iso(-20, '').trim(),
+    images: [{ url: '', type: 'image', name: '入职体检单' }], status: 'done',
+    values: { systolic: 146, diastolic: 90, glucoseFasting: 5.9, ldl: 3.1, tg: 1.9, uricAcid: 402, weight: 80, height: 172 },
+    note: '血压偏临界、血脂略高、尿酸偏高，建议控盐减重，2 周后复测血压。', interpretedAt: iso(-18, '10:20:00'), interpretedBy: '王营养师',
+  },
+  {
+    id: 'rep_s3_1', studentId: 's3', title: '高血压随访复查', date: iso(-5, '').trim(),
+    images: [{ url: '', type: 'image', name: '' }], status: 'pending',
+  },
+  {
+    id: 'rep_s10_1', studentId: 's10', title: '年度体检', date: iso(-10, '').trim(),
+    images: [{ url: '', type: 'image', name: '年度体检单' }], status: 'done',
+    values: { systolic: 120, diastolic: 78, glucoseFasting: 5.1, ldl: 2.2, tg: 1.1, uricAcid: 368, weight: 67, height: 172 },
+    note: '各项指标基本达标，保持当前饮食与运动习惯即可。', interpretedAt: iso(-8, '09:15:00'), interpretedBy: '王营养师',
+  },
 ];

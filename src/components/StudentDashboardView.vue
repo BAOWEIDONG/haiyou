@@ -5,9 +5,10 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, PlayCircle, Newspaper } from 'lucide-vue-next';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, HeartPulse, ChevronRight } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
+import { judgeRecord, LEVEL_META } from '../lib/chronic';
 
 const store = useAppStore();
 
@@ -88,20 +89,18 @@ const handleCampSelect = (campId: string) => {
   showCampPicker.value = false;
 };
 
-// ─── 健康活动 tab 信息流（锻炼活动｜健康科普，首页平铺） ─────────────
-const feedTab = ref<'exercise' | 'knowledge'>('exercise');
-const feedActivities = computed(() =>
-  [...(activeCampId.value ? store.getCampCoachActivities(activeCampId.value) : store.coachActivities)]
-    .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
-);
-const feedKnowledge = computed(() => store.knowledgeContents);
-const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
-  article: { label: '图文', cls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]', icon: Newspaper },
-  video: { label: '视频', cls: 'bg-purple-50 text-purple-500', icon: PlayCircle },
-};
-const feedEmpty = computed(() =>
-  feedTab.value === 'exercise' ? feedActivities.value.length === 0 : feedKnowledge.value.length === 0,
-);
+// ─── 咨询快捷钮 + 慢病记录入口（本轮记录台重构） ─────────────
+const consultButtons = [
+  { key: 'interpretation-result', title: '报告解读', desc: '上传报告，请营养师解读指标', icon: FileSearch, color: '#0B6BCB' },
+  { key: 'consult', title: '给医生留言', desc: '健康疑问，向顾问留言咨询', icon: MessageSquareText, color: '#FF976A' },
+];
+// 慢病看台入口摘要（随服务配置 chronic 显隐）
+const chronicLatest = computed(() => (store.user ? store.getLatestChronic(store.user.id) : null));
+const chronicJudge = computed(() => {
+  const rec = chronicLatest.value;
+  if (!rec) return null;
+  return judgeRecord(rec.values, store.user?.gender);
+});
 
 // 按服务批次过滤打卡记录
 const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(activeCampId.value) : store.dietRecords);
@@ -268,11 +267,11 @@ onMounted(() => {
         <div class="flex-1 min-w-0">
           <h2 class="text-2xl font-black text-white tracking-tight truncate">你好，{{ store.user?.name || '学员' }}</h2>
           <div class="flex items-start gap-2 mt-2">
-            <span class="text-[11px] font-bold text-[#0B6BCB] bg-white px-2 py-0.5 rounded-full tracking-wide shrink-0 mt-0.5">DAY {{ campDay }}</span>
+            <span v-if="store.enabledServices.bmi" class="text-[11px] font-bold text-[#0B6BCB] bg-white px-2 py-0.5 rounded-full tracking-wide shrink-0 mt-0.5">DAY {{ campDay }}</span>
           </div>
         </div>
-        <!-- 今日五项打卡环形进度 -->
-        <div class="relative w-14 h-14 shrink-0 rounded-full bg-white/20 flex items-center justify-center cursor-pointer" title="今日打卡进度" @click="store.setCurrentView('calendar')">
+        <!-- 今日五项打卡环形进度（仅健康减重服务启用时） -->
+        <div v-if="store.enabledServices.bmi" class="relative w-14 h-14 shrink-0 rounded-full bg-white/20 flex items-center justify-center cursor-pointer" title="今日打卡进度" @click="store.setCurrentView('calendar')">
           <svg viewBox="0 0 56 56" class="w-14 h-14 -rotate-90">
             <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="5" />
             <circle
@@ -300,7 +299,53 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 px-5 pt-5 space-y-5 relative z-20">
-      <!-- 体重 + 排名（2列卡片） -->
+      <!-- 咨询快捷钮（常显：报告解读 / 给医生留言） -->
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          v-for="b in consultButtons" :key="b.key"
+          @click="store.setCurrentView(b.key as never)"
+          class="flex items-center gap-3 p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.98] transition-transform text-left"
+        >
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="`background:${b.color}14; color:${b.color}`">
+            <component :is="b.icon" class="h-5 w-5" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold text-gray-900">{{ b.title }}</div>
+            <div class="text-[10px] text-gray-400 mt-0.5 truncate">{{ b.desc }}</div>
+          </div>
+          <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
+        </button>
+      </div>
+
+      <!-- 慢病记录入口（随服务配置 chronic 显隐） -->
+      <button
+        v-if="store.enabledServices.chronic"
+        @click="store.setCurrentView('chronic-dashboard')"
+        class="w-full flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-[#B6523E]/8 via-white/60 to-white/0 border border-white/70 shadow-sm active:opacity-90 transition-opacity text-left relative overflow-hidden"
+      >
+        <div class="w-12 h-12 rounded-2xl bg-[#B6523E]/12 text-[#B6523E] flex items-center justify-center shrink-0">
+          <HeartPulse class="h-6 w-6" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-[15px] font-bold text-gray-800">慢病管理 · 五高看台</span>
+            <span v-if="chronicJudge" class="text-[10px] px-1.5 py-0.5 rounded-full" :class="LEVEL_META[chronicJudge.level].bg + ' ' + LEVEL_META[chronicJudge.level].text">
+              {{ chronicJudge.level === 'normal' ? '达标' : chronicJudge.level === 'off' ? '关注' : '异常' }}
+            </span>
+          </div>
+          <div class="text-[11px] text-gray-500 mt-1 leading-relaxed">
+            <template v-if="chronicLatest">
+              最近测量 {{ chronicLatest.date.slice(0, 16) }} · 血压/血糖/血脂等逐项记录
+            </template>
+            <template v-else>记录血压/血糖/血脂等，看看五项指标达标率</template>
+          </div>
+        </div>
+        <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
+      </button>
+
+      <!-- 健康减重记录（随服务配置 bmi 显隐） -->
+      <template v-if="store.enabledServices.bmi">
+      <!-- 体重 + 连续坚持（2列卡片） -->
       <div class="grid grid-cols-2 gap-4 items-stretch">
         <!-- 最新体重卡（含体重变化 + 目标进度） -->
         <Card :class="['flex flex-col justify-center p-5 border-0 relative overflow-hidden h-full transition-all', campNotStarted ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-lg shadow-[0_4px_20px_-8px_rgba(15,23,42,0.14)]']" @click="guardCheckin('weight-checkin')">
@@ -396,67 +441,10 @@ onMounted(() => {
           </Card>
         </div>
       </div>
-
-      <!-- 健康服务（四小板块：报告解读 / 健康答疑 / 个人历程 / 健康活动[订阅+锻炼]） -->
-      <!-- 健康活动（锻炼活动｜健康科普 tab 信息流，首页平铺；点击卡片直达文章详情，即公众号推送式） -->
-      <div>
-        <h3 class="text-sm font-bold text-gray-900 mb-3 mt-5 ml-1 flex items-center gap-1.5">
-          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
-          健康活动
-        </h3>
-
-        <div class="flex gap-2 mb-3 px-1">
-          <button @click="feedTab = 'exercise'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
-            锻炼活动
-          </button>
-          <button @click="feedTab = 'knowledge'" :class="['px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors', feedTab === 'knowledge' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white' : 'border-transparent text-gray-500 bg-white/60']">
-            健康科普
-          </button>
-        </div>
-
-        <div class="space-y-3">
-          <!-- 锻炼活动：图文预览卡片 -->
-          <button v-if="feedTab === 'exercise'" v-for="a in feedActivities" :key="a.id" @click="store.openArticle('activity', a)" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
-            <div class="relative h-36 bg-gradient-to-br from-[#1677FF]/10 to-blue-50">
-              <img v-if="a.imageUrls[0]" :src="a.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
-              <div v-else class="absolute inset-0 flex items-center justify-center">
-                <PlayCircle class="w-10 h-10 text-[#1677FF]/70" />
-              </div>
-              <span v-if="a.videoUrls && a.videoUrls.length" class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 backdrop-blur-sm">
-                <PlayCircle class="w-3 h-3" /> 视频
-              </span>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-gray-900 truncate">{{ a.title }}</div>
-              <div class="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ a.description }}</div>
-              <div class="text-[10px] text-gray-400 mt-1.5">{{ a.coachName }} · {{ a.date.slice(0, 10) }}</div>
-            </div>
-          </button>
-
-          <!-- 健康科普：图文预览卡片 -->
-          <button v-else v-for="k in feedKnowledge" :key="k.id" @click="store.openArticle('knowledge', k)" class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform">
-            <div class="relative h-36 bg-gradient-to-br from-[#0B6BCB]/10 to-purple-50">
-              <img v-if="k.imageUrls[0]" :src="k.imageUrls[0]" class="w-full h-full object-cover" loading="lazy" decoding="async" />
-              <div v-else class="absolute inset-0 flex items-center justify-center">
-                <component :is="ktypeMeta[k.contentType].icon" class="w-10 h-10" />
-              </div>
-              <span :class="['absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded', ktypeMeta[k.contentType].cls]">{{ ktypeMeta[k.contentType].label }}</span>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-gray-900 truncate">{{ k.title }}</div>
-              <div class="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ k.summary }}</div>
-              <div class="text-[10px] text-gray-400 mt-1.5">{{ k.authorName }} · {{ k.createdAt.slice(0, 10) }}</div>
-            </div>
-          </button>
-
-          <div v-if="feedEmpty" class="text-center text-xs text-gray-400 py-8">
-            {{ feedTab === 'exercise' ? '暂无锻炼活动' : '暂无健康科普' }}
-          </div>
-        </div>
-      </div>
+      </template><!-- /健康减重记录 -->
 
       </div>
-    <StudentTabbar anchor="dashboard" :badge="unreadCount > 0 ? unreadCount : undefined" />
+    <StudentTabbar anchor="health" :badge="unreadCount > 0 ? unreadCount : undefined" />
 
     <!-- 昨日小结弹层（今天首次打开时展示） -->
     <Teleport to="body">
