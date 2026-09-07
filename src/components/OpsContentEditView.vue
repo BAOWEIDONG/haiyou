@@ -14,6 +14,7 @@ const store = useAppStore();
 const title = ref('');
 const authorRole = ref<'dietitian' | 'coach'>('dietitian');
 const contentType = ref<'article' | 'video'>('article');
+const category = ref<'exercise' | 'knowledge'>('knowledge');
 const cover = ref('');
 const blocks = ref<KnowledgeBlock[]>([]);
 const videoUrl = ref('');
@@ -81,6 +82,7 @@ const publish = () => {
     authorRole: authorRole.value,
     authorName: store.user?.name || '运营',
     contentType: contentType.value,
+    category: category.value,
     campIds: [],
     blocks: [...blocks.value],
   });
@@ -101,6 +103,18 @@ const publish = () => {
           <button v-for="c in (['article','video'] as const)" :key="c" @click="contentType = c"
             :class="['py-2.5 rounded-xl text-sm font-bold border-2 transition-colors', contentType === c ? 'border-[#8B5CF6] text-[#8B5CF6] bg-purple-50' : 'border-gray-200 text-gray-500 bg-white']">
             {{ c === 'article' ? '图文' : '视频' }}
+          </button>
+        </div>
+      </section>
+
+      <!-- 资讯分类（联动「活动页设置」的分类名称 → 学员端活动页按此分栏展示） -->
+      <section>
+        <div class="text-xs font-bold text-gray-500 mb-2">资讯分类</div>
+        <p class="text-[10px] text-gray-400 mb-2">学员端活动页顶部的分类名在「活动页设置」维护，本条将展示在对应分类栏。</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button v-for="k in (['exercise','knowledge'] as const)" :key="k" @click="category = k"
+            :class="['py-2.5 rounded-xl text-sm font-bold border-2 transition-colors', category === k ? 'border-[#0B6BCB] text-[#0B6BCB] bg-blue-50' : 'border-gray-200 text-gray-500 bg-white']">
+            {{ k === 'exercise' ? store.activityConfig.tabs.exercise : store.activityConfig.tabs.knowledge }}
           </button>
         </div>
       </section>

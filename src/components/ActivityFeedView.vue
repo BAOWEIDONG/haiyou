@@ -23,24 +23,41 @@ function openBanner(b: { title: string; image: string; url: string }) {
   if (b.url && /^https?:\/\//i.test(b.url)) window.open(b.url, '_blank');
 }
 
-// ---- Banner 居中轮播：一张一张淡入淡出 + 圆点指示；默认 4s 自动换页，触摸暂停、静置 8s 恢复 ----
+// ---- Banner 居中轮播：约 3:1 自适应 · 相邻模糊提示 · 5s 自动 + 手动滑动 + 圆点；触摸暂停、静置 8s 恢复 ----
 const bannerIndex = ref(0);
+const bannerTrack = ref<HTMLElement | null>(null);
 let autoTimer: number | undefined = undefined;
 let resumeTimer: number | undefined = undefined;
 let pausing = false;
 
+/** 单张 slide 步进宽 = slide 宽 + 间隙（gap-3 = 12px） */
+function bannerStep() {
+  const el = bannerTrack.value;
+  const first = el?.firstElementChild as HTMLElement | null;
+  return first ? first.offsetWidth + 12 : 0;
+}
 function goBanner(i: number) {
   const n = banners.value.length;
-  if (n <= 0) return;
-  bannerIndex.value = ((i % n) + n) % n;
+  if (n <= 0 || !bannerTrack.value) return;
+  const idx = ((i % n) + n) % n;
+  bannerIndex.value = idx;
+  bannerTrack.value.scrollTo({ left: idx * bannerStep(), behavior: 'smooth' });
 }
 function nextBanner() { goBanner(bannerIndex.value + 1); }
+/** 手动滑动时按 scrollLeft 反推当前居中的 slide */
+function onBannerScroll() {
+  const el = bannerTrack.value;
+  if (!el) return;
+  const st = bannerStep();
+  if (st <= 0) return;
+  bannerIndex.value = Math.round(el.scrollLeft / st);
+}
 function startAutoBanner() {
   stopAutoBanner();
   autoTimer = window.setInterval(() => {
     if (pausing) return;
     nextBanner();
-  }, 4000);
+  }, 5000);
 }
 function stopAutoBanner() {
   if (autoTimer) window.clearInterval(autoTimer);
@@ -61,7 +78,11 @@ onBeforeUnmount(() => { stopAutoBanner(); if (resumeTimer) window.clearTimeout(r
 const feedActivities = computed(() =>
   [...store.coachActivities].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
 );
-const feedKnowledge = computed(() => store.knowledgeContents);
+/** 萃取知识默认 knowledge（旧数据无 category）；按分类分发到两个 tab -- 与「活动页设置」两款分类名对应 */
+const byCat = (c: 'exercise' | 'knowledge') =>
+  computed(() => store.knowledgeContents.filter((k) => (k.category || 'knowledge') === c));
+const feedExerciseKnowledge = byCat('exercise'); // 锻炼类科普 → 第一个 tab
+const feedKnowledge = byCat('knowledge');        // 科普类 → 第二个 tab
 
 const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
   article: { label: '图文', cls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]', icon: Newspaper },
@@ -69,7 +90,9 @@ const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
 };
 
 const feedEmpty = computed(() =>
-  feedTab.value === 'exercise' ? feedActivities.value.length === 0 : feedKnowledge.value.length === 0,
+  feedTab.value === 'exercise'
+    ? feedActivities.value.length === 0 && feedExerciseKnowledge.value.length === 0
+    : feedKnowledge.value.length === 0,
 );
 
 const unreadCount = computed(() =>
@@ -87,18 +110,19 @@ const unreadCount = computed(() =>
       <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 健康指标科普</p>
     </div>
 
-    <!-- 顶部 Banner 运营位：居中单张轮播，淡入淡出 + 圆点指示（外链跳转；自动 4s，触摸暂停·静置恢复） -->
-    <div v-if="banners.length" class="flex flex-col items-center px-5 pt-2">
+    <!-- 顶部 Banner 运营位：约 3:1 自适应 · 与下方图文边缘对齐 · 相邻 slide 模糊提示 · 5s 自动轮播 + 手动滑动 + 圆点 -->
+    <div v-if="banners.length" class="px-5 pt-2">
       <div
-        class="relative w-[78%] aspect-[16/7] mb-3"
+        ref="bannerTrack"
+        class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        @scroll.passive="onBannerScroll"
         @touchstart.passive="pauseBanner" @mousedown="pauseBanner"
       >
         <button
           v-for="(b, i) in banners" :key="b.id"
           @click="openBanner(b)"
-          class="absolute inset-0 rounded-2xl overflow-hidden text-left active:opacity-90 shadow-sm transition-opacity duration-600 ease-in-out"
-          :class="i === bannerIndex ? 'opacity-100' : 'opacity-0'"
-          :style="{ zIndex: i === bannerIndex ? 1 : 0, pointerEvents: i === bannerIndex ? 'auto' : 'none' }"
+          class="relative shrink-0 snap-center w-[86%] aspect-[3/1] rounded-2xl overflow-hidden text-left active:opacity-95 shadow-sm transition-all duration-500"
+          :class="i === bannerIndex ? '' : 'opacity-80 scale-[0.96] blur-[5px]'"
         >
           <img loading="lazy" decoding="async" v-if="b.image" :src="b.image" class="absolute inset-0 w-full h-full object-cover" alt="" />
           <div v-else class="absolute inset-0 w-full h-full bg-gradient-to-br from-[#0B6BCB] to-[#12B5C2]"></div>
@@ -110,7 +134,7 @@ const unreadCount = computed(() =>
         </button>
       </div>
       <!-- 圆点指示 -->
-      <div class="flex items-center justify-center gap-1.5 mb-3">
+      <div class="flex items-center justify-center gap-1.5 mt-1">
         <button
           v-for="(b, i) in banners" :key="'d' + b.id"
           @click="goBanner(i)"
@@ -132,10 +156,10 @@ const unreadCount = computed(() =>
     </div>
 
     <div class="flex-1 px-5 space-y-3">
-      <!-- 锻炼活动：图文预览卡片 -->
+      <!-- 锻炼活动 / 锻炼类科普：图文预览卡片（第一个 tab 混排活动 + 锻炼类知识） -->
       <button
         v-if="feedTab === 'exercise'"
-        v-for="a in feedActivities" :key="a.id"
+        v-for="a in feedActivities" :key="'act' + a.id"
         @click="store.openArticle('activity', a)"
         class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform"
       >
@@ -155,10 +179,9 @@ const unreadCount = computed(() =>
         </div>
       </button>
 
-      <!-- 健康科普：图文预览卡片 -->
+      <!-- 健康科普（当前 tab 分类匹配）：图文预览卡片 -->
       <button
-        v-else
-        v-for="k in feedKnowledge" :key="k.id"
+        v-for="k in (feedTab === 'exercise' ? feedExerciseKnowledge : feedKnowledge)" :key="k.id"
         @click="store.openArticle('knowledge', k)"
         class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform"
       >

@@ -355,6 +355,9 @@ export interface KnowledgeContent {
   authorName: string;
   /** 知识分类：科普图文 / 短视频 */
   contentType: 'article' | 'video';
+  /** 资讯分类：对应「活动页设置」两个资讯 tab（exercise=锻炼类 / knowledge=科普类）。
+   *  默认 knowledge；发布时用活动页设置的两个自定义名称挑选。学员端活动页按此分类分栏展示。 */
+  category?: 'exercise' | 'knowledge';
   createdAt: string;
   videoUrls?: string[];
   /** 可见范围：空/未填 = 全部订阅用户可见（内部置空） */
