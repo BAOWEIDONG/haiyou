@@ -159,7 +159,7 @@ const unreadCount = computed(() =>
         <span class="text-[10px] text-gray-400 ml-auto">精选健康知识 · 营养 · 运动</span>
       </div>
       <!-- 资讯分类 tab（数量随「活动页设置」自定义分类增减） -->
-      <div class="flex gap-2 overflow-x-auto [scrollbar-width:none]">
+      <div class="flex gap-2 overflow-x-auto pb-4 [scrollbar-width:none]">
         <button v-for="(c, i) in cats" :key="c.key" @click="feedTab = i"
           :class="['px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors shrink-0', feedTab === i ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white shadow-sm' : 'border-transparent text-gray-500 bg-white/60']">
           {{ c.name }}
