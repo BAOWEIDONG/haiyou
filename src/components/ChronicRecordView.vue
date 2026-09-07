@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from 'vue';
+import { computed, watch, reactive } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
 import { showToast } from 'vant';
@@ -16,8 +16,9 @@ const ACCOUNT_ICONS: Record<string, typeof Siren> = {
   bp: Siren, glucose: Activity, lipid: Droplet, uric: CircleDot, bmi: Gauge, hcy: HeartPulse,
 };
 
-// 当前录入的指标族
-const activeGroup = ref<ChronicGroupKey>('bp');
+// 当前录入的指标族：以 store.activeChronicGroup 为唯一真源（首页点某指标卡进录入会自动定位到该族；
+// KeepAlive 缓存下再入也能拿到最新目标族，避免"总是从血压开始"）
+const activeGroup = computed<ChronicGroupKey>(() => store.activeChronicGroup || 'bp');
 
 /** 该族要展示的录入行 */
 const INPUT_ROWS = computed<{ key: ChronicFieldKey; label: string; unit: string; range: string }[]>(() => {
@@ -110,7 +111,7 @@ const latestValueOf = (key: ChronicFieldKey): string => {
           <button
             v-for="g in CHRONIC_GROUPS"
             :key="g.key"
-            @click="activeGroup = g.key"
+            @click="store.setActiveChronicGroup(g.key)"
             :class="[
               'flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-colors',
               activeGroup === g.key ? 'text-white shadow-sm' : 'text-gray-600 bg-gray-50 active:bg-gray-100',

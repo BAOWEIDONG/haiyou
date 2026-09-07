@@ -135,21 +135,19 @@ const consultButtons = [
   { key: 'interpretation-result', title: '报告解读', desc: '上传报告，请营养师解读指标', icon: FileSearch, color: '#0B6BCB' },
   { key: 'consult', title: '给医生留言', desc: '健康疑问，向顾问留言咨询', icon: MessageSquareText, color: '#FF976A' },
 ];
-// 慢病看台入口摘要（最新一条；慢病追踪模块据此直显数值）
-const chronicLatest = computed(() => (store.user ? store.getLatestChronic(store.user.id) : null));
-
-// ─── 首页「慢病追踪」横滑指标卡（直接展示最新值，点卡进单指标趋势） ─────
-const CHRONIC_ACCENT: Record<string, string> = {
-  bp: '#0B6BCB', glucose: '#10B981', lipid: '#FF976A', uric: '#8B5CF6', bmi: '#12B5C2', hcy: '#A5772D',
-};
+// ─── 首页「健康指标」指标卡：按"天"路由（用户口径：新的一天刷新录入） ───
+// 某指标今天有数据 → 点卡进该指标趋势；今天没数据（新的一天/未录）→ 点卡进该指标的录入页（自动定位该族，不再从血压开始）
+const chronicRecs = computed(() => (store.user ? store.getStudentChronicRecords(store.user.id) : []));
 function chronicMini(g: ChronicGroupKey) {
   const gf = groupFields(g);
   const gender = store.user?.gender;
-  const rec = chronicLatest.value;
+  // 该族最新一条有值的记录（可能是昨天/更早；判定显隐与"今日"按它日历走）
+  const rec = chronicRecs.value.find((r) => gf.some((f) => f.display && r.values[f.key] != null)) || null;
   const level = rec ? judgeGroup(rec.values, g, gender).level : 'normal';
   const primaryDef = gf.find((f) => f.display && rec && rec.values[f.key] != null);
   const primaryValue = primaryDef && rec ? (rec.values[primaryDef.key] as number) : undefined;
-  const hasValue = rec != null && gf.some((f) => f.display && rec.values[f.key] != null);
+  const hasValue = rec != null;
+  const hasToday = rec != null && rec.date.startsWith(todayStr);
   return {
     key: g,
     title: CHRONIC_GROUPS.find((x) => x.key === g)!.title,
@@ -158,7 +156,7 @@ function chronicMini(g: ChronicGroupKey) {
     primaryValue,
     primaryUnit: primaryDef?.unit || '',
     hasValue,
-    accent: CHRONIC_ACCENT[g] as string,
+    hasToday,
   };
 }
 const chronicMiniCards = computed(() => {
@@ -170,6 +168,10 @@ const chronicMiniHasAny = computed(() => chronicMiniCards.value.some((c) => c.ha
 function openChronicGroup(g: ChronicGroupKey) {
   store.setActiveChronicGroup(g);
   store.setCurrentView('chronic-detail');
+}
+function openRecord(g: ChronicGroupKey) {
+  store.setActiveChronicGroup(g);
+  store.setCurrentView('chronic-record');
 }
 
 // 按服务批次过滤打卡记录
@@ -448,24 +450,25 @@ const todayDietLabel = computed(() => {
             <div class="w-1.5 h-4 bg-[#B6523E] rounded-full"></div>健康指标
           </h3>
           <div class="flex items-center gap-1.5">
-            <button @click="store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-[#0B6BCB]/6 active:opacity-80">+ 记录指标</button>
+            <button @click="store.setActiveChronicGroup(null); store.setCurrentView('chronic-record')" class="text-[11px] font-bold text-[#0B6BCB] px-2.5 py-1 rounded-lg bg-[#0B6BCB]/6 active:opacity-80">+ 记录指标</button>
             <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-gray-50 active:opacity-80">五高看台 ›</button>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-3">
           <button
             v-for="c in chronicMiniCards" :key="c.key"
-            @click="c.hasValue ? openChronicGroup(c.key) : store.setCurrentView('chronic-record')"
+            @click="c.hasToday ? openChronicGroup(c.key) : openRecord(c.key)"
             :class="['rounded-xl p-3 flex flex-col min-h-[92px] text-left transition-opacity', c.hasValue ? 'bg-[#F6F8FB] active:opacity-90' : 'bg-transparent border border-dashed border-gray-200 active:opacity-80']"
           >
             <template v-if="c.hasValue">
               <div class="flex items-center justify-between gap-1">
                 <span class="text-[11px] font-bold text-gray-500 truncate">{{ c.title }}</span>
-                <span :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
+                <span v-if="c.hasToday" :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
+                <span v-else class="text-[9px] px-1.5 py-px rounded-full font-bold shrink-0 bg-amber-50 text-amber-500">今日未录入</span>
               </div>
-              <div class="mt-auto pt-2 flex items-end gap-1">
-                <span class="text-[22px] font-black tabular-nums leading-none" :class="LEVEL_META[c.level].text">{{ c.primaryValue ?? '—' }}</span>
-                <span class="text-[10px] text-gray-400 mb-0.5">{{ c.primaryUnit }}</span>
+              <div class="mt-auto pt-2 flex items-end gap-1 min-w-0">
+                <span class="text-xl font-black tabular-nums leading-none whitespace-nowrap truncate" :class="LEVEL_META[c.level].text">{{ c.primaryValue ?? '—' }}</span>
+                <span class="text-[10px] text-gray-400 mb-0.5 shrink-0">{{ c.primaryUnit }}</span>
               </div>
               <div class="text-[9px] text-gray-400 mt-1 truncate">{{ c.primaryLabel || '暂无数据' }}</div>
             </template>

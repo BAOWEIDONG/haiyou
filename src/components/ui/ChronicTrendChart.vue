@@ -4,7 +4,7 @@ import { Popup as VanPopup } from 'vant';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-vue-next';
 import type { ChronicRecord } from '../../types';
 import {
-  CHRONIC_ACCENT, CHRONIC_GROUPS, buildFieldTrend, judgeGroup, LEVEL_META,
+  CHRONIC_ACCENT, CHRONIC_GROUPS, buildFieldTrend, judgeGroup, levelOf, LEVEL_META,
   TREND_CW, TREND_CH, TREND_ML, TREND_MR, TREND_MB,
 } from '../../lib/chronic';
 import type { AlarmLevel, ChronicFieldDef, FieldTrend } from '../../lib/chronic';
@@ -45,6 +45,15 @@ const lastDeltaLabel = (t: FieldTrend) => {
   const arrow = t.delta > 0 ? '+' : t.delta < 0 ? '' : '±';
   return arrow + t.delta;
 };
+
+// 历次记录横条：每条一次测量（日期+数值+档位颜色）。点某条即弹出该次明细——
+// 替代依赖图上小圆点（靠边缘/点密集时很难点中），圆点降级为非唯一入口
+const chipList = computed(() =>
+  rowsAsc.value
+    .map((r) => ({ date: r.date, v: r.values[props.def.key] as number | undefined }))
+    .filter((x): x is { date: string; v: number } => x.v != null)
+    .map((p) => ({ date: p.date, v: p.v, level: levelOf(props.def.key, p.v, props.gender) })),
+);
 </script>
 
 <template>
@@ -131,6 +140,21 @@ const lastDeltaLabel = (t: FieldTrend) => {
         </div>
       </div>
       <div v-else class="text-center text-[11px] text-gray-400 py-1">暂无测量记录，补充数据后即可查看此指标趋势与达标区间。</div>
+    </div>
+
+    <!-- 历次记录横条：点某次轻松查看该次明细（比点图上小圆点好操作；选中的那条高亮） -->
+    <div v-if="chipList.length" class="px-4 pb-4">
+      <div class="text-[10px] text-gray-400 mb-1.5">历次记录 · 点选查看明细</div>
+      <div class="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <button
+          v-for="(p, i) in chipList" :key="i"
+          @click="openPoint(p.date)"
+          :class="['shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-colors', selDate === p.date ? 'border-[#0B6BCB] bg-[#0B6BCB]/8 text-[#0B6BCB]' : 'border-gray-200 bg-white text-gray-600 active:bg-gray-100']"
+        >
+          <span class="tabular-nums mr-1.5">{{ p.date.slice(5, 10) }}</span>
+          <span class="tabular-nums" :style="`color:${levelDot(p.level)}`">{{ p.v }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- 点击数据点 → 该次记录明细 -->

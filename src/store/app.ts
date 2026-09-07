@@ -965,10 +965,19 @@ export const useAppStore = defineStore('app', () => {
       .filter((r) => r.studentId === studentId)
       .sort((a, b) => b.date.localeCompare(a.date)); // 最新在前
   }
-  /** 取某学员最新一条慢病记录（无则 null） */
+  /** 取某学员"最全"快照（无则 null）。
+   *  录入各指标族会各自落一条记录；若只取最新一条，则最近一次只有单一指标族的记录——首页/看台/预警概览会"吞掉"其他指标族的最新值（用户反馈：数字录入后之前其他指标就都没了）。
+   *  故合成：每个字段取最近一次有值记录的数值，date 取最新一条记录日期（顺带让首页"今日未录入"判断按最新记录日历走）。 */
   function getLatestChronic(studentId: string): ChronicRecord | null {
-    const list = getStudentChronicRecords(studentId);
-    return list.length > 0 ? list[0] : null;
+    const list = getStudentChronicRecords(studentId); // 新→旧
+    if (list.length === 0) return null;
+    const values: Record<string, number> = {};
+    for (const r of list) {
+      for (const k of Object.keys(r.values)) {
+        if (values[k] == null && r.values[k] != null) values[k] = r.values[k] as number;
+      }
+    }
+    return { ...list[0], values: values as ChronicValues };
   }
   function addChronicRecord(data: Omit<ChronicRecord, 'id' | 'date'> & { date?: string }) {
     const rec: ChronicRecord = { ...data, id: `cr_${Date.now()}_${_seq.n++}`, date: data.date || formatDateTimeStr() };

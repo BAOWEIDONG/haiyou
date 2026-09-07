@@ -13,7 +13,8 @@ const store = useAppStore();
 
 const user = computed(() => store.user);
 const rows = computed(() => (user.value ? store.getStudentChronicRecords(user.value.id) : []));
-const latest = computed(() => rows.value[0] || null);
+// 用"最全"快照而非 rows[0]：录入各指标族会各落一条记录，只取最新一条会把其他族"吞掉"（与首页口径一致）
+const latest = computed(() => (user.value ? store.getLatestChronic(user.value.id) : null));
 
 // 最近一次记录的六族健康总览（达标/关注/异常计数），看台相对首页的核心差异化
 const summary = computed(() => {
@@ -72,7 +73,7 @@ function openGroup(g: ChronicGroupKey) {
     <NavBar title="健康指标看台" :on-back="() => store.goBack()">
       <template #right>
         <button
-          @click="store.setCurrentView('chronic-record')"
+          @click="store.setActiveChronicGroup(null); store.setCurrentView('chronic-record')"
           class="flex items-center gap-1 text-sm font-bold text-[#0B6BCB]"
         >
           <Plus class="w-4 h-4" /> 记录指标
