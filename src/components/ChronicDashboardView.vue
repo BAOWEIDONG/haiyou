@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
-import { NavBar, StudentTabbar } from './ui';
+import { NavBar, StudentTabbar, ChartRulePopup } from './ui';
 import {
   HeartPulse, Plus, ChevronRight, ClipboardPlus, Activity, Droplet,
   CircleDot, Gauge, Siren,
@@ -84,7 +84,15 @@ function openGroup(g: ChronicGroupKey) {
       <!-- 健康总览：六族判定汇总（看台差异化核心：看"整体健康程度"，而非单项数值） -->
       <template v-if="summary.any">
         <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4">
-          <div class="text-xs font-bold text-gray-500 mb-2">最近一次 · 健康总览</div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-gray-500">最近一次 · 健康总览</span>
+            <ChartRulePopup title="健康指标 · 计算规则说明">
+              <p><b>达标率怎么算</b><br/>达标率 = 达标次数 ÷ 测量总次数 × 100%。每次记录会逐项对照参考区间判定每个字段，每个有值字段计 1 次测量；同一天多次记录分别计入，不做天数去重，百分比四舍五入到整数。</p>
+              <p><b>达标 / 关注 / 异常怎么判定</b><br/>每个字段对照各自参考区间：达标（绿）在参考范围内；关注（琥珀）超出但相对可控；异常（砖红）明显偏离。判定阈值来自产品数据字典参考值（默认演示值，非医疗诊断，最终以医院确认为准）。</p>
+              <p><b>健康总览三项计数</b><br/>取最近一次记录，把该次各个字段按上述规则分别归入达标 / 关注 / 异常，统计出三类数量——让你一眼看到当前整体健康程度，而非单个数值。</p>
+              <p><b>指标卡里的达标率进度条</b><br/>下方每张指标卡附「累计达标率」：该指标族全部历史记录里，达标字段数 ÷ 有值字段总数。进度条按此比例显示，右侧「X/Y 达标」即达标次数 / 测量次数。</p>
+            </ChartRulePopup>
+          </div>
           <div class="flex items-center justify-around">
             <div class="text-center">
               <div class="text-xl font-black tabular-nums text-[#10B981]">{{ summary.normal }}</div>

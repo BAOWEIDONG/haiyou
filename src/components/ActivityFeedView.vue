@@ -23,26 +23,23 @@ function openBanner(b: { title: string; image: string; url: string }) {
   if (b.url && /^https?:\/\//i.test(b.url)) window.open(b.url, '_blank');
 }
 
-// ---- Banner 自动轮播：默认每 4s 前进一页；用户触摸/滚轮滑动时暂停，静置 8s 后恢复 ----
-const bannerTrack = ref<HTMLElement | null>(null);
+// ---- Banner 居中轮播：一张一张淡入淡出 + 圆点指示；默认 4s 自动换页，触摸暂停、静置 8s 恢复 ----
 const bannerIndex = ref(0);
 let autoTimer: number | undefined = undefined;
 let resumeTimer: number | undefined = undefined;
 let pausing = false;
 
-function scrollBannerTo(i: number) {
-  const el = bannerTrack.value;
-  if (!el || !el.children[i]) return;
-  el.scrollTo({ left: (el.children[i] as HTMLElement).offsetLeft, behavior: 'smooth' });
+function goBanner(i: number) {
+  const n = banners.value.length;
+  if (n <= 0) return;
+  bannerIndex.value = ((i % n) + n) % n;
 }
+function nextBanner() { goBanner(bannerIndex.value + 1); }
 function startAutoBanner() {
   stopAutoBanner();
   autoTimer = window.setInterval(() => {
     if (pausing) return;
-    const n = banners.value.length;
-    if (n <= 1) return;
-    bannerIndex.value = (bannerIndex.value + 1) % n;
-    scrollBannerTo(bannerIndex.value);
+    nextBanner();
   }, 4000);
 }
 function stopAutoBanner() {
@@ -57,20 +54,6 @@ function pauseBanner() {
     pausing = false;
     startAutoBanner();
   }, 8000);
-}
-// 用户手动滑动时同步当前页（便于恢复后从该页继续轮播）
-function onBannerScroll() {
-  const el = bannerTrack.value;
-  if (!el) return;
-  const center = el.scrollLeft + el.clientWidth / 2;
-  let best = 0;
-  let bestDist = Infinity;
-  for (let i = 0; i < el.children.length; i++) {
-    const c = el.children[i] as HTMLElement;
-    const d = Math.abs(c.offsetLeft - center);
-    if (d < bestDist) { bestDist = d; best = i; }
-  }
-  bannerIndex.value = best;
 }
 onMounted(() => startAutoBanner());
 onBeforeUnmount(() => { stopAutoBanner(); if (resumeTimer) window.clearTimeout(resumeTimer); });
@@ -104,17 +87,18 @@ const unreadCount = computed(() =>
       <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 健康指标科普</p>
     </div>
 
-    <!-- 顶部 Banner 运营位（外链跳转；边缘对齐；自动 4s 轮播，滑动暂停·静置恢复） -->
-    <div v-if="banners.length" class="px-5 pt-2">
+    <!-- 顶部 Banner 运营位：居中单张轮播，淡入淡出 + 圆点指示（外链跳转；自动 4s，触摸暂停·静置恢复） -->
+    <div v-if="banners.length" class="flex flex-col items-center px-5 pt-2">
       <div
-        ref="bannerTrack"
-        @touchstart.passive="pauseBanner" @mousedown="pauseBanner" @wheel.passive="pauseBanner" @scroll="onBannerScroll"
-        class="flex gap-2.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-1"
+        class="relative w-[78%] aspect-[16/7] mb-3"
+        @touchstart.passive="pauseBanner" @mousedown="pauseBanner"
       >
         <button
-          v-for="b in banners" :key="b.id"
+          v-for="(b, i) in banners" :key="b.id"
           @click="openBanner(b)"
-          class="flex-none w-[72%] snap-start aspect-[16/7] rounded-2xl overflow-hidden relative text-left active:opacity-90 transition-opacity shadow-sm"
+          class="absolute inset-0 rounded-2xl overflow-hidden text-left active:opacity-90 shadow-sm transition-opacity duration-600 ease-in-out"
+          :class="i === bannerIndex ? 'opacity-100' : 'opacity-0'"
+          :style="{ zIndex: i === bannerIndex ? 1 : 0, pointerEvents: i === bannerIndex ? 'auto' : 'none' }"
         >
           <img loading="lazy" decoding="async" v-if="b.image" :src="b.image" class="absolute inset-0 w-full h-full object-cover" alt="" />
           <div v-else class="absolute inset-0 w-full h-full bg-gradient-to-br from-[#0B6BCB] to-[#12B5C2]"></div>
@@ -124,6 +108,15 @@ const unreadCount = computed(() =>
             <span v-if="b.url" class="text-[9px] text-white/85 bg-black/25 rounded-full px-2 py-0.5 shrink-0 ml-2">查看 ›</span>
           </div>
         </button>
+      </div>
+      <!-- 圆点指示 -->
+      <div class="flex items-center justify-center gap-1.5 mb-3">
+        <button
+          v-for="(b, i) in banners" :key="'d' + b.id"
+          @click="goBanner(i)"
+          class="h-1.5 rounded-full transition-all duration-300"
+          :class="i === bannerIndex ? 'w-5 bg-[#0B6BCB]' : 'w-1.5 bg-gray-300'"
+        ></button>
       </div>
     </div>
 
