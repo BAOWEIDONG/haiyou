@@ -195,7 +195,7 @@ const levelDot = (lv: AlarmLevel) => LEVEL_META[lv].bar;
       <!-- 达标率 概览 -->
       <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold text-gray-500">最近测量达标率</span>
+          <span class="text-xs font-bold text-gray-500">累计达标率</span>
           <span class="text-[11px] font-bold tabular-nums" :style="`color:${accent}`">{{ rate.rate }}%</span>
         </div>
         <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden mb-1">
