@@ -489,7 +489,7 @@ const todayDietLabel = computed(() => {
         <div class="divide-y divide-gray-100">
           <button
             v-for="b in consultButtons" :key="b.key"
-            @click="store.setCurrentView(b.key as never)"
+            @click="store.setCurrentView('messages')"
             class="w-full flex items-center gap-3 p-4 active:bg-gray-50 transition-colors text-left"
           >
             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="`background:${b.color}14; color:${b.color}`">
