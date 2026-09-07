@@ -139,22 +139,20 @@ const consultButtons = [
 // 某指标今天有数据 → 点卡进该指标趋势；今天没数据（新的一天/未录）→ 点卡进该指标的录入页（自动定位该族，不再从血压开始）
 const chronicRecs = computed(() => (store.user ? store.getStudentChronicRecords(store.user.id) : []));
 function chronicMini(g: ChronicGroupKey) {
-  const gf = groupFields(g);
+  const gf = groupFields(g).filter((f) => f.display);
   const gender = store.user?.gender;
   // 该族最新一条有值的记录（可能是昨天/更早；判定显隐与"今日"按它日历走）
-  const rec = chronicRecs.value.find((r) => gf.some((f) => f.display && r.values[f.key] != null)) || null;
-  const level = rec ? judgeGroup(rec.values, g, gender).level : 'normal';
-  const primaryDef = gf.find((f) => f.display && rec && rec.values[f.key] != null);
-  const primaryValue = primaryDef && rec ? (rec.values[primaryDef.key] as number) : undefined;
+  const rec = chronicRecs.value.find((r) => gf.some((f) => r.values[f.key] != null)) || null;
+  // 该族全部已测显示字段（含各自档位/数值/单位）——首页完整展示，不再只取主项隐藏其余字段值
+  const judged = rec ? judgeGroup(rec.values, g, gender) : null;
+  const fields = (judged?.fields ?? []).map((f) => ({ key: f.key, label: f.label, unit: f.unit, value: f.value, level: f.level }));
   const hasValue = rec != null;
   const hasToday = rec != null && rec.date.startsWith(todayStr);
   return {
     key: g,
     title: CHRONIC_GROUPS.find((x) => x.key === g)!.title,
-    level,
-    primaryLabel: primaryDef?.label || '',
-    primaryValue,
-    primaryUnit: primaryDef?.unit || '',
+    level: judged?.level ?? 'normal',
+    fields,
     hasValue,
     hasToday,
   };
@@ -454,28 +452,34 @@ const todayDietLabel = computed(() => {
             <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-gray-50 active:opacity-80">五高看台 ›</button>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 gap-3">
           <button
             v-for="c in chronicMiniCards" :key="c.key"
             @click="c.hasToday ? openChronicGroup(c.key) : openRecord(c.key)"
-            :class="['rounded-xl p-3 flex flex-col min-h-[92px] text-left transition-opacity', c.hasValue ? 'bg-[#F6F8FB] active:opacity-90' : 'bg-transparent border border-dashed border-gray-200 active:opacity-80']"
+            :class="['rounded-xl p-3 h-full flex flex-col text-left transition-opacity', c.hasValue ? 'bg-[#F6F8FB] active:opacity-90' : 'bg-transparent border border-dashed border-gray-200 active:opacity-80']"
           >
+            <div class="flex items-center justify-between gap-1 min-w-0">
+              <span class="text-xs font-bold text-gray-700 truncate">{{ c.title }}</span>
+              <span v-if="c.hasToday" :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
+              <span v-else class="text-[9px] px-1.5 py-px rounded-full font-bold shrink-0 bg-amber-50 text-amber-500">今日未录入</span>
+            </div>
+
+            <!-- 已录入：列出该族全部已测字段（名称+数值+单位，各自档位着色），不再截断隐藏 -->
             <template v-if="c.hasValue">
-              <div class="flex items-center justify-between gap-1">
-                <span class="text-[11px] font-bold text-gray-500 truncate">{{ c.title }}</span>
-                <span v-if="c.hasToday" :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
-                <span v-else class="text-[9px] px-1.5 py-px rounded-full font-bold shrink-0 bg-amber-50 text-amber-500">今日未录入</span>
+              <div
+                v-for="f in c.fields" :key="f.key"
+                class="mt-2 pt-2 border-t border-gray-100/80 first:mt-auto first:pt-3 first:border-t-0 min-w-0"
+              >
+                <div class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</div>
+                <div class="text-[15px] font-bold tabular-nums leading-none mt-1 truncate" :class="LEVEL_META[f.level].text">
+                  {{ f.value }}<span class="text-[10px] text-gray-400 font-normal ml-0.5">{{ f.unit }}</span>
+                </div>
               </div>
-              <div class="mt-auto pt-2 flex items-end gap-1 min-w-0">
-                <span class="text-xl font-black tabular-nums leading-none whitespace-nowrap truncate" :class="LEVEL_META[c.level].text">{{ c.primaryValue ?? '—' }}</span>
-                <span class="text-[10px] text-gray-400 mb-0.5 shrink-0">{{ c.primaryUnit }}</span>
-              </div>
-              <div class="text-[9px] text-gray-400 mt-1 truncate">{{ c.primaryLabel || '暂无数据' }}</div>
             </template>
+            <!-- 未录入：占位提示 -->
             <template v-else>
-              <div class="flex-1 flex flex-col items-center justify-center gap-1.5">
-                <span class="text-[11px] font-bold text-gray-400">{{ c.title }}</span>
-                <span class="text-[10px] text-gray-400">未录入</span>
+              <div class="flex-1 flex flex-col items-center justify-center gap-1 py-6">
+                <span class="text-[10px] text-gray-400">未录入，去记录 ›</span>
               </div>
             </template>
           </button>
