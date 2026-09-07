@@ -101,7 +101,7 @@ const unreadCount = computed(() =>
         <BookOpen class="w-4 h-4" /> 活动资讯
       </div>
       <h2 class="text-xl font-bold text-gray-900 mt-1">健康活动</h2>
-      <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 慢病管控科普</p>
+      <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 健康指标科普</p>
     </div>
 
     <!-- 顶部 Banner 运营位（外链跳转；边缘对齐；自动 4s 轮播，滑动暂停·静置恢复） -->

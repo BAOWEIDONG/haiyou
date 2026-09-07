@@ -79,7 +79,7 @@ const maskPhone = (p: string) => p.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
     <div class="flex-1 px-4 py-4 space-y-3">
       <div class="rounded-xl bg-orange-50 border border-orange-100 p-3 text-[11px] text-gray-500 leading-relaxed flex gap-2">
         <Siren class="w-4 h-4 shrink-0 mt-0.5 text-[#B6523E]" />
-        基于学员最近一次慢病测量的达标判定（参考区间，待医院确认）。凡是出现「关注 / 异常」指标的学员在此汇总，便于你跟进随访。)
+        基于学员最近一次健康指标测量的达标判定（参考区间，待医院确认）。凡是出现「关注 / 异常」指标的学员在此汇总，便于你跟进随访。)
       </div>
 
       <template v-if="list.length > 0">

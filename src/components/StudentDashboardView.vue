@@ -15,6 +15,47 @@ const store = useAppStore();
 const todayStr = format(new Date(), 'yyyy-MM-dd');
 const isMine = (r: { studentId?: string }) => r.studentId === store.user?.id;
 
+// ─── 每日激励语（30 天一组，按日轮换） ─────────────────
+// 口径：中性、无歧义、不制造对立/歧视，仅鼓励正向健康习惯。
+const MOTIVATION_30 = [
+  '每一次记录，都是跟自己认真打个招呼。',
+  '今天也比昨天更了解自己一点，这本身就很难得。',
+  '慢一点也没关系，能继续下去，就已经赢了一半。',
+  '好好吃饭、好好睡觉，就是好好爱自己。',
+  '身体的状态，会随着每天的坚持悄悄变好。',
+  '把大目标拆成今天能完成的小步，剩下的交给时间。',
+  '你为自己做的每一件小事，都算数。',
+  '健康不是一天做成的，是每个今天攒出来的。',
+  '别和别人比，只和自己的昨天比。',
+  '今天善待身体，明天它就会回报你。',
+  '真正的自律，是温柔而不勉强地和自己相处。',
+  '每多坚持一点，就离健康的生活方式更近一点。',
+  '三餐规律、睡眠充足，就是给未来存下的底气。',
+  '不过度、不勉强，学着倾听身体的声音。',
+  '你比自己想象中更懂得照顾自己。',
+  '数据只是参考，状态才是根本。',
+  '给自己一点耐心，美好的变化值得等待。',
+  '动一动之后的畅快，是身体送给你的礼物。',
+  '少一点自责，多一点行动，改变会来得更快。',
+  '今天记下的数字，是明天回望的起点。',
+  '每一杯水、每一顿踏实的饭，都是对自己好。',
+  '健康的目的是让你更有精力去做热爱的事。',
+  '不需要完美，只需要开始。',
+  '坚持不是从不摔倒，而是摔倒后依然向前。',
+  '你的身体，正在为你每天的用心悄悄加分。',
+  '脚步稳稳的，把节奏握在自己手里。',
+  '好好休息也是努力的一部分，别为难自己。',
+  '关注健康，是一段随时可以重启的旅程。',
+  '为自己付出的每一分努力，身体都记得。',
+  '从今天起，做自己健康生活的主角。',
+];
+// 按一年中的天数轮换（每天不同，到月底自然循环）
+const motivation = computed(() => {
+  const d = new Date();
+  const dayOfYear = Math.floor((d.getTime() - new Date(d.getFullYear(), 0, 1).getTime()) / 86400000);
+  return MOTIVATION_30[dayOfYear % MOTIVATION_30.length];
+});
+
 // ─── 核心数据带：体重变化 + 目标进度 ─────────────────────
 // 慢病健康管理场景下，学员最关注的是"我瘦了多少 / 离目标还有多远"
 const myWeightRecords = computed(() =>
@@ -285,6 +326,10 @@ const todayDietLabel = computed(() => {
         </div>
         <div class="flex-1 min-w-0">
           <h2 class="text-2xl font-black text-white tracking-tight truncate">你好，{{ store.user?.name || '学员' }}</h2>
+          <p class="text-[12px] font-medium text-white/85 mt-1.5 leading-snug flex items-center gap-1">
+            <span class="w-1 h-1 rounded-full bg-white/80 shrink-0"></span>
+            {{ motivation }}
+          </p>
           <div class="flex items-start gap-2 mt-2">
             <span v-if="store.enabledServices.bmi" class="text-[11px] font-bold text-[#0B6BCB] bg-white px-2 py-0.5 rounded-full tracking-wide shrink-0 mt-0.5">DAY {{ campDay }}</span>
           </div>

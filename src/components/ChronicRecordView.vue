@@ -101,37 +101,39 @@ const latestValueOf = (key: ChronicFieldKey): string => {
 
 <template>
   <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
-    <NavBar title="记录慢病指标" :on-back="goRecord" />
+    <NavBar title="记录健康指标" :on-back="goRecord" />
 
-    <div class="flex-1 px-4 py-4 space-y-4">
-      <!-- 指标族切换 -->
-      <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        <button
-          v-for="g in CHRONIC_GROUPS"
-          :key="g.key"
-          @click="activeGroup = g.key"
-          :class="[
-            'shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-bold transition-colors border',
-            activeGroup === g.key ? 'text-white border-transparent shadow-sm' : 'bg-white text-gray-600 border-gray-200 active:bg-gray-50',
-          ]"
-          :style="activeGroup === g.key ? `background:linear-gradient(135deg,#0B6BCB,#12B5C2)` : ''"
-        >
-          <component :is="ACCOUNT_ICONS[g.key]" class="w-4 h-4" />
-          {{ g.title }}
-        </button>
+    <div class="flex-1 px-4 py-5 space-y-5">
+      <!-- 指标族切换（整齐 3 列网格，6族两行对齐全） -->
+      <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-2">
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            v-for="g in CHRONIC_GROUPS"
+            :key="g.key"
+            @click="activeGroup = g.key"
+            :class="[
+              'flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-colors',
+              activeGroup === g.key ? 'text-white shadow-sm' : 'text-gray-600 bg-gray-50 active:bg-gray-100',
+            ]"
+            :style="activeGroup === g.key ? `background:linear-gradient(135deg,#0B6BCB,#12B5C2)` : ''"
+          >
+            <component :is="ACCOUNT_ICONS[g.key]" class="w-4 h-4 shrink-0" />
+            {{ g.title }}
+          </button>
+        </div>
       </div>
 
-      <!-- 字段录入（大号适老化输入） -->
-      <div class="space-y-3">
-        <div v-for="row in INPUT_ROWS" :key="row.key" class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4">
-          <label class="text-[15px] font-bold text-gray-800 flex items-center justify-between">
-            <span class="flex items-center gap-2">
-              <component :is="row.key === 'weight' ? Weight : row.key === 'height' ? Ruler : Gauge" class="w-4 h-4 text-[#0B6BCB]" />
+      <!-- 字段录入（大号适老化输入，卡片间距整齐板正） -->
+      <div class="space-y-4">
+        <div v-for="row in INPUT_ROWS" :key="row.key" class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-5">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 text-[15px] font-bold text-gray-800">
+              <component :is="row.key === 'weight' ? Weight : row.key === 'height' ? Ruler : Gauge" class="w-4 h-4 text-[#0B6BCB] shrink-0" />
               {{ row.label }}
-            </span>
-            <span class="text-[10px] text-gray-400 font-normal">{{ row.range }}</span>
-          </label>
-          <div class="flex items-center gap-2 mt-2">
+            </label>
+            <span class="text-[11px] text-gray-400 font-normal bg-gray-50 px-2 py-0.5 rounded-full">{{ row.range }}</span>
+          </div>
+          <div class="flex items-center gap-3 mt-4">
             <input
               v-model="form[row.key]"
               type="text"
@@ -139,7 +141,7 @@ const latestValueOf = (key: ChronicFieldKey): string => {
               :placeholder="latestValueOf(row.key) ? `上次 ${latestValueOf(row.key)}` : '请输入数值'"
               class="flex-1 min-w-0 text-2xl font-bold tabular-nums py-3 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0B6BCB] focus:outline-none text-gray-800 tracking-wide"
             />
-            <span class="text-sm text-gray-400 w-14 shrink-0">{{ row.unit }}</span>
+            <span class="text-sm text-gray-400 w-14 shrink-0 text-center">{{ row.unit }}</span>
           </div>
         </div>
       </div>

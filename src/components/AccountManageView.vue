@@ -317,7 +317,7 @@ const switchTab = (role: Role) => {
             服务产品配置
           </div>
           <div class="text-[10px] text-gray-400 mt-1 leading-relaxed">
-            按医院采购勾选启用的服务产品，决定学员端底部菜单与服务入口的显示。减重=健康减重，慢病=五高慢病管理。
+            按医院采购勾选启用的服务产品，决定学员端底部菜单与服务入口的显示。减重=健康减重，慢病=五高健康指标管理。
           </div>
         </div>
 
@@ -343,10 +343,10 @@ const switchTab = (role: Role) => {
           <div class="flex-1 pr-3">
             <div class="text-sm font-medium text-gray-800 flex items-center gap-1.5">
               <HeartPulse class="w-4 h-4 text-[#B6523E]" />
-              慢病管理服务
+              健康指标管理服务
             </div>
             <div class="text-[10px] text-gray-400 mt-0.5 leading-relaxed">
-              开启=学员端底部显示「健康」慢病看台（五高指标录入/趋势）；关闭则隐藏。
+              开启=学员端底部显示「健康」健康指标看台（五高指标录入/趋势）；关闭则隐藏。
             </div>
           </div>
           <VanSwitch

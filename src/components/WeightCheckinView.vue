@@ -413,7 +413,7 @@ function handleChartTouchMove(e: TouchEvent) {
     <!-- ══════════ Tab 1: 打卡 ══════════ -->
     <div v-show="activeTab === 'checkin'" class="p-4 space-y-4 pb-32">
       <div class="text-center pt-2 pb-1">
-        <div class="text-sm text-gray-500">记录每日体重变化，见证慢病改善</div>
+        <div class="text-sm text-gray-500">记录每日体重变化，见证健康改善</div>
       </div>
 
       <Card class="p-4">

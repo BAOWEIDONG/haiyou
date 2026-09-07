@@ -61,7 +61,7 @@ function openGroup(g: ChronicGroupKey) {
       <div class="flex items-end justify-between mb-4">
         <div>
           <div class="flex items-center gap-1.5 text-xs font-bold text-[#0B6BCB]">
-            <HeartPulse class="w-4 h-4" /> 慢病管理
+            <HeartPulse class="w-4 h-4" /> 健康指标
           </div>
           <h2 class="text-xl font-bold text-gray-900 mt-1">{{ user?.name || '我' }}的健康看台</h2>
           <p class="text-[11px] text-gray-500 mt-0.5">五高指标 · 逐项记录 · 动态跟踪</p>
@@ -98,7 +98,7 @@ function openGroup(g: ChronicGroupKey) {
             <div class="h-11 w-11 rounded-full bg-[#0B6BCB]/10 text-[#0B6BCB] flex items-center justify-center shrink-0">
               <ClipboardPlus class="h-6 w-6" />
             </div>
-            <p class="text-sm text-gray-600 leading-relaxed">还没有慢病测量记录。<br/>点右上角「记录指标」开始逐项记录你的血压 / 血糖 / 血脂等。</p>
+            <p class="text-sm text-gray-600 leading-relaxed">还没有健康指标测量记录。<br/>点右上角「记录指标」开始逐项记录你的血压 / 血糖 / 血脂等。</p>
           </div>
         </template>
       </div>

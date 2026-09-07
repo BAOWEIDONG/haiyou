@@ -152,7 +152,7 @@ const reportPendingCount = computed(() =>
         </div>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-bold text-[#B6523E]">{{ chronicAlertCount }} 名学员存在异常关注指标</div>
-          <div class="text-[11px] text-gray-500 mt-0.5">五高慢病预警 · 点击查看全部</div>
+          <div class="text-[11px] text-gray-500 mt-0.5">五高健康指标预警 · 点击查看全部</div>
         </div>
         <span class="text-[#B6523E] font-bold text-lg">›</span>
       </button>
