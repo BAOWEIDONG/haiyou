@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onActivated, nextTick, watch } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import { uploadFile } from '../lib/api';
@@ -324,7 +324,12 @@ watch(groupedHistory, () => {
 // 记录 Tab 默认全部收起：未读批注在展开其日期分组时才标记已读（真正看到才算已读）
 
 // 消息中心跳转：切到记录Tab，自动展开目标日期并滚动到对应记录
-onMounted(() => {
+// KeepAlive 双挂：onMounted 首次 + onActivated 再进入（返回不重挂载也要处理深链）
+const flashHighlight = (el: HTMLElement) => {
+  el.classList.add('record-highlight');
+  setTimeout(() => el.classList.remove('record-highlight'), 2000);
+};
+const processPendingDeepLink = () => {
   if (store.selectedDateStr) {
     const targetDate = store.selectedDateStr;
     store.setSelectedDateStr(null);
@@ -338,7 +343,33 @@ onMounted(() => {
       });
     });
   }
-});
+  // 教练批注深链：定位到具体那条运动记录并高亮框
+  if (store.pendingRecordType && store.pendingRecordId) {
+    const type = store.pendingRecordType;
+    const recordId = store.pendingRecordId;
+    store.setPendingAnnotation(null);
+    if (type === 'exercise') {
+      activeTab.value = 'records';
+      const rec = userExercises.value.find((r) => r.id === recordId);
+      if (rec) {
+        const targetDate = rec.date.substring(0, 10);
+        if (!isExpanded(targetDate)) toggleDate(targetDate);
+        markGroupCommentsRead(targetDate);
+        nextTick(() => {
+          nextTick(() => {
+            const el = document.getElementById(`record-${recordId}`);
+            if (el) {
+              el.scrollIntoView({ block: 'center' });
+              flashHighlight(el);
+            }
+          });
+        });
+      }
+    }
+  }
+};
+onMounted(processPendingDeepLink);
+onActivated(processPendingDeepLink);
 
 const todayStr = format(new Date(), 'yyyy-MM-dd');
 const todayExercise = computed(() =>
@@ -778,7 +809,7 @@ const handleSubmit = () => {
           </button>
           <!-- Records for this date -->
           <div v-show="isExpanded(group.date)" class="space-y-4 animate-pop-in">
-            <Card v-for="record in group.records" :key="record.id" class="p-0 overflow-hidden">
+            <Card v-for="record in group.records" :key="record.id" :id="`record-${record.id}`" class="p-0 overflow-hidden">
               <div class="p-4 border-b border-gray-50">
                 <div class="flex justify-between items-center mb-3">
                   <span class="text-xs text-gray-500 font-medium">{{ formatDateTime(record.date) }}</span>
@@ -888,5 +919,9 @@ const handleSubmit = () => {
 }
 .animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+.record-highlight {
+  box-shadow: 0 0 0 3px #0B6BCB;
+  background-color: rgba(11, 107, 203, 0.08);
 }
 </style>

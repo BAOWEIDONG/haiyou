@@ -278,6 +278,8 @@ export interface InterpretationExchange {
   side: 'user' | 'doctor';
   /** 时间 yyyy-MM-dd HH:mm:ss */
   createdAt: string;
+  /** 该条追问/解读附带的图片（学员或营养师在沟通过程上传，压缩后 dataURL 存储） */
+  images?: string[];
 }
 
 /** 报告健康解读请求（U7 / D2）：用户勾指标留问题 → 医生健康解读（非医疗诊断） */

@@ -3,27 +3,52 @@ import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
 import { showToast } from 'vant';
-import { FileSearch, Send, Plus, ArrowLeft } from 'lucide-vue-next';
+import { FileSearch, Send, Plus, ArrowLeft, ImagePlus, X, Phone } from 'lucide-vue-next';
+import { compressImage } from '../lib/imageCompress';
 
 const store = useAppStore();
 // 列表→详情导航：进入先看全部记录列表，点击进入单条对话详情
 const selectedId = ref<string | null>(null);
 const draft = ref('');
+const replyImages = ref<string[]>([]);
+const replyFileInput = ref<HTMLInputElement | null>(null);
 
 const list = computed(() => (store.user ? store.getStudentInterpretations(store.user.id) : []));
 const selectedReq = computed(() => list.value.find((r) => r.id === selectedId.value) || null);
 
+// 压缩 → 读成 dataURL（与 store 持久化格式一致），最多 4 张
+async function fileToData(file: File): Promise<string> {
+  const comp = await compressImage(file);
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as string);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(comp);
+  });
+}
+const onPickReply = async () => {
+  const files = replyFileInput.value?.files;
+  if (!files || !files.length) return;
+  for (const file of Array.from(files)) {
+    if (replyImages.value.length >= 4) { showToast('最多上传 4 张图片'); break; }
+    try { replyImages.value.push(await fileToData(file)); } catch { showToast('图片读取失败'); }
+  }
+  if (replyFileInput.value) replyFileInput.value.value = '';
+};
+
 const open = (id: string) => {
   selectedId.value = id;
   draft.value = '';
+  replyImages.value = [];
   store.markInterpretationRead(id);
 };
-const backToList = () => { selectedId.value = null; draft.value = ''; };
+const backToList = () => { selectedId.value = null; draft.value = ''; replyImages.value = []; };
 const ask = (id: string) => {
-  if (!draft.value.trim()) { showToast('请输入追问'); return; }
-  store.followupInterpretation(id, draft.value.trim(), 'user');
+  if (!draft.value.trim() && replyImages.value.length === 0) { showToast('请输入追问或选择图片'); return; }
+  store.followupInterpretation(id, draft.value.trim(), 'user', replyImages.value);
   showToast('已发送追问');
   draft.value = '';
+  replyImages.value = [];
 };
 </script>
 
@@ -75,22 +100,49 @@ const ask = (id: string) => {
           :class="['p-3 rounded-xl text-[13px] leading-relaxed', ex.side === 'doctor' ? 'bg-[#0B6BCB]/8 mr-8' : 'bg-gray-100 ml-8']"
         >
           <div class="text-[10px] text-gray-400 mb-1">{{ ex.authorName }} · {{ ex.createdAt.slice(5, 16) }}</div>
-          {{ ex.text }}
+          <span v-if="ex.text" class="whitespace-pre-wrap">{{ ex.text }}</span>
+          <div v-if="ex.images && ex.images.length" class="flex flex-wrap gap-2 mt-2">
+            <img
+              v-for="(img, ii) in ex.images"
+              :key="ii"
+              :src="img"
+              loading="lazy" decoding="async"
+              class="w-20 h-20 rounded-lg object-cover border border-gray-100 cursor-pointer"
+              @click="store.openImagePreview(ex.images as string[], ii)"
+            />
+          </div>
         </div>
       </div>
       <div v-else class="text-xs text-gray-400">
         {{ selectedReq.status === 'pending' ? '医生正在为你解读，完成会通知你' : '医生已解读' }}
       </div>
 
+      <!-- 预留联系电话（学员提交解读时选填，回显给本人可见） -->
+      <div v-if="selectedReq.studentPhone" class="flex items-center gap-1.5 rounded-xl bg-purple-50 border border-purple-100 p-3 text-[12px] text-purple-700">
+        <Phone class="w-3.5 h-3.5 shrink-0" />
+        预留联系电话：{{ selectedReq.studentPhone }}
+      </div>
+
+      <div v-if="replyImages.length" class="flex flex-wrap gap-2">
+        <div v-for="(img, ii) in replyImages" :key="ii" class="relative w-16 h-16">
+          <img :src="img" class="w-full h-full rounded-lg object-cover border border-gray-100" />
+          <button @click="replyImages.splice(ii, 1)" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gray-900/70 text-white flex items-center justify-center"><X class="w-3 h-3" /></button>
+        </div>
+      </div>
+
       <textarea
         v-model="draft"
         rows="2"
-        placeholder="继续追问…"
+        placeholder="继续追问…（可附图）"
         class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
       />
-      <button @click="ask(selectedReq.id)" class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90">
-        <Send class="w-4 h-4" /> 发送追问
-      </button>
+      <div class="flex gap-2">
+        <button @click="replyFileInput?.click()" class="w-11 shrink-0 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 active:bg-gray-50"><ImagePlus class="w-5 h-5" /></button>
+        <button @click="ask(selectedReq.id)" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90">
+          <Send class="w-4 h-4" /> 发送追问
+        </button>
+      </div>
+      <input ref="replyFileInput" type="file" accept="image/*" multiple class="hidden" @change="onPickReply" />
     </div>
 
     <!-- 列表：全部解读记录 -->

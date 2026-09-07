@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted, onActivated, nextTick } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import { uploadFile } from '../lib/api';
@@ -183,8 +183,9 @@ onUnmounted(() => {
   svg.removeEventListener('touchmove', onChartTouchMove);
 });
 
-// 消息中心跳转：切到记录Tab，自动展开目标日期并滚动到对应记录
-onMounted(() => {
+// 消息中心跳转：切到记录Tab，自动展开目标日期并滚动到对应记录；营养师体重批注再定位到具体那条记录高亮
+// KeepAlive 双挂：onMounted 首次 + onActivated 再进入（返回不重挂载也要处理深链）
+const processPendingDeepLink = () => {
   if (store.selectedDateStr) {
     const targetDate = store.selectedDateStr;
     store.setSelectedDateStr(null);
@@ -199,7 +200,16 @@ onMounted(() => {
       });
     });
   }
-});
+  // 营养师体重批注深链：定位到具体那条体重记录并高亮框（scrollToRecord 已含展开+定位+高亮）
+  if (store.pendingRecordType && store.pendingRecordId) {
+    const type = store.pendingRecordType;
+    const recordId = store.pendingRecordId;
+    store.setPendingAnnotation(null);
+    if (type === 'weight') scrollToRecord(recordId);
+  }
+};
+onMounted(processPendingDeepLink);
+onActivated(processPendingDeepLink);
 
 const weightStats = computed(() => {
   const recs = sortedRecords.value;
@@ -778,5 +788,6 @@ function handleChartTouchMove(e: TouchEvent) {
 }
 .record-highlight {
   background-color: rgba(22, 119, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.55);
 }
 </style>

@@ -61,6 +61,7 @@ interface MessageItem {
   unread: boolean;
   targetView: 'diet' | 'exercise' | 'weight-checkin' | 'interpretation-result' | 'consult';
   targetDate?: string; // yyyy-MM-dd for scroll-to-record
+  targetRecordId?: string; // 批注消息对应的具体打卡记录id（学员端据此滚动定位+高亮）
 }
 
 // ---- 批注消息（营养师：饮食/体重；教练：运动） ----
@@ -74,6 +75,7 @@ const commentMessages = computed<MessageItem[]>(() => {
     unread: !r.commentRead,
     targetView: type === 'diet' ? 'diet' : 'weight-checkin',
     targetDate: (r.date || '').substring(0, 10),
+    targetRecordId: r.id,
   });
   const coachWrap = (r: any): MessageItem => ({
     id: `ex-${r.id}`,
@@ -84,6 +86,7 @@ const commentMessages = computed<MessageItem[]>(() => {
     unread: !r.commentRead,
     targetView: 'exercise',
     targetDate: (r.date || '').substring(0, 10),
+    targetRecordId: r.id,
   });
   return [
     ...campDietRecs.value.filter((r) => isMine(r) && r.dietitianComment).map((r) => dietitianWrap(r, 'diet')),
@@ -189,6 +192,11 @@ const typeMeta = (type: MessageItem['type']) =>
 const openMessage = (m: MessageItem) => {
   if (m.targetDate) {
     store.setSelectedDateStr(m.targetDate);
+  }
+  // 批注消息带具体记录id：学员端三张打卡视图据此滚动到该记录并高亮（与营养师端 pendingAnnotation 同一套跳转机制）
+  if (m.targetRecordId) {
+    const type = m.targetView === 'diet' ? 'diet' : m.targetView === 'weight-checkin' ? 'weight' : 'exercise';
+    store.setPendingAnnotation(type, m.targetRecordId);
   }
   store.setCurrentView(m.targetView);
 };

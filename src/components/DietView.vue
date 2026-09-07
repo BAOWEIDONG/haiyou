@@ -212,7 +212,12 @@ void markGroupCommentsRead;
 // 消息中心跳转：切到记录Tab，自动展开目标日期并滚动到对应记录
 // 处理跨页跳转深链（消息中心点某条记录 → 自动滚动到该日期组）：
 // KeepAlive 缓存下返回不重挂载，需在 onMounted 与 onActivated 都执行
+const flashHighlight = (el: HTMLElement) => {
+  el.classList.add('record-highlight');
+  setTimeout(() => el.classList.remove('record-highlight'), 2000);
+};
 const processPendingDeepLink = () => {
+  // 日期深链：滚动到目标日期分组
   if (store.selectedDateStr) {
     const targetDate = store.selectedDateStr;
     store.setSelectedDateStr(null);
@@ -226,6 +231,31 @@ const processPendingDeepLink = () => {
         if (el) el.scrollIntoView({ block: 'start' });
       });
     });
+  }
+  // 营养师批注深链：定位到具体那条饮食记录并高亮框（先清 pending 避免往返重复触发）
+  if (store.pendingRecordType && store.pendingRecordId) {
+    const type = store.pendingRecordType;
+    const recordId = store.pendingRecordId;
+    store.setPendingAnnotation(null);
+    if (type === 'diet') {
+      activeTab.value = 'records';
+      const rec = userDiets.value.find((r) => r.id === recordId);
+      if (rec) {
+        const targetDate = rec.date.substring(0, 10);
+        revealToDate(targetDate);
+        if (!isExpanded(targetDate)) toggleDate(targetDate);
+        markGroupCommentsRead(targetDate);
+        nextTick(() => {
+          nextTick(() => {
+            const el = document.getElementById(`record-${recordId}`);
+            if (el) {
+              el.scrollIntoView({ block: 'center' });
+              flashHighlight(el);
+            }
+          });
+        });
+      }
+    }
   }
 };
 onMounted(processPendingDeepLink);
@@ -352,7 +382,7 @@ onActivated(processPendingDeepLink);
           </button>
           <!-- Records for this date -->
           <div v-show="isExpanded(group.date)" class="space-y-4 animate-pop-in">
-            <Card v-for="record in group.records" :key="record.id" class="p-0 overflow-hidden">
+            <Card v-for="record in group.records" :key="record.id" :id="`record-${record.id}`" class="p-0 overflow-hidden">
               <div class="p-4 border-b border-gray-50">
                 <div class="flex justify-between items-center mb-3">
                   <span class="text-xs text-gray-500 font-medium">{{ formatDateTime(record.date) }}</span>
@@ -439,5 +469,10 @@ onActivated(processPendingDeepLink);
 }
 .animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+.record-highlight {
+  /* 批注深链高亮框：外发光圆角描边 + 淡色底，2s 后移除 */
+  box-shadow: 0 0 0 3px #FF976A;
+  background-color: rgba(255, 151, 106, 0.08);
 }
 </style>

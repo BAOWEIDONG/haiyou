@@ -838,7 +838,7 @@ export const useAppStore = defineStore('app', () => {
     return req.id;
   }
 
-  function answerInterpretation(id: string, text: string) {
+  function answerInterpretation(id: string, text: string, images: string[] = []) {
     const req = interpretationRequests.value.find((r) => r.id === id);
     if (!req) return;
     const now = formatDateTimeStr();
@@ -846,12 +846,12 @@ export const useAppStore = defineStore('app', () => {
     req.doctorId = user.value?.id || 'd1';
     req.doctorName = user.value?.name || '营养师';
     req.answeredAt = now;
-    req.exchanges.push({ text, authorName: user.value?.name || '营养师', side: 'doctor', createdAt: now });
+    req.exchanges.push({ text, authorName: user.value?.name || '营养师', side: 'doctor', createdAt: now, images: images.length ? images : undefined });
     req.read = false;
     req.doctorUnread = false; // 医生此刻回复，已读过学员内容
   }
 
-  function followupInterpretation(id: string, text: string, side: 'user' | 'doctor' = 'user') {
+  function followupInterpretation(id: string, text: string, side: 'user' | 'doctor' = 'user', images: string[] = []) {
     const req = interpretationRequests.value.find((r) => r.id === id);
     if (!req) return;
     req.exchanges.push({
@@ -859,6 +859,7 @@ export const useAppStore = defineStore('app', () => {
       authorName: side === 'user' ? studentName(req.studentId) : user.value?.name || '营养师',
       side,
       createdAt: formatDateTimeStr(),
+      images: images.length ? images : undefined,
     });
     if (side === 'user') req.status = 'answered'; // 追问后保持已解读
     if (side === 'user') req.doctorUnread = true; // 学员新追问 → 医生端未读提醒
