@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
+import { Popup as VanPopup } from 'vant';
 import { Plus, TrendingUp, TrendingDown, Minus } from 'lucide-vue-next';
 import type { ChronicGroupKey, ChronicFieldKey, ChronicFieldDef, AlarmLevel } from '../lib/chronic';
 import { CHRONIC_GROUPS, groupFields, groupRate, judgeGroup, levelOf, LEVEL_META } from '../lib/chronic';
@@ -42,14 +43,16 @@ function parseRef(range: string, gender?: string): { lo?: number; hi?: number } 
 }
 
 // ─── 单项指标趋势图几何 ───────────────────────────
-const CW = 320, CH = 150, ML = 34, MR = 10, MT = 18, MB = 22;
+const CW = 320, CH = 158, ML = 34, MR = 10, MT = 18, MB = 40;
 
-interface TPoint { x: number; y: number; v: number; level: AlarmLevel; }
+interface TPoint { x: number; y: number; v: number; level: AlarmLevel; date: string; }
 interface FieldTrend {
   def: ChronicFieldDef;
   ref: { lo?: number; hi?: number };
   // 取值序列（全部历史有值点）
   points: TPoint[];
+  // 时间轴日期标签（稀疏，最多 ~6 个）
+  xLabels: { x: number; label: string; anchor: 'start' | 'end' | 'middle' }[];
   // 连线
   line: string;
   area: string;
@@ -66,7 +69,7 @@ interface FieldTrend {
 
 function buildFieldTrend(def: ChronicFieldDef, series: { date: string; v: number }[]): FieldTrend {
   const ref = parseRef(def.range, gender.value);
-  const ptsRaw = series.map((s) => ({ v: s.v, level: levelOf(def.key, s.v, gender.value) }));
+  const ptsRaw = series.map((s) => ({ v: s.v, date: s.date, level: levelOf(def.key, s.v, gender.value) }));
 
   let loAll = Math.min(...ptsRaw.map((p) => p.v));
   let hiAll = Math.max(...ptsRaw.map((p) => p.v));
@@ -82,7 +85,19 @@ function buildFieldTrend(def: ChronicFieldDef, series: { date: string; v: number
   const x = (i: number) => (n === 1 ? ML + (CW - ML - MR) / 2 : ML + (i * (CW - ML - MR)) / (n - 1));
   const y = (v: number) => MT + ((yMax - v) / (yMax - yMin)) * (CH - MT - MB);
 
-  const points: TPoint[] = ptsRaw.map((p, i) => ({ x: x(i), y: y(p.v), v: p.v, level: p.level }));
+  const points: TPoint[] = ptsRaw.map((p, i) => ({ x: x(i), y: y(p.v), v: p.v, level: p.level, date: p.date }));
+
+  // 稀疏时间轴标签：最多约 6 个（首尾必显示）
+  const xLabels: FieldTrend['xLabels'] = [];
+  if (points.length > 0) {
+    const step = Math.max(1, Math.ceil(points.length / 6));
+    points.forEach((p, i) => {
+      if (i === 0 || i === points.length - 1 || i % step === 0) {
+        const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
+        xLabels.push({ x: p.x, label: p.date.slice(5, 10), anchor: anchor as 'start' | 'end' | 'middle' });
+      }
+    });
+  }
 
   const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const area = points.length
@@ -122,6 +137,7 @@ function buildFieldTrend(def: ChronicFieldDef, series: { date: string; v: number
   return {
     def, ref,
     points,
+    xLabels,
     line, area,
     ticks, band, refLines,
     latest: last,
@@ -130,6 +146,15 @@ function buildFieldTrend(def: ChronicFieldDef, series: { date: string; v: number
     avg: n ? Math.round((vs.reduce((a, b) => a + b, 0) / n) * 10) / 10 : null,
     delta,
   };
+}
+
+// 点击数据点 → 弹出该次记录明细
+const sel = ref<{ date: string; defKey: ChronicFieldKey } | null>(null);
+const selInfoShow = ref(false);
+const selRecord = computed(() => (sel.value ? rowsAsc.value.find((r) => r.date === sel.value!.date) || null : null));
+function openPoint(def: ChronicFieldDef, date: string) {
+  sel.value = { date, defKey: def.key };
+  selInfoShow.value = true;
 }
 
 // 每个「显示字段」一个趋势块（六族全覆盖：血压2/血糖3/血脂4/尿酸1/BMI1/同型半胱氨酸1）
@@ -220,10 +245,18 @@ const levelDot = (lv: AlarmLevel) => LEVEL_META[lv].bar;
               </g>
               <!-- 折线 -->
               <path :d="t.line" fill="none" :stroke="accent" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-              <!-- 数据点 + 数值标签 -->
+              <!-- 时间轴日期标签（稀疏） -->
+              <g v-for="(xl, i) in t.xLabels" :key="'xl' + i">
+                <text :x="xl.x" :y="CH - MB + 16" :text-anchor="xl.anchor" class="text-[9px]" fill="#9CA3AF">{{ xl.label }}</text>
+              </g>
+              <!-- 数据点（可点击查看该次明细）+ 数值标签 -->
               <g v-for="(p, i) in t.points" :key="i">
-                <circle :cx="p.x" :cy="p.y" r="3" :fill="levelDot(p.level)" :stroke="i === t.points.length - 1 ? '#ffffff' : 'none'" :stroke-width="1.5" />
                 <text :x="p.x" :y="p.y - 7" text-anchor="middle" class="text-[9px]" :fill="levelDot(p.level)" font-weight="bold">{{ p.v }}</text>
+                <circle
+                  :cx="p.x" :cy="p.y" r="7" fill="transparent" class="cursor-pointer"
+                  @click="openPoint(t.def, p.date)"
+                />
+                <circle :cx="p.x" :cy="p.y" r="3" pointer-events="none" :fill="levelDot(p.level)" :stroke="i === t.points.length - 1 ? '#ffffff' : 'rgba(255,255,255,0.7)'" :stroke-width="1.5" />
               </g>
             </template>
             <text v-else :x="CW / 2" :y="CH / 2" text-anchor="middle" class="text-[11px]" fill="#9CA3AF">暂无记录，记录后可查看趋势</text>
@@ -296,5 +329,32 @@ const levelDot = (lv: AlarmLevel) => LEVEL_META[lv].bar;
       </div>
       <div v-else class="text-center text-xs text-gray-400 py-10">该指标族暂无记录</div>
     </div>
+
+    <!-- 点击数据点 → 该次记录明细 -->
+    <VanPopup v-model:show="selInfoShow" position="bottom" round class="custom-popup">
+      <div v-if="selRecord" class="p-5 pb-7 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-gray-900">{{ selRecord.date.slice(0, 16) }}</h3>
+          <span class="text-[10px] px-2 py-0.5 rounded-full" :class="LEVEL_META[judgeGroup(selRecord.values, g, gender).level].bg + ' ' + LEVEL_META[judgeGroup(selRecord.values, g, gender).level].text">
+            {{ LEVEL_META[judgeGroup(selRecord.values, g, gender).level].label }}
+          </span>
+        </div>
+        <p class="text-[11px] text-gray-400 -mt-2">本次记录的各项指标 · {{ meta.title }}</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div
+            v-for="f in judgeGroup(selRecord.values, g, gender).fields"
+            :key="f.key"
+            class="rounded-xl px-3 py-3"
+            :class="LEVEL_META[f.level].bg"
+          >
+            <div class="text-[10px] text-gray-500">{{ f.label }}</div>
+            <div class="text-lg font-black tabular-nums mt-0.5" :class="LEVEL_META[f.level].text">
+              {{ f.value }} <span class="text-[9px] font-normal">{{ f.unit }}</span>
+            </div>
+            <div class="text-[9px] mt-0.5" :class="LEVEL_META[f.level].text">{{ LEVEL_META[f.level].label }}</div>
+          </div>
+        </div>
+      </div>
+    </VanPopup>
   </div>
 </template>

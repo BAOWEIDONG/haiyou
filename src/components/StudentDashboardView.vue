@@ -481,12 +481,12 @@ const todayDietLabel = computed(() => {
       </section>
 
       <!-- 服务咨询 大白卡（报告解读 / 给医生留言） -->
-      <section>
-        <div class="flex items-center gap-1.5 mb-2.5">
+      <section class="bg-white rounded-3xl shadow-sm border border-white/70 overflow-hidden">
+        <div class="flex items-center gap-1.5 p-5 pb-3">
           <div class="w-1.5 h-4 bg-[#12B5C2] rounded-full"></div>
           <h3 class="text-sm font-bold text-gray-900">服务咨询</h3>
         </div>
-        <div class="rounded-3xl bg-white shadow-sm border border-white/70 overflow-hidden divide-y divide-gray-100">
+        <div class="divide-y divide-gray-100">
           <button
             v-for="b in consultButtons" :key="b.key"
             @click="store.setCurrentView(b.key as never)"
