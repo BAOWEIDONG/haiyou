@@ -4,9 +4,9 @@ import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
 import { campDateRange, latestOrFirstId } from '../lib/camps';
 import { MOCK_METRIC_VALUES, MOCK_STUDENT_METRIC_VALUES } from '../mock/data';
-import { NavBar, Card, Button, ChartRulePopup } from './ui';
+import { NavBar, Card, Button, ChartRulePopup, ChronicTrendChart } from './ui';
 import WeightTrendChart from './ui/WeightTrendChart.vue';
-import { UserCircle, Coffee, MessageCircle, Stethoscope, ClipboardList, AlertCircle, FileText, Activity, Scale, TrendingUp, PlayCircle, ChevronDown, Eye } from 'lucide-vue-next';
+import { UserCircle, Coffee, MessageCircle, Stethoscope, ClipboardList, AlertCircle, FileText, Activity, Scale, TrendingUp, PlayCircle, ChevronDown, Eye, FileSearch, MessageSquareText } from 'lucide-vue-next';
 import { Popup as VanPopup } from 'vant';
 import { buildMedicalData, isValueOutOfRange, type MedicalCategory, type Indicator } from '../lib/medicalData';
 import { formatDateTime } from '../lib/utils';
@@ -14,6 +14,8 @@ import { useDateGrouping } from '../composables/useDateGrouping';
 import { computeExerciseTrends } from '../lib/journey';
 import DailyExerciseTrend from './DailyExerciseTrend.vue';
 import type { DietRecord, WeightRecord, ExerciseRecord } from '../types';
+import { CHRONIC_GROUPS, groupFields, groupRate, judgeGroup, LEVEL_META, CHRONIC_ACCENT } from '../lib/chronic';
+import type { ChronicGroupKey } from '../lib/chronic';
 
 const MEAL_TYPES = [
   { id: 'breakfast', label: '早餐' },
@@ -80,7 +82,7 @@ const WEIGHT_TEMPLATES = [
   '建议固定早晨空腹称重，数据更可比',
 ];
 
-const activeTab = ref<'diet' | 'exercise' | 'weight' | 'medical' | 'questionnaire'>('diet');
+const activeTab = ref<'diet' | 'exercise' | 'weight' | 'chronic' | 'medical' | 'questionnaire'>('diet');
 
 // Diet tab - filtered by studentId AND campId
 const records = computed(() =>
@@ -173,6 +175,17 @@ const handleSaveWeightComment = (recordId: string) => {
 };
 
 // Weight trend SVG chart → 已抽取到 ui/WeightTrendChart.vue
+
+// ─── 健康指标（五高）模块 ───────────────────────────────
+// 只读展示，不加批注（与学员端共享 ChronicTrendChart 保证展示一致）。
+// 单条学员记录，不分服务批次（五高属于健康档案类数据，非营期打卡）。
+const chronicGroup = ref<ChronicGroupKey>('bp');
+const chronicRows = computed(() => (store.selectedStudentId ? store.getStudentChronicRecords(store.selectedStudentId) : []));
+const chronicGender = computed(() => (store.selectedStudentId ? store.students.find((s) => s.id === store.selectedStudentId)?.gender : undefined));
+const chronicRate = computed(() => groupRate(chronicRows.value, chronicGroup.value, chronicGender.value));
+const chronicMeta = computed(() => CHRONIC_GROUPS.find((x) => x.key === chronicGroup.value)!);
+const chronicAccent = computed(() => CHRONIC_ACCENT[chronicGroup.value]);
+const chronicDisplayDefs = computed(() => groupFields(chronicGroup.value).filter((f) => f.display));
 
 // Medical tab
 // Medical tab - built from dynamic metric configs + per-student mock values, gender-aware
@@ -333,6 +346,22 @@ const openReport = (r: any) => {
         </button>
       </div>
 
+      <!-- 快捷处理入口：报告解读 / 日常咨询（跳转对应处理页） -->
+      <div class="flex gap-2">
+        <button
+          class="flex-1 flex items-center justify-center gap-1.5 bg-[#0B6BCB]/8 border border-[#0B6BCB]/20 text-[#0B6BCB] text-sm font-bold rounded-xl py-2.5 active:bg-[#0B6BCB]/15"
+          @click="store.setCurrentView('doctor-interpretation')"
+        >
+          <FileSearch class="w-4 h-4" /> 报告解读
+        </button>
+        <button
+          class="flex-1 flex items-center justify-center gap-1.5 bg-[#FF976A]/10 border border-[#FF976A]/25 text-[#FF976A] text-sm font-bold rounded-xl py-2.5 active:bg-[#FF976A]/20"
+          @click="store.setCurrentView('doctor-consult')"
+        >
+          <MessageSquareText class="w-4 h-4" /> 日常咨询
+        </button>
+      </div>
+
     </div>
 
     <!-- Tab 栏：独立 sticky，滚动时固定在顶部 -->
@@ -351,10 +380,18 @@ const openReport = (r: any) => {
           运动打卡
         </button>
         <button
+          v-if="store.enabledServices.bmi"
           :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'weight' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
           @click="activeTab = 'weight'"
         >
           体重打卡
+        </button>
+        <button
+          v-if="store.enabledServices.chronic"
+          :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'chronic' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
+          @click="activeTab = 'chronic'"
+        >
+          健康指标
         </button>
         <button
           :class="['py-3 text-sm font-bold border-b-2 transition-colors shrink-0', activeTab === 'medical' ? 'border-[#0B6BCB] text-[#0B6BCB]' : 'border-transparent text-gray-500 hover:text-gray-900']"
@@ -771,6 +808,99 @@ const openReport = (r: any) => {
             </div>
           </Card>
         </div>
+      </template>
+
+      <!-- 健康指标（五高）Tab：只读展示，不加批注（与学员端趋势/历史一致，渐进式） -->
+      <template v-if="activeTab === 'chronic' && store.enabledServices.chronic">
+        <!-- 六指标族切换 -->
+        <div class="flex gap-2 overflow-x-auto whitespace-nowrap no-scrollbar pb-1">
+          <button
+            v-for="g in CHRONIC_GROUPS"
+            :key="g.key"
+            :class="['px-3 py-1.5 text-xs font-bold rounded-full border transition-colors shrink-0', chronicGroup === g.key ? 'text-white border-transparent' : 'text-gray-600 border-gray-200 bg-white']"
+            :style="chronicGroup === g.key ? `background:${CHRONIC_ACCENT[g.key]}` : ''"
+            @click="chronicGroup = g.key"
+          >
+            {{ g.title }}
+          </button>
+        </div>
+
+        <!-- 该指标族累计达标率概览 -->
+        <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-500">累计达标率</span>
+              <ChartRulePopup title="累计达标率 · 计算规则">
+                <p>达标率 = 达标次数 ÷ 测量总次数 × 100%。</p>
+                <p>每次记录会逐项对照参考区间判定每个血压 / 血糖 / 血脂等字段：参考范围内的算「达标」。每个有值字段计 1 次测量，达标 1 次 +1；同一天记录多次也分别计入，不做天数去重。</p>
+                <p>百分比四舍五入到整数。下方「达标 X 次 / 测量 Y 次」即达标次数与测量总次数。</p>
+              </ChartRulePopup>
+            </span>
+            <span class="text-[11px] font-bold tabular-nums" :style="`color:${chronicAccent}`">{{ chronicRate.rate }}%</span>
+          </div>
+          <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden mb-1">
+            <div class="h-full rounded-full transition-all" :style="`width:${chronicRate.rate}%; background:${chronicAccent}`"></div>
+          </div>
+          <div class="text-[10px] text-gray-400">达标 {{ chronicRate.normal }} 次 / 测量 {{ chronicRate.total }} 次</div>
+        </div>
+
+        <!-- 图例 + 计算规则 -->
+        <div class="flex items-center justify-between px-1">
+          <div class="flex items-center gap-2.5">
+            <span class="flex items-center gap-1 text-[10px] text-gray-500"><i class="w-2 h-2 rounded-full" style="background:#10B981"></i>达标</span>
+            <span class="flex items-center gap-1 text-[10px] text-gray-500"><i class="w-2 h-2 rounded-full" style="background:#A5772D"></i>关注</span>
+            <span class="flex items-center gap-1 text-[10px] text-gray-500"><i class="w-2 h-2 rounded-full" style="background:#B6523E"></i>异常</span>
+            <span class="flex items-center gap-1 text-[10px] text-gray-500"><i class="w-3.5 h-1.5 rounded-sm" style="background:#10B981;opacity:.7"></i>达标区</span>
+          </div>
+          <ChartRulePopup :title="chronicMeta.title + '趋势 · 计算规则'">
+            <p><b>绿色色带（达标区）</b><br/>这条指标的参考区间，数值落在这条带内即为「达标」；淡绿色虚线标出参考区间的上 / 下边界数值。</p>
+            <p><b>数据点颜色</b><br/>每个圆点是一次记录的数值，颜色按当次档位：绿=达标、琥珀=关注、砖红=异常，可点击查看当次全部明细。</p>
+            <p><b>折线与时间轴</b><br/>折线连接各次记录展示变化趋势；底部 MM-dd 为记录日期。</p>
+            <p><b>底部统计</b>：最近值、较上一次的增减、期间最低、期间最高、平均值（保留 1 位小数，数据过少时部分缺省）。</p>
+            <p>档位判定以各指标参考区间为准（默认演示值，非医疗诊断，仅供参考）。</p>
+          </ChartRulePopup>
+        </div>
+
+        <!-- 每项指标趋势（复用共享组件，与学员端一致） -->
+        <ChronicTrendChart
+          v-for="def in chronicDisplayDefs"
+          :key="def.key"
+          :def="def"
+          :records="chronicRows"
+          :gender="chronicGender"
+          :accent="chronicAccent"
+        />
+
+        <!-- 历次记录明细（只读） -->
+        <div class="text-xs font-bold text-gray-500 px-1 pt-1">历次记录（{{ chronicRows.length }}）</div>
+        <div v-if="chronicRows.length > 0" class="space-y-2">
+          <div
+            v-for="r in chronicRows"
+            :key="r.id"
+            class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-gray-700">{{ r.date.slice(0, 16) }}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full" :class="LEVEL_META[judgeGroup(r.values, chronicGroup, chronicGender).level].bg + ' ' + LEVEL_META[judgeGroup(r.values, chronicGroup, chronicGender).level].text">
+                {{ LEVEL_META[judgeGroup(r.values, chronicGroup, chronicGender).level].label }}
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div
+                v-for="f in judgeGroup(r.values, chronicGroup, chronicGender).fields"
+                :key="f.key"
+                class="flex-1 min-w-[5.5rem] rounded-xl px-3 py-2"
+                :class="LEVEL_META[f.level].bg"
+              >
+                <div class="text-[9px] text-gray-500">{{ f.label }}</div>
+                <div class="text-base font-bold tabular-nums mt-0.5" :class="LEVEL_META[f.level].text">
+                  {{ f.value }} <span class="text-[9px] font-normal">{{ f.unit }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="text-center text-xs text-gray-400 py-10">该学员健康指标暂无记录</div>
       </template>
 
       <!-- Medical tab -->

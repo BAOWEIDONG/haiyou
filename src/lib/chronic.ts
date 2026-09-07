@@ -207,3 +207,132 @@ export function calcBmi(weight?: number, height?: number): number | null {
   const m = height / 100;
   return Math.round((weight / (m * m)) * 10) / 10;
 }
+
+// ============================================================================
+//  趋势图几何（学员端健康指标详情 + 营养师端学员档案共用，保证展示一致）
+// ============================================================================
+
+/** 六指标族强调色 */
+export const CHRONIC_ACCENT: Record<ChronicGroupKey, string> = {
+  bp: '#0B6BCB', glucose: '#10B981', lipid: '#FF976A', uric: '#8B5CF6', bmi: '#12B5C2', hcy: '#A5772D',
+};
+
+/** 参考区间文案 → 数值边界（兼容「<x」「a ～ b」「≥x」「男<420 / 女<360」） */
+export function parseRef(range: string, gender?: string): { lo?: number; hi?: number } {
+  let r = range.replace(/[理想核心管理参考\s]/g, '');
+  if (r.includes('/') && gender) {
+    // 男<420 / 女<360 形式：按性别取对应段
+    const seg = gender === 'female' ? r.match(/女(<|>=|>)([\d.]+)/) : r.match(/男(<|>=|>)([\d.]+)/);
+    if (seg) r = seg[0];
+  }
+  const two = r.match(/([\d.]+)\s*～\s*([\d.]+)/);
+  if (two) return { lo: parseFloat(two[1]), hi: parseFloat(two[2]) };
+  const lt = r.match(/<([\d.]+)/);
+  const gt = r.match(/(≥|>=)([\d.]+)/);
+  if (lt) return { hi: parseFloat(lt[1]) };
+  if (gt) return { lo: parseFloat(gt[1]) };
+  return {};
+}
+
+/** 趋势图画布尺寸 */
+export const TREND_CW = 320, TREND_CH = 158, TREND_ML = 34, TREND_MR = 10, TREND_MT = 18, TREND_MB = 40;
+
+export interface TrendPoint { x: number; y: number; v: number; level: AlarmLevel; date: string; }
+export interface FieldTrend {
+  def: ChronicFieldDef;
+  ref: { lo?: number; hi?: number };
+  points: TrendPoint[];
+  xLabels: { x: number; label: string; anchor: 'start' | 'end' | 'middle' }[];
+  line: string;
+  area: string;
+  ticks: { y: number; label: number }[];
+  band: { yTop: number; yBot: number } | null;
+  refLines: { y: number; label: string }[];
+  latest: number | null;
+  min: number | null;
+  max: number | null;
+  avg: number | null;
+  delta: number | null;
+}
+
+export function buildFieldTrend(def: ChronicFieldDef, series: { date: string; v: number }[], gender?: string): FieldTrend {
+  const ref = parseRef(def.range, gender);
+  const ptsRaw = series.map((s) => ({ v: s.v, date: s.date, level: levelOf(def.key, s.v, gender) }));
+  const CW = TREND_CW, CH = TREND_CH, ML = TREND_ML, MR = TREND_MR, MT = TREND_MT, MB = TREND_MB;
+
+  let loAll = Math.min(...ptsRaw.map((p) => p.v));
+  let hiAll = Math.max(...ptsRaw.map((p) => p.v));
+  if (ref.lo != null) loAll = Math.min(loAll, ref.lo);
+  if (ref.hi != null) hiAll = Math.max(hiAll, ref.hi);
+  let span = hiAll - loAll;
+  if (!isFinite(span) || span <= 0) span = 1;
+  const pad = Math.max(span * 0.18, 1);
+  const yMin = loAll - pad;
+  const yMax = hiAll + pad;
+
+  const n = ptsRaw.length;
+  const x = (i: number) => (n === 1 ? ML + (CW - ML - MR) / 2 : ML + (i * (CW - ML - MR)) / (n - 1));
+  const y = (v: number) => MT + ((yMax - v) / (yMax - yMin)) * (CH - MT - MB);
+
+  const points: TrendPoint[] = ptsRaw.map((p, i) => ({ x: x(i), y: y(p.v), v: p.v, level: p.level, date: p.date }));
+
+  // 稀疏时间轴标签：最多约 6 个（首尾必显示）
+  const xLabels: FieldTrend['xLabels'] = [];
+  if (points.length > 0) {
+    const step = Math.max(1, Math.ceil(points.length / 6));
+    points.forEach((p, i) => {
+      if (i === 0 || i === points.length - 1 || i % step === 0) {
+        const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
+        xLabels.push({ x: p.x, label: p.date.slice(5, 10), anchor: anchor as 'start' | 'end' | 'middle' });
+      }
+    });
+  }
+
+  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const area = points.length
+    ? `${line} L${points[points.length - 1].x.toFixed(1)},${CH - MB} L${points[0].x.toFixed(1)},${CH - MB} Z`
+    : '';
+
+  // 纵向网格刻度（顶→底 4 条）
+  const decimals = span < 10 ? 1 : 0;
+  const ticks = [0, 1, 2, 3].map((i) => {
+    const v = yMax - ((yMax - yMin) * i) / 3;
+    return { y: MT + (i * (CH - MT - MB)) / 3, label: Number(v.toFixed(decimals)) };
+  });
+
+  // 达标区（normal 区）着色 + 参考线
+  let band: { yTop: number; yBot: number } | null = null;
+  const refLines: { y: number; label: string }[] = [];
+  if (ref.lo != null && ref.hi != null) {
+    const t = y(ref.hi), b = y(ref.lo);
+    band = { yTop: t, yBot: b };
+    refLines.push({ y: t, label: String(ref.hi) }, { y: b, label: String(ref.lo) });
+  } else if (ref.lo != null) {
+    // ≥下限：达标在上方
+    const t = y(ref.lo);
+    band = { yTop: MT, yBot: t };
+    refLines.push({ y: t, label: String(ref.lo) });
+  } else if (ref.hi != null) {
+    // <上限：达标在下方
+    const t = y(ref.hi);
+    band = { yTop: t, yBot: CH - MB };
+    refLines.push({ y: t, label: String(ref.hi) });
+  }
+
+  const vs = ptsRaw.map((p) => p.v);
+  const last = n ? vs[n - 1] : null;
+  const delta = n >= 2 ? Math.round((last! - vs[n - 2]) * 10) / 10 : null;
+
+  return {
+    def, ref,
+    points,
+    xLabels,
+    line, area,
+    ticks, band, refLines,
+    latest: last,
+    min: n ? Math.min(...vs) : null,
+    max: n ? Math.max(...vs) : null,
+    avg: n ? Math.round((vs.reduce((a, b) => a + b, 0) / n) * 10) / 10 : null,
+    delta,
+  };
+}
