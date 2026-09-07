@@ -14,7 +14,7 @@ const store = useAppStore();
 const title = ref('');
 const authorRole = ref<'dietitian' | 'coach'>('dietitian');
 const contentType = ref<'article' | 'video'>('article');
-const category = ref<'exercise' | 'knowledge'>('knowledge');
+const category = ref<string>(store.activityConfig.categories[0]?.key || 'knowledge');
 const cover = ref('');
 const blocks = ref<KnowledgeBlock[]>([]);
 const videoUrl = ref('');
@@ -74,6 +74,9 @@ const publish = () => {
   if (contentType.value === 'video' && !videoUrl.value) { showToast('视频类型请上传视频'); return; }
   const firstText = blocks.value.find((b) => b.type === 'text' && b.text.trim());
   const summaryText = firstText && firstText.type === 'text' ? firstText.text.trim().slice(0, 60) : '';
+  // 发布时若所选分类已被删除，回退到第一个分类
+  const cats = store.activityConfig.categories;
+  const catKey = cats.some((c) => c.key === category.value) ? category.value : (cats[0]?.key || 'knowledge');
   store.addKnowledgeContent({
     title: title.value.trim(),
     summary: summaryText,
@@ -82,7 +85,7 @@ const publish = () => {
     authorRole: authorRole.value,
     authorName: store.user?.name || '运营',
     contentType: contentType.value,
-    category: category.value,
+    category: catKey,
     campIds: [],
     blocks: [...blocks.value],
   });
@@ -110,11 +113,11 @@ const publish = () => {
       <!-- 资讯分类（联动「活动页设置」的分类名称 → 学员端活动页按此分栏展示） -->
       <section>
         <div class="text-xs font-bold text-gray-500 mb-2">资讯分类</div>
-        <p class="text-[10px] text-gray-400 mb-2">学员端活动页顶部的分类名在「活动页设置」维护，本条将展示在对应分类栏。</p>
+        <p class="text-[10px] text-gray-400 mb-2">分类名在营养师端「活动页设置」可自定义增删，本条将展示在学员端活动页对应分类栏。</p>
         <div class="grid grid-cols-2 gap-2">
-          <button v-for="k in (['exercise','knowledge'] as const)" :key="k" @click="category = k"
-            :class="['py-2.5 rounded-xl text-sm font-bold border-2 transition-colors', category === k ? 'border-[#0B6BCB] text-[#0B6BCB] bg-blue-50' : 'border-gray-200 text-gray-500 bg-white']">
-            {{ k === 'exercise' ? store.activityConfig.tabs.exercise : store.activityConfig.tabs.knowledge }}
+          <button v-for="c in store.activityConfig.categories" :key="c.key" @click="category = c.key"
+            :class="['py-2.5 rounded-xl text-sm font-bold border-2 transition-colors', category === c.key ? 'border-[#0B6BCB] text-[#0B6BCB] bg-blue-50' : 'border-gray-200 text-gray-500 bg-white']">
+            {{ c.name }}
           </button>
         </div>
       </section>

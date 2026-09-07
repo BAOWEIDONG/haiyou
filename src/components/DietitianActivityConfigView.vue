@@ -3,26 +3,56 @@ import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
 import { showToast, showConfirmDialog, Popup as VanPopup } from 'vant';
-import { Plus, Save, Pencil, Trash2, UploadCloud, Image as ImageIcon } from 'lucide-vue-next';
+import { Plus, Save, Pencil, Trash2, UploadCloud, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-vue-next';
 import { compressImage } from '../lib/imageCompress';
 import { uploadFile } from '../lib/api';
-import type { ActivityBanner } from '../types';
+import type { ActivityBanner, InfoCategory } from '../types';
 
 /**
- * 营养师端「活动页设置」：① 自定义活动页两个资讯 tab 的名称（学员端活动页顶部分类名）；
+ * 营养师端「活动页设置」：① 自定义资讯分类（可增删、改名的动态列表 → 学员端活动页生成对应分类 tab）；
  * ② 维护活动页顶部 Banner 运营位（图片 + 标题 + 外链跳转，学员端点击跳转）。
  */
 const store = useAppStore();
 
-// ─── 分类名称 ───
-const tabEx = ref(store.activityConfig.tabs.exercise);
-const tabK = ref(store.activityConfig.tabs.knowledge);
-function saveTabs() {
-  const exercise = tabEx.value.trim();
-  const knowledge = tabK.value.trim();
-  if (!exercise || !knowledge) { showToast('两个分类名称都不能为空'); return; }
-  store.setActivityTabNames({ exercise, knowledge });
-  showToast('已保存分类名称');
+// ─── 资讯分类：可增删、改名的动态列表 ───
+/** 本地可编辑副本，保存时统一写回 store（删除走二次确认，至少保留 1 个） */
+const cats = ref<InfoCategory[]>(store.activityConfig.categories.map((c) => ({ key: c.key, name: c.name })));
+function addCat() {
+  cats.value = [...cats.value, { key: `cat_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`, name: '新分类' }];
+}
+function moveCat(i: number, dir: number) {
+  const j = i + dir;
+  if (j < 0 || j >= cats.value.length) return;
+  const arr = [...cats.value];
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  cats.value = arr;
+}
+function onRemoveCat(i: number) {
+  const c = cats.value[i];
+  if (!c) return;
+  showConfirmDialog({
+    title: '删除分类',
+    message: `删除「${c.name || '未命名'}」后，发布到该分类的科普内容将不再在学员端展示，确认删除？`,
+  })
+    .then(() => {
+      const arr = cats.value.filter((_, x) => x !== i);
+      // 至少保留 1 个分类
+      if (arr.length === 0) { showToast('至少保留一个分类'); return; }
+      cats.value = arr;
+      showToast('已删除');
+    })
+    .catch(() => {});
+}
+function setName(i: number, v: string) {
+  const arr = [...cats.value];
+  arr[i] = { ...arr[i], name: v };
+  cats.value = arr;
+}
+function saveCats() {
+  const list = cats.value.map((c) => ({ ...c, name: c.name.trim() }));
+  if (list.some((c) => !c.name)) { showToast('分类名称不能为空'); return; }
+  store.setActivityCategories(list);
+  showToast('已保存分类');
 }
 
 const banners = computed(() => store.activityConfig.banners);
@@ -83,28 +113,32 @@ function onDelete(b: ActivityBanner) {
     <NavBar title="活动页设置" :on-back="store.goBack" />
 
     <div class="p-4 space-y-4">
-      <!-- 资讯分类名称 -->
+      <!-- 资讯分类（可增删、改名；学员端活动页顶部据此生成对应分类 tab） -->
       <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-4">
-        <h3 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
-          <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>资讯分类名称
-        </h3>
-        <div class="flex items-center gap-2">
-          <div
-            :key="tabEx"
-            class="flex-1"
-          >
-            <label class="text-[11px] text-gray-400 mb-1 block">第一个分类（锻炼类）</label>
-            <input v-model="tabEx" type="text" maxlength="8" placeholder="如：锻炼活动"
-              class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0B6BCB] focus:ring-1 focus:ring-[#0B6BCB]/20 outline-none" />
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+            <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>资讯分类
+          </h3>
+          <button @click="addCat" class="text-[#0B6BCB] text-xs font-bold flex items-center gap-0.5 active:opacity-80">
+            <Plus class="w-4 h-4" /> 添加
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-400 mb-3 leading-relaxed">分类可增删、改名、排序；学员端活动页顶部会生成数量一致的分类 tab（第一个分类同时承载教练锻炼活动）。发布科普时按此选择分类。</p>
+
+        <div class="space-y-2.5">
+          <div v-for="(c, i) in cats" :key="c.key" class="flex items-center gap-2">
+            <div class="flex flex-col">
+              <button :disabled="i === 0" @click="moveCat(i, -1)" class="w-5 h-3.5 flex items-center justify-center text-gray-400 active:text-[#0B6BCB] disabled:opacity-30"><ChevronUp class="w-3.5 h-3.5" /></button>
+              <button :disabled="i === cats.length - 1" @click="moveCat(i, 1)" class="w-5 h-3.5 flex items-center justify-center text-gray-400 active:text-[#0B6BCB] disabled:opacity-30"><ChevronDown class="w-3.5 h-3.5" /></button>
+            </div>
+            <input :value="c.name" @input="setName(i, ($event.target as HTMLInputElement).value)" type="text" maxlength="8"
+              :placeholder="`分类 ${i + 1}`"
+              class="flex-1 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0B6BCB] focus:ring-1 focus:ring-[#0B6BCB]/20 outline-none" />
+            <button @click="onRemoveCat(i)" class="p-1.5 text-[#B6523E] active:opacity-70 shrink-0" :disabled="cats.length <= 1"><Trash2 class="w-4 h-4" /></button>
           </div>
         </div>
-        <div class="mt-2">
-          <label class="text-[11px] text-gray-400 mb-1 block">第二个分类（科普类）</label>
-          <input v-model="tabK" type="text" maxlength="8" placeholder="如：健康科普"
-            class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-[#0B6BCB] focus:ring-1 focus:ring-[#0B6BCB]/20 outline-none" />
-        </div>
-        <button @click="saveTabs" class="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#0B6BCB] text-white text-sm font-bold active:opacity-85">
-          <Save class="w-4 h-4" /> 保存分类名称
+        <button @click="saveCats" class="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#0B6BCB] text-white text-sm font-bold active:opacity-85">
+          <Save class="w-4 h-4" /> 保存分类
         </button>
       </div>
 

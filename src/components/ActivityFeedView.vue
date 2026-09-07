@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useAppStore } from '../store/app';
 import { StudentTabbar } from './ui';
 import { Newspaper, PlayCircle, BookOpen } from 'lucide-vue-next';
@@ -13,10 +13,10 @@ const store = useAppStore();
 
 const user = computed(() => store.user);
 
-const feedTab = ref<'exercise' | 'knowledge'>('exercise');
+const feedTab = ref(0); // 资讯分类 tab 下标（学员端活动页按「活动页设置」自定义的分类个数生成对应数量的 tab）
 
-// 两个资讯 tab 的名称由营养师在「活动页设置」自定义（默认 锻炼活动/健康科普）
-const tabs = computed(() => store.activityConfig.tabs);
+// 资讯分类列表（营养师在「活动页设置」自定义增删/改名/排序；tab0 同时承载教练锻炼活动）
+const cats = computed(() => store.activityConfig.categories);
 const banners = computed(() => store.activityConfig.banners);
 
 function openBanner(b: { title: string; image: string; url: string }) {
@@ -78,22 +78,29 @@ onBeforeUnmount(() => { stopAutoBanner(); if (resumeTimer) window.clearTimeout(r
 const feedActivities = computed(() =>
   [...store.coachActivities].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
 );
-/** 萃取知识默认 knowledge（旧数据无 category）；按分类分发到两个 tab -- 与「活动页设置」两款分类名对应 */
-const byCat = (c: 'exercise' | 'knowledge') =>
-  computed(() => store.knowledgeContents.filter((k) => (k.category || 'knowledge') === c));
-const feedExerciseKnowledge = byCat('exercise'); // 锻炼类科普 → 第一个 tab
-const feedKnowledge = byCat('knowledge');        // 科普类 → 第二个 tab
+/** 首个分类 tab key（tab0 的知识兜底：未标注分类的历史内容落第一个分类） */
+const firstCatKey = computed(() => cats.value[0]?.key || 'knowledge');
+/** 当前分类 tab 的知识列表（tab0 = 第一个分类 + 兜底未分类的历史内容；其余 = 各自分类精确匹配） */
+const activeFeed = computed(() => {
+  if (cats.value.length === 0) return [];
+  const key = feedTab.value === 0 ? firstCatKey.value : cats.value[feedTab.value]?.key;
+  return store.knowledgeContents.filter((k) =>
+    feedTab.value === 0 ? (k.category || firstCatKey.value) === firstCatKey.value : k.category === key,
+  );
+});
+// 分类被删除变少时，把当前 tab 钳到合法区间
+watch(cats, () => { if (cats.value.length > 0 && feedTab.value >= cats.value.length) feedTab.value = cats.value.length - 1; });
 
 const ktypeMeta: Record<string, { label: string; cls: string; icon: any }> = {
   article: { label: '图文', cls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]', icon: Newspaper },
   video: { label: '视频', cls: 'bg-purple-50 text-purple-500', icon: PlayCircle },
 };
 
-const feedEmpty = computed(() =>
-  feedTab.value === 'exercise'
-    ? feedActivities.value.length === 0 && feedExerciseKnowledge.value.length === 0
-    : feedKnowledge.value.length === 0,
-);
+const feedEmpty = computed(() => {
+  if (cats.value.length === 0) return true;
+  if (feedTab.value === 0) return feedActivities.value.length === 0 && activeFeed.value.length === 0;
+  return activeFeed.value.length === 0;
+});
 
 const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
@@ -107,10 +114,10 @@ const unreadCount = computed(() =>
         <BookOpen class="w-4 h-4" /> 活动资讯
       </div>
       <h2 class="text-xl font-bold text-gray-900 mt-1">健康活动</h2>
-      <p class="text-[11px] text-gray-500 mt-0.5">{{ tabs.exercise }} · {{ tabs.knowledge }} · 健康指标科普</p>
+      <p class="text-[11px] text-gray-500 mt-0.5">{{ cats.map((c) => c.name).join(' · ') }}</p>
     </div>
 
-    <!-- 顶部 Banner 运营位：约 3:1 自适应 · 与下方图文边缘对齐 · 相邻 slide 模糊提示 · 5s 自动轮播 + 手动滑动 + 圆点 -->
+    <!-- 顶部 Banner 运营位：约 2:1 自适应 · 与下方图文边缘对齐 · 相邻 slide 模糊提示 · 5s 自动轮播 + 手动滑动 + 圆点 -->
     <div v-if="banners.length" class="px-5 pt-2">
       <div
         ref="bannerTrack"
@@ -121,7 +128,7 @@ const unreadCount = computed(() =>
         <button
           v-for="(b, i) in banners" :key="b.id"
           @click="openBanner(b)"
-          class="relative shrink-0 snap-center w-[86%] aspect-[3/1] rounded-2xl overflow-hidden text-left active:opacity-95 shadow-sm transition-all duration-500"
+          class="relative shrink-0 snap-center w-[86%] aspect-[2/1] rounded-2xl overflow-hidden text-left active:opacity-95 shadow-sm transition-all duration-500"
           :class="i === bannerIndex ? '' : 'opacity-80 scale-[0.96] blur-[5px]'"
         >
           <img loading="lazy" decoding="async" v-if="b.image" :src="b.image" class="absolute inset-0 w-full h-full object-cover" alt="" />
@@ -144,21 +151,26 @@ const unreadCount = computed(() =>
       </div>
     </div>
 
-    <div class="px-5 pt-2">
-      <div class="flex gap-2 mb-2">
-        <button @click="feedTab = 'exercise'" :class="['px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors', feedTab === 'exercise' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white shadow-sm' : 'border-transparent text-gray-500 bg-white/60']">
-          {{ tabs.exercise }}
-        </button>
-        <button @click="feedTab = 'knowledge'" :class="['px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors', feedTab === 'knowledge' ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white shadow-sm' : 'border-transparent text-gray-500 bg-white/60']">
-          {{ tabs.knowledge }}
+    <!-- 资讯模块标题（与上方轮播拉开距离，划分模块；样式对齐首页小标题） -->
+    <div class="px-5 pt-6">
+      <div class="flex items-center gap-1.5 px-1 mb-3">
+        <div class="w-1.5 h-4 bg-[#0B6BCB] rounded-full"></div>
+        <h3 class="text-sm font-bold text-gray-900">健康资讯</h3>
+        <span class="text-[10px] text-gray-400 ml-auto">精选健康知识 · 营养 · 运动</span>
+      </div>
+      <!-- 资讯分类 tab（数量随「活动页设置」自定义分类增减） -->
+      <div class="flex gap-2 overflow-x-auto [scrollbar-width:none]">
+        <button v-for="(c, i) in cats" :key="c.key" @click="feedTab = i"
+          :class="['px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors shrink-0', feedTab === i ? 'border-[#0B6BCB] text-[#0B6BCB] bg-white shadow-sm' : 'border-transparent text-gray-500 bg-white/60']">
+          {{ c.name }}
         </button>
       </div>
     </div>
 
     <div class="flex-1 px-5 space-y-3">
-      <!-- 锻炼活动 / 锻炼类科普：图文预览卡片（第一个 tab 混排活动 + 锻炼类知识） -->
+      <!-- 锻炼活动 / 锻炼类科普：图文预览卡片（第一个 tab 混排教练活动 + 该分类科普） -->
       <button
-        v-if="feedTab === 'exercise'"
+        v-if="feedTab === 0"
         v-for="a in feedActivities" :key="'act' + a.id"
         @click="store.openArticle('activity', a)"
         class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform"
@@ -179,9 +191,9 @@ const unreadCount = computed(() =>
         </div>
       </button>
 
-      <!-- 健康科普（当前 tab 分类匹配）：图文预览卡片 -->
+      <!-- 健康科普（当前分类 tab 匹配）：图文预览卡片 -->
       <button
-        v-for="k in (feedTab === 'exercise' ? feedExerciseKnowledge : feedKnowledge)" :key="k.id"
+        v-for="k in activeFeed" :key="k.id"
         @click="store.openArticle('knowledge', k)"
         class="w-full text-left bg-white rounded-2xl overflow-hidden border border-white/70 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-transform"
       >
@@ -200,7 +212,7 @@ const unreadCount = computed(() =>
       </button>
 
       <div v-if="feedEmpty" class="text-center text-xs text-gray-400 py-16">
-        {{ feedTab === 'exercise' ? '暂无锻炼活动' : '暂无健康科普' }}
+        {{ feedTab === 0 ? '暂无锻炼活动与内容' : `暂无「${cats[feedTab]?.name || ''}」分类内容` }}
       </div>
     </div>
 

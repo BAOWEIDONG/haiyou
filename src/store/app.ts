@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
-import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues, ActivityBanner } from '../types';
+import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues, ActivityBanner, InfoCategory } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
   MOCK_DIET_RECORDS,
@@ -146,16 +146,23 @@ export const useAppStore = defineStore('app', () => {
   function setServiceEnabled(service: 'bmi' | 'chronic', v: boolean) {
     enabledServices.value = { ...enabledServices.value, [service]: v };
   }
-  /** 活动页配置：两个资讯 tab 的自定义名称 + 顶部 Banner 运营位（营养师在「活动页设置」维护） */
-  const activityConfig = ref<{ tabs: { exercise: string; knowledge: string }; banners: ActivityBanner[] }>({
-    tabs: { exercise: '锻炼活动', knowledge: '健康科普' },
+  /** 默认资讯分类（与 mock 知识 category key 对应） */
+  const DEFAULT_CATEGORIES: InfoCategory[] = [
+    { key: 'exercise', name: '锻炼活动' },
+    { key: 'knowledge', name: '健康科普' },
+  ];
+  /** 活动页配置：可自定义增删的资讯分类列表 + 顶部 Banner 运营位（营养师在「活动页设置」维护） */
+  const activityConfig = ref<{ categories: InfoCategory[]; banners: ActivityBanner[] }>({
+    categories: [...DEFAULT_CATEGORIES],
     banners: [
-      { id: 'banner_1', title: '健康科普季 · 慢病预防', image: '', url: '' },
-      { id: 'banner_2', title: '科学减重训练营', image: '', url: '' },
+      { id: 'banner_1', title: '健康科普季 · 慢病预防', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&q=60', url: '' },
+      { id: 'banner_2', title: '科学饮食 · 均衡营养', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=60', url: '' },
+      { id: 'banner_3', title: '科学减重训练营', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=60', url: '' },
     ],
   });
-  function setActivityTabNames(tabs: { exercise: string; knowledge: string }) {
-    activityConfig.value = { ...activityConfig.value, tabs };
+  function setActivityCategories(categories: InfoCategory[]) {
+    const list = categories.length > 0 ? categories : [...DEFAULT_CATEGORIES];
+    activityConfig.value = { ...activityConfig.value, categories: list };
   }
   function addActivityBanner(b: { title: string; image: string; url: string }) {
     activityConfig.value = { ...activityConfig.value, banners: [...activityConfig.value.banners, { id: `ban_${Date.now()}_${_seq.n++}`, ...b }] };
@@ -244,6 +251,14 @@ export const useAppStore = defineStore('app', () => {
       bizSources.forEach((src, i) => {
         if (snap[bizNames[i]] !== undefined) { (src as { value: unknown }).value = snap[bizNames[i]]; hasData = true; }
       });
+      // 迁移：旧版 activityConfig 仅 {tabs,banners} 无 categories → 归一为默认分类（保留已维护的 banners）
+      const ac = activityConfig.value as { categories?: unknown; banners?: unknown };
+      if (!Array.isArray(ac?.categories)) {
+        activityConfig.value = {
+          categories: [...DEFAULT_CATEGORIES],
+          banners: Array.isArray(ac?.banners) ? (ac.banners as ActivityBanner[]) : [],
+        };
+      }
       return hasData;
     } catch { return false; }
   }
@@ -1127,7 +1142,7 @@ export const useAppStore = defineStore('app', () => {
     enabledServices,
     setServiceEnabled,
     activityConfig,
-    setActivityTabNames,
+    setActivityCategories,
     addActivityBanner,
     updateActivityBanner,
     removeActivityBanner,

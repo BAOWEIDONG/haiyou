@@ -5,7 +5,7 @@ import { useDebounced } from '../composables/useDebounced';
 import { useAppStore } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, DietitianTabbar } from './ui';
-import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren, FileText, MessageCircleQuestion } from 'lucide-vue-next';
+import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren, MessageCircleQuestion } from 'lucide-vue-next';
 import { judgeRecord } from '../lib/chronic';
 import { Popup as VanPopup } from 'vant';
 
@@ -159,22 +159,7 @@ const interpretationPendingCount = computed(() => store.getOpenInterpretations()
         <span class="text-[#B6523E] font-bold text-lg">›</span>
       </button>
 
-      <!-- 体检报告健康档案转录横幅 -->
-      <button
-        @click="store.setCurrentView('report-transcribe')"
-        class="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-[#0B6BCB]/10 to-[#12B5C2]/10 border border-[#0B6BCB]/25 text-left active:opacity-90 transition-opacity"
-      >
-        <div class="h-10 w-10 rounded-xl bg-[#0B6BCB] flex items-center justify-center shrink-0">
-          <FileText class="h-5 w-5 text-white" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="text-sm font-bold text-[#0B6BCB]">{{ reportPendingCount }} 份体检报告待解读</div>
-          <div class="text-[11px] text-gray-500 mt-0.5">录入学员健康档案 · 点击查看</div>
-        </div>
-        <span class="text-[#0B6BCB] font-bold text-lg">›</span>
-      </button>
-
-      <!-- 报告健康解读（解读聊天窗口） -->
+      <!-- 报告待解读（合并：体检报告·健康档案转录 + 报告健康解读·解读对话 → 解读页） -->
       <button
         @click="store.setCurrentView('doctor-interpretation')"
         class="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-[#0B6BCB]/10 to-[#8B5CF6]/10 border border-[#0B6BCB]/25 text-left active:opacity-90 transition-opacity"
@@ -183,8 +168,8 @@ const interpretationPendingCount = computed(() => store.getOpenInterpretations()
           <MessageCircleQuestion class="h-5 w-5 text-white" />
         </div>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-bold text-[#0B6BCB]">{{ interpretationPendingCount }} 份报告待解读</div>
-          <div class="text-[11px] text-gray-500 mt-0.5">报告健康解读 · 点击进入解读对话</div>
+          <div class="text-sm font-bold text-[#0B6BCB]">{{ reportPendingCount + interpretationPendingCount }} 份报告待解读</div>
+          <div class="text-[11px] text-gray-500 mt-0.5">{{ reportPendingCount }} 份档案转录 · {{ interpretationPendingCount }} 份解读对话 · 点击进入</div>
         </div>
         <span class="text-[#0B6BCB] font-bold text-lg">›</span>
       </button>

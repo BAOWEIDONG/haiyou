@@ -344,6 +344,12 @@ export interface ConsultThread {
   read?: boolean;
 }
 
+/** 活动页资讯分类（营养师在「活动页设置」自定义增删 → 学员端活动页顶部据此生成 N 个分类 tab） */
+export interface InfoCategory {
+  key: string;
+  name: string;
+}
+
 /** 医院健康知识内容（D8 知识发布 / U9 内容订阅 / O5 内容管理） */
 export interface KnowledgeContent {
   id: string;
@@ -355,9 +361,9 @@ export interface KnowledgeContent {
   authorName: string;
   /** 知识分类：科普图文 / 短视频 */
   contentType: 'article' | 'video';
-  /** 资讯分类：对应「活动页设置」两个资讯 tab（exercise=锻炼类 / knowledge=科普类）。
-   *  默认 knowledge；发布时用活动页设置的两个自定义名称挑选。学员端活动页按此分类分栏展示。 */
-  category?: 'exercise' | 'knowledge';
+  /** 资讯分类 key：对应「活动页设置」里可自定义增删的资讯分类（InfoCategory.key）。
+   *  默认取第一个分类；发布时用活动页设置的分类名挑选。学员端活动页按此分类分栏展示。 */
+  category?: string;
   createdAt: string;
   videoUrls?: string[];
   /** 可见范围：空/未填 = 全部订阅用户可见（内部置空） */
