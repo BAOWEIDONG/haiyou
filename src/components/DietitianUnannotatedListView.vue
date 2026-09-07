@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useAppStore } from '../store/app';
 import { campDateRange, latestOrFirstId } from '../lib/camps';
 import { usePaged } from '../composables/usePaged';
-import { UserCircle, Coffee, Clock, Activity, Scale, Video, ChevronDown } from 'lucide-vue-next';
+import { UserCircle, Coffee, Clock, Activity, Scale, Video, ChevronDown, FileSearch, MessageSquareText } from 'lucide-vue-next';
 import { Popup as VanPopup } from 'vant';
 import type { DietRecord, WeightRecord } from '../types';
 import { DietitianTabbar } from './ui';
@@ -111,6 +111,10 @@ const countByType = computed(() => ({
   weight: allItems.value.filter((i) => i.type === 'weight').length,
 }));
 
+// 报告解读 / 健康答疑 快捷入口徽标（与本批注区并列的待处理数）
+const openInterpretations = computed(() => store.getOpenInterpretations().length);
+const openThreads = computed(() => store.getOpenThreads().length);
+
 // 按学员分组统计（基于当前筛选结果）
 const studentGroups = computed(() => {
   const map = new Map<string, UnifiedItem[]>();
@@ -209,6 +213,43 @@ const typeConfig: Record<ItemType, { label: string; bg: string; text: string; ic
         >
           <div class="text-lg font-bold text-[#0B6BCB]">{{ countByType.weight }}</div>
           <div class="text-[10px] text-gray-500">体重待批注</div>
+        </div>
+      </div>
+
+      <!-- 批注旁快捷入口：报告解读 / 健康答疑（跳转对应处理页） -->
+      <div>
+        <div class="text-xs font-bold text-gray-500 px-1 mb-2">快捷处理</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            @click="store.setCurrentView('doctor-interpretation')"
+            class="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-gray-100 text-left active:bg-gray-50 transition-colors"
+          >
+            <div class="h-9 w-9 rounded-xl bg-[#0B6BCB]/10 text-[#0B6BCB] flex items-center justify-center shrink-0">
+              <FileSearch class="h-5 w-5" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                报告解读
+                <span v-if="openInterpretations > 0" class="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B6BCB] text-white shrink-0">{{ openInterpretations }}</span>
+              </div>
+              <div class="text-[10px] text-gray-400 mt-0.5">待解读报告</div>
+            </div>
+          </button>
+          <button
+            @click="store.setCurrentView('doctor-consult')"
+            class="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-gray-100 text-left active:bg-gray-50 transition-colors"
+          >
+            <div class="h-9 w-9 rounded-xl bg-[#FF976A]/12 text-[#FF976A] flex items-center justify-center shrink-0">
+              <MessageSquareText class="h-5 w-5" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                健康答疑
+                <span v-if="openThreads > 0" class="text-[10px] px-1.5 py-0.5 rounded-full bg-[#FF976A] text-white shrink-0">{{ openThreads }}</span>
+              </div>
+              <div class="text-[10px] text-gray-400 mt-0.5">待回复留言</div>
+            </div>
+          </button>
         </div>
       </div>
 

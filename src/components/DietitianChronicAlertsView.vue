@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
-import { Siren, HeartPulse, Activity, Droplet, CircleDot, Gauge, ChevronRight } from 'lucide-vue-next';
+import { Siren, HeartPulse, Activity, Droplet, CircleDot, Gauge } from 'lucide-vue-next';
 import type { ChronicGroupKey, AlarmLevel } from '../lib/chronic';
 import { judgeRecord, CHRONIC_GROUPS, fieldDef, LEVEL_META, type FieldJudge } from '../lib/chronic';
 
@@ -70,6 +70,12 @@ const list = computed<AlertItem[]>(() => {
 
 const rank = (x: AlarmLevel) => (x === 'normal' ? 0 : x === 'off' ? 1 : 2);
 const maskPhone = (p: string) => p.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+
+/** 跳转该学员个人档案（营养师端学员详情） */
+function openProfile(studentId: string) {
+  store.setSelectedStudentId(studentId);
+  store.setCurrentView('dietitian-student-detail');
+}
 </script>
 
 <template>
@@ -114,9 +120,17 @@ const maskPhone = (p: string) => p.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
                   </span>
                 </div>
               </div>
-              <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
             </div>
           </button>
+          <div class="flex items-center justify-between px-4 pb-3 -mt-1">
+            <span class="text-[10px] text-gray-400">最近一次测量 · {{ p.date.slice(0, 16) }}</span>
+            <button
+              @click="openProfile(p.studentId)"
+              class="flex items-center gap-1 text-[11px] font-bold text-[#0B6BCB] border border-[#0B6BCB]/25 bg-[#0B6BCB]/5 px-2.5 py-1 rounded-full active:bg-[#0B6BCB]/15 transition-colors"
+            >
+              查看档案 ›
+            </button>
+          </div>
 
           <div v-if="openId === p.studentId" class="border-t border-gray-100 p-4 space-y-2">
             <div class="text-[10px] text-gray-400 mb-2">最近一次测量 · {{ p.date.slice(0, 16) }} · {{ maskPhone(p.phone) }}</div>

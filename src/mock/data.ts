@@ -721,6 +721,11 @@ export const MOCK_INTERPRETATION_REQUESTS = [
     question: '最近这周体重下降变慢了，早上空腹血糖也有点波动，想请营养师帮忙看看整体趋势合不合理，饮食还要注意什么。',
     status: 'pending',
     createdAt: iso(-1, '20:15:00'),
+    materialImages: [
+      'https://images.unsplash.com/photo-1579165466741-7f35e4755660?w=800&q=80',
+      'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&q=80',
+      'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&q=80',
+    ],
     exchanges: [],
     read: false,
   },
@@ -735,6 +740,10 @@ export const MOCK_INTERPRETATION_REQUESTS = [
     doctorId: 'd1',
     doctorName: '王营养师',
     answeredAt: iso(-3, '15:40:00'),
+    materialImages: [
+      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80',
+      'https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=800&q=80',
+    ],
     exchanges: [
       {
         text: '从趋势看，你的体重下降了 2.8kg，体脂率同步下降了 1.6 个百分点，减重方向是健康可持续的。接下来进入平台期很常见，建议把力量训练加进每周安排，饮食维持当前蛋白质摄入，体重稳定后保持比继续掉秤更重要。',
