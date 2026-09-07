@@ -15,6 +15,18 @@ const user = computed(() => store.user);
 const rows = computed(() => (user.value ? store.getStudentChronicRecords(user.value.id) : []));
 const latest = computed(() => rows.value[0] || null);
 
+// 最近一次记录的六族健康总览（达标/关注/异常计数），看台相对首页的核心差异化
+const summary = computed(() => {
+  const s = { normal: 0, off: 0, critical: 0, any: false };
+  if (!latest.value) return s;
+  s.any = true;
+  for (const g of CHRONIC_GROUPS) {
+    const lv = judgeGroup(latest.value.values, g.key, user.value?.gender).level;
+    s[lv]++;
+  }
+  return s;
+});
+
 // 六指标族配色
 const ACCENT: Record<ChronicGroupKey, string> = {
   bp: '#0B6BCB',
@@ -57,23 +69,47 @@ function openGroup(g: ChronicGroupKey) {
 
 <template>
   <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
-    <div class="pt-[calc(env(safe-area-inset-top)+2.5rem)] px-5 pb-6">
-      <div class="flex items-end justify-between mb-4">
-        <div>
-          <div class="flex items-center gap-1.5 text-xs font-bold text-[#0B6BCB]">
-            <HeartPulse class="w-4 h-4" /> 健康指标
-          </div>
-          <h2 class="text-xl font-bold text-gray-900 mt-1">{{ user?.name || '我' }}的健康看台</h2>
-          <p class="text-[11px] text-gray-500 mt-0.5">五高指标 · 逐项记录 · 动态跟踪</p>
-        </div>
+    <NavBar title="健康指标看台" :on-back="() => store.goBack()">
+      <template #right>
         <button
           @click="store.setCurrentView('chronic-record')"
-          class="flex items-center gap-1 px-3.5 py-2 rounded-xl text-white text-sm font-bold shadow-sm active:opacity-90"
-          :style="`background:linear-gradient(135deg,#0B6BCB,#12B5C2)`"
+          class="flex items-center gap-1 text-sm font-bold text-[#0B6BCB]"
         >
           <Plus class="w-4 h-4" /> 记录指标
         </button>
-      </div>
+      </template>
+    </NavBar>
+
+    <div class="flex-1 px-4 py-4 space-y-3">
+      <!-- 健康总览：六族判定汇总（看台差异化核心：看"整体健康程度"，而非单项数值） -->
+      <template v-if="summary.any">
+        <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4">
+          <div class="text-xs font-bold text-gray-500 mb-2">最近一次 · 健康总览</div>
+          <div class="flex items-center justify-around">
+            <div class="text-center">
+              <div class="text-xl font-black tabular-nums text-[#10B981]">{{ summary.normal }}</div>
+              <div class="text-[10px] text-gray-400 mt-0.5">达标</div>
+            </div>
+            <div class="w-px h-8 bg-gray-100"></div>
+            <div class="text-center">
+              <div class="text-xl font-black tabular-nums text-[#A5772D]">{{ summary.off }}</div>
+              <div class="text-[10px] text-gray-400 mt-0.5">关注</div>
+            </div>
+            <div class="w-px h-8 bg-gray-100"></div>
+            <div class="text-center">
+              <div class="text-xl font-black tabular-nums text-[#B6523E]">{{ summary.critical }}</div>
+              <div class="text-[10px] text-gray-400 mt-0.5">异常</div>
+            </div>
+            <div class="pl-4 border-l border-gray-100">
+              <div class="text-[10px] text-gray-400 mb-1">最近测量</div>
+              <div class="text-xs font-bold tabular-nums text-gray-700">{{ latest?.date.slice(5, 16) }}</div>
+            </div>
+          </div>
+          <p v-if="summary.critical > 0 || summary.off > 0" class="text-[10px] text-[#B6523E] mt-2">
+            有 {{ summary.critical + summary.off }} 项处于「关注 / 异常」，点击下方卡片查看趋势并持续跟踪。
+          </p>
+        </div>
+      </template>
 
       <!-- 最新总览 -->
       <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-4">
@@ -102,10 +138,8 @@ function openGroup(g: ChronicGroupKey) {
           </div>
         </template>
       </div>
-    </div>
 
-    <div class="flex-1 px-5 space-y-3 -mt-1">
-      <!-- 六指标卡片 -->
+    <!-- 六指标卡片 -->
       <button
         v-for="c in cards"
         :key="c.key"
@@ -139,6 +173,14 @@ function openGroup(g: ChronicGroupKey) {
             <span v-if="c.primaryValue != null && c.primaryLabel" class="text-[10px] text-gray-400 truncate">{{ c.primaryLabel }}</span>
             <span class="ml-auto text-[10px] font-medium" :class="LEVEL_META[c.level].text">达标率 {{ c.rate.rate }}%</span>
           </div>
+          <!-- 达标率进度条（看台差异化：健康程度一眼可见） -->
+          <div v-if="c.rate.total > 0" class="flex items-center gap-2 mt-2">
+            <div class="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+              <div class="h-full rounded-full transition-all" :style="`width:${c.rate.rate}%; background:${c.accent}`"></div>
+            </div>
+            <span class="text-[9px] text-gray-400 shrink-0">{{ c.rate.normal }}/{{ c.rate.total }} 达标</span>
+          </div>
+          <div v-else class="text-[10px] text-gray-400 mt-1.5">记录后展示累计达标率</div>
         </div>
         <ChevronRight class="w-4 h-4 text-gray-300 shrink-0" />
       </button>
