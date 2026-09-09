@@ -2,13 +2,34 @@
 import { ref, computed } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
-import { Siren, HeartPulse, Activity, Droplet, CircleDot, Gauge } from 'lucide-vue-next';
+import { Siren, HeartPulse, Activity, Droplet, CircleDot, Gauge, Send } from 'lucide-vue-next';
+import { Popup as VanPopup, showToast } from 'vant';
 import type { ChronicGroupKey, AlarmLevel } from '../lib/chronic';
 import { judgeRecord, CHRONIC_GROUPS, fieldDef, LEVEL_META, type FieldJudge } from '../lib/chronic';
 
 const store = useAppStore();
 
 const openId = ref<string | null>(null);
+
+// ─── 发起健康随访（大夫端主动联系学员，复用答疑渠道形成闭环） ───
+const showFollowUp = ref(false);
+const followUp = ref<AlertItem | null>(null);
+const followUpText = ref('');
+function openFollowUp(p: AlertItem) {
+  followUp.value = p;
+  showFollowUp.value = true;
+  // 预填：以异常指标概括作为随访切入口，医生可自由改写
+  const parts = p.groups.map((g) => `${g.label}·${LEVEL_META[g.level].label}`).join('、');
+  followUpText.value = `营养师随访：您最近一次检测中${parts}，建议留意日常监测、必要时线下复查；如有疑问或情况变化，可随时在此留言。`;
+}
+function sendFollowUp() {
+  if (!followUp.value) return;
+  if (!followUpText.value.trim()) { showToast('请填写随访内容'); return; }
+  store.doctorInitiateConsult(followUp.value.studentId, followUpText.value);
+  showToast('已发起健康随访，学员端可在消息中心查看并回复');
+  followUp.value = null;
+  showFollowUp.value = false;
+}
 
 /** 单组别色 */
 const ACCOUNT_ICONS: Record<string, typeof Siren> = {
@@ -124,12 +145,20 @@ function openProfile(studentId: string) {
           </button>
           <div class="flex items-center justify-between px-4 pb-3 -mt-1">
             <span class="text-[10px] text-gray-400">最近一次测量 · {{ p.date.slice(0, 16) }}</span>
-            <button
-              @click="openProfile(p.studentId)"
-              class="flex items-center gap-1 text-[11px] font-bold text-[#0B6BCB] border border-[#0B6BCB]/25 bg-[#0B6BCB]/5 px-2.5 py-1 rounded-full active:bg-[#0B6BCB]/15 transition-colors"
-            >
-              查看档案 ›
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                @click="openFollowUp(p)"
+                class="flex items-center gap-1 text-[11px] font-bold text-white bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] px-2.5 py-1 rounded-full active:opacity-90 transition-opacity"
+              >
+                <Send class="w-3 h-3" /> 发起健康随访
+              </button>
+              <button
+                @click="openProfile(p.studentId)"
+                class="flex items-center gap-1 text-[11px] font-bold text-[#0B6BCB] border border-[#0B6BCB]/25 bg-[#0B6BCB]/5 px-2.5 py-1 rounded-full active:bg-[#0B6BCB]/15 transition-colors"
+              >
+                查看档案 ›
+              </button>
+            </div>
           </div>
 
           <div v-if="openId === p.studentId" class="border-t border-gray-100 p-4 space-y-2">
@@ -159,5 +188,34 @@ function openProfile(studentId: string) {
         当前所有学员最近一次测量均达标，无异常预警。
       </div>
     </div>
+
+    <!-- 发起健康随访弹层：给该学员创建一条答疑线程，学员端消息中心收到未读提醒可回复 -->
+    <VanPopup v-model:show="showFollowUp" position="bottom" round class="custom-popup">
+      <div v-if="followUp" class="p-5 space-y-3">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+            <Send class="w-4 h-4 text-[#0B6BCB]" /> 发起健康随访 · {{ followUp.name }}
+          </h3>
+          <span :class="['text-[10px] px-1.5 py-0.5 rounded-full', LEVEL_META[followUp.level].bg, LEVEL_META[followUp.level].text]">
+            {{ LEVEL_META[followUp.level].label }}指标
+          </span>
+        </div>
+        <p class="text-[11px] text-gray-500 leading-relaxed">
+          将给你的留言发到该学员的<b>健康答疑</b>里，学员端消息中心会收到提醒并可回复，医生可继续跟进，形成「异常 → 随访 → 回访」闭环。
+        </p>
+        <textarea
+          v-model="followUpText"
+          rows="4"
+          placeholder="写下随访内容，如建议复查项目、日常注意点…（预填已按异常指标生成，可自由修改）"
+          class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
+        />
+        <button
+          @click="sendFollowUp"
+          class="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90"
+        >
+          <Send class="w-4 h-4" /> 发送随访
+        </button>
+      </div>
+    </VanPopup>
   </div>
 </template>

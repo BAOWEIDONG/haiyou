@@ -13,6 +13,9 @@ import type { StudentReport } from '../types';
  */
 const store = useAppStore();
 
+/** embedded=true 时在「健康待办中心」内联展示：隐藏自身 NavBar、占位高度交给外层	 */
+const props = defineProps<{ embedded?: boolean }>();
+
 const reportStudents = computed(() => store.getReportStudents());
 
 // 当前展开转录的报告
@@ -72,8 +75,8 @@ function saveTranscribe() {
 </script>
 
 <template>
-  <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-10 font-sans">
-    <NavBar title="健康档案转录" :on-back="store.goBack" />
+  <div :class="['flex flex-col bg-[#F7F8FA] pb-10 font-sans', props.embedded ? 'flex-1' : 'min-h-full']">
+    <NavBar v-if="!props.embedded" title="健康档案转录" :on-back="store.goBack" />
 
     <div class="p-4 space-y-3">
       <div class="bg-[#0B6BCB]/5 border-l-2 border-[#0B6BCB] rounded-r-lg p-3 text-xs text-gray-600 leading-relaxed">

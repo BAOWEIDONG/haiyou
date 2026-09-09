@@ -7,6 +7,9 @@ import { MessageCircleQuestion, Users, Send, Phone, ImagePlus, X } from 'lucide-
 import { compressImage } from '../lib/imageCompress';
 
 const store = useAppStore();
+
+/** embedded=true 时在「健康待办中心」内联展示：隐藏自身 NavBar、占位高度交给外层	 */
+const props = defineProps<{ embedded?: boolean }>();
 const openId = ref<string | null>(null);
 const draft = ref('');
 const replyImages = ref<string[]>([]);
@@ -61,8 +64,8 @@ const reply = (id: string) => {
 </script>
 
 <template>
-  <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
-    <NavBar title="报告健康解读" :on-back="() => store.goBack()" />
+  <div :class="['flex flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]', props.embedded ? 'flex-1' : 'min-h-[100dvh]']">
+    <NavBar v-if="!props.embedded" title="报告健康解读" :on-back="() => store.goBack()" />
     <div class="flex-1 px-4 py-4 space-y-3">
       <div class="text-[11px] text-gray-500 rounded-xl bg-blue-50 border border-blue-100 p-3 leading-relaxed">
         用户勾选档案指标后请求解读。解读定位为<b>健康减重建议</b>（非医疗诊断）；详见异常需建议线下复测/就医（就医转介在「预警」入口登记）。

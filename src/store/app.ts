@@ -75,6 +75,7 @@ export type View =
   // 本轮信息架构重构：健康主页改名「活动」信息流 + 体检报告转录
   | 'activity'              // 学员端「活动」tab：科普图文/活动资讯信息流
   | 'report-transcribe'    // 营养师端：学员体检报告转录健康档案
+  | 'dietitian-pending-center' // 营养师端「健康待办」中心：档案转录 + 解读跟进 两 tab
   | 'dietitian-activity-config'; // 营养师「配置」：活动页两个资讯 tab 名称 + 顶部 Banner 运营位
 
 export const useAppStore = defineStore('app', () => {
@@ -951,6 +952,30 @@ export const useAppStore = defineStore('app', () => {
     return consultThreads.value.filter((t) => t.status === 'pending' || t.doctorUnread);
   }
 
+  /** 营养师主动发起健康随访：为某学员创建一条答疑线程（以营养师身份给出首条随访内容），
+   *  学员端消息中心收到未读提醒，可回复 → 医生端再跟进，形成预警→随访→回访的闭环。
+   *  status=answered + read=false 使该线程计入学员未读角标（getStudentMsgUnreadCount）。 */
+  function doctorInitiateConsult(studentId: string, note: string, topic = '异常指标健康随访') {
+    const now = formatDateTimeStr();
+    const text = note.trim();
+    const thread: ConsultThread = {
+      id: `ct_${Date.now()}_${_seq.n++}`,
+      studentId,
+      topic,
+      question: text,                     // 学员端首屏即以本条作为随访正文
+      createdAt: now,
+      status: 'answered',                 // 医生已给出首次随访内容
+      replierId: user.value?.id || 'd1',
+      replierName: user.value?.name || '营养师',
+      replierRole: 'dietitian',
+      replies: [],                        // 学员回复后由 studentReplyConsult 追加
+      doctorUnread: false,                // 医生刚写，自己视为已读
+      read: false,                        // 学员未读 → 消息角标提醒
+    };
+    consultThreads.value.unshift(thread);
+    return thread.id;
+  }
+
   function addKnowledgeContent(data: Omit<KnowledgeContent, 'id' | 'createdAt'>) {
     const k: KnowledgeContent = { ...data, id: `kc_${Date.now()}_${_seq.n++}`, createdAt: formatDateTimeStr() };
     knowledgeContents.value.unshift(k);
@@ -1144,6 +1169,7 @@ export const useAppStore = defineStore('app', () => {
     markThreadDoctorRead,
     getStudentThreads,
     getOpenThreads,
+    doctorInitiateConsult,
     addKnowledgeContent,
     deleteKnowledgeContent,
     studentName,
