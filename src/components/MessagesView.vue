@@ -81,7 +81,7 @@ const commentMessages = computed<MessageItem[]>(() => {
     id: `ex-${r.id}`,
     type: 'coach',
     date: r.coachCommentDate || r.date,
-    title: `${r.coachName || '教练'} 批注了你的运动打卡`,
+    title: `${r.coachName || '康复师'} 批注了你的运动打卡`,
     body: r.coachComment,
     unread: !r.commentRead,
     targetView: 'exercise',
@@ -148,7 +148,7 @@ const isDietitianSource = (type: string) => type === 'dietitian' || type === 'in
 const filters = [
   { key: 'all', label: '全部' },
   { key: 'dietitian', label: '营养师消息' },
-  { key: 'coach', label: '教练批注' },
+  { key: 'coach', label: '康复师批注' },
 ];
 const activeFilter = ref<string>('all');
 const sheetRoot = ref<HTMLElement | null>(null);
@@ -184,7 +184,7 @@ const typeMeta = (type: MessageItem['type']) =>
   type === 'dietitian'
     ? { icon: MessageCircle, cls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]', tag: '营养师批注', tagCls: 'bg-[#0B6BCB]/10 text-[#0B6BCB]' }
     : type === 'coach'
-      ? { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '教练批注', tagCls: 'bg-sky-50 text-sky-500' }
+      ? { icon: Activity, cls: 'bg-sky-50 text-sky-500', tag: '康复师批注', tagCls: 'bg-sky-50 text-sky-500' }
       : type === 'interpretation'
         ? { icon: FileSearch, cls: 'bg-violet-50 text-[#8B5CF6]', tag: '报告解读', tagCls: 'bg-violet-50 text-[#8B5CF6]' }
         : { icon: MessageSquareText, cls: 'bg-teal-50 text-[#12B5C2]', tag: '健康答疑', tagCls: 'bg-teal-50 text-[#12B5C2]' };
@@ -269,7 +269,7 @@ const fmtDate = (d: string) => {
           <Bell class="w-8 h-8 text-gray-300" />
         </div>
         <div class="text-sm font-bold text-gray-600 mb-1">暂无消息</div>
-        <div class="text-xs text-gray-400">营养师/教练的批注反馈，以及报告解读、健康答疑的回复会出现在这里</div>
+        <div class="text-xs text-gray-400">营养师/康复师的批注反馈，以及报告解读、健康答疑的回复会出现在这里</div>
       </div>
 
       <!-- 消息列表 -->

@@ -91,7 +91,7 @@ const cancelExerciseComment = () => {
 const handleSaveExerciseComment = (recordId: string) => {
   store.updateExerciseRecord(recordId, {
     coachComment: exerciseCommentText.value,
-    coachName: store.user?.name || '教练',
+    coachName: store.user?.name || '康复师',
     coachCommentDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
     // 新批注需重置已读，学员端才会亮"新批注"并计入未读数（与营养师批注口径一致）
     commentRead: false,
@@ -386,7 +386,7 @@ onActivated(consumePendingAnnotation);
                 <div v-else-if="record.coachComment" class="relative group">
                   <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-[#0B6BCB]">教练批注</span>
+                      <span class="text-xs font-bold text-[#0B6BCB]">康复师批注</span>
                     </div>
                     <span v-if="record.coachCommentDate" class="text-[10px] text-gray-400">{{ record.coachCommentDate }}</span>
                   </div>

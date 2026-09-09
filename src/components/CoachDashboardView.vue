@@ -146,7 +146,7 @@ const selectCamp = (campId: string | null) => {
           <UserCircle class="h-7 w-7 text-white" />
         </div>
         <div>
-          <h2 class="text-xl font-bold text-gray-900">教练您好，{{ store.user?.name || '教练' }}</h2>
+          <h2 class="text-xl font-bold text-gray-900">康复师您好，{{ store.user?.name || '康复师' }}</h2>
           <p class="text-xs font-bold text-[#0B6BCB] uppercase tracking-wider mt-1">您当前负责 {{ campStudents.length }} 名学员</p>
         </div>
       </div>

@@ -859,7 +859,7 @@ const handleSubmit = () => {
                 <div v-if="record.coachComment" class="mt-3 p-2.5 rounded-lg bg-[#0B6BCB]/5 border border-[#0B6BCB]/10">
                   <div class="flex items-center gap-1.5 mb-1">
                     <MessageCircle class="w-3 h-3 text-[#0B6BCB]" />
-                    <span class="text-[11px] font-bold text-[#0B6BCB]">{{ record.coachName || '教练' }}批注</span>
+                    <span class="text-[11px] font-bold text-[#0B6BCB]">{{ record.coachName || '康复师' }}批注</span>
                     <span v-if="!record.commentRead" class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                   </div>
                   <p class="text-xs text-gray-700 leading-relaxed">{{ record.coachComment }}</p>

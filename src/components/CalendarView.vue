@@ -373,7 +373,7 @@ onMounted(() => {
               </div>
             </div>
             <div v-if="ex.coachComment" class="mt-2 p-2.5 bg-[#0B6BCB]/5 rounded-lg border border-[#0B6BCB]/10">
-              <span class="text-xs font-bold text-[#0B6BCB]">{{ ex.coachName || '教练' }}批注</span>
+              <span class="text-xs font-bold text-[#0B6BCB]">{{ ex.coachName || '康复师' }}批注</span>
               <p class="text-sm text-gray-700 mt-0.5">{{ ex.coachComment }}</p>
             </div>
           </div>

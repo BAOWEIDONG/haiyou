@@ -90,7 +90,7 @@ const intentLabel = (intensity: number) =>
   <div class="flex min-h-full flex-col bg-[#F7F8FA] pb-24 font-sans">
     <!-- 顶部：白底标题（对标营养师，无渐变弧度） -->
     <div class="pt-[calc(env(safe-area-inset-top)+1.5rem)] px-5 pb-3 bg-white">
-      <h1 class="text-lg font-bold text-gray-900">教练批注</h1>
+      <h1 class="text-lg font-bold text-gray-900">康复师批注</h1>
     </div>
 
     <!-- 服务批次显示条（对标营养师样式，服务批次由首页主控只读展示） -->

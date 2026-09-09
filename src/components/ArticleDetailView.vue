@@ -28,7 +28,7 @@ const ktypeMeta: Record<string, { label: string; cls: string }> = {
 const title = computed(() => (isActivity.value ? activity.value?.title || '' : knowledge.value?.title || ''));
 // 顶部来源名（类似公众号账号名）：锻炼活动 → 教练 / 健康科普 → 作者角色
 const source = computed(() => {
-  if (isActivity.value) return '康复教练 · 锻炼活动';
+  if (isActivity.value) return '康复师 · 锻炼活动';
   const k = knowledge.value;
   if (!k) return '医院健康科普';
   const roleName = k.authorRole ? ROLE_LABEL[k.authorRole] : '';

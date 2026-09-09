@@ -8,7 +8,7 @@ import { Newspaper, Plus, Trash2, Video } from 'lucide-vue-next';
 const store = useAppStore();
 
 const list = computed(() => store.knowledgeContents);
-const roleLabel: Record<string, string> = { dietitian: '营养师', coach: '康复教练' };
+const roleLabel: Record<string, string> = { dietitian: '营养师', coach: '康复师' };
 
 const doRemove = (id: string, name: string) => {
   showConfirmDialog({
@@ -30,7 +30,7 @@ const doRemove = (id: string, name: string) => {
     </NavBar>
     <div class="flex-1 px-4 py-4 space-y-3">
       <div class="text-[11px] text-gray-500 rounded-xl bg-purple-50 border border-purple-100 p-3 leading-relaxed">
-        知识库素材管理：图文/短视频。医生、营养师、康复教练的内容统一在此，按订阅可见范围投放（合规与版权由运营复核）。
+        知识库素材管理：图文/短视频。医生、营养师、康复师的内容统一在此，按订阅可见范围投放（合规与版权由运营复核）。
       </div>
 
       <button

@@ -18,9 +18,7 @@ const followUpText = ref('');
 function openFollowUp(p: AlertItem) {
   followUp.value = p;
   showFollowUp.value = true;
-  // 预填：以异常指标概括作为随访切入口，医生可自由改写
-  const parts = p.groups.map((g) => `${g.label}·${LEVEL_META[g.level].label}`).join('、');
-  followUpText.value = `营养师随访：您最近一次检测中${parts}，建议留意日常监测、必要时线下复查；如有疑问或情况变化，可随时在此留言。`;
+  followUpText.value = ''; // 随访内容留空，由营养师自行填写
 }
 function sendFollowUp() {
   if (!followUp.value) return;
@@ -206,7 +204,7 @@ function openProfile(studentId: string) {
         <textarea
           v-model="followUpText"
           rows="4"
-          placeholder="写下随访内容，如建议复查项目、日常注意点…（预填已按异常指标生成，可自由修改）"
+          placeholder="写下随访内容，如建议复查项目、日常注意点…"
           class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:border-[#0B6BCB] focus:outline-none resize-none"
         />
         <button

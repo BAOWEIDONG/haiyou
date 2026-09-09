@@ -3,7 +3,7 @@ export type Role = 'student' | 'coach' | 'dietitian';
 /** 角色对外展示名（用户端/健康服务团队端共用） */
 export const ROLE_LABEL: Record<Role, string> = {
   student: '学员',
-  coach: '康复教练',
+  coach: '康复师',
   dietitian: '营养师',
 };
 

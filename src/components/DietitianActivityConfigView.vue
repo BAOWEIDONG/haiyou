@@ -123,7 +123,7 @@ function onDelete(b: ActivityBanner) {
             <Plus class="w-4 h-4" /> 添加
           </button>
         </div>
-        <p class="text-[11px] text-gray-400 mb-3 leading-relaxed">分类可增删、改名、排序；学员端活动页顶部会生成数量一致的分类 tab（第一个分类同时承载教练锻炼活动）。发布科普时按此选择分类。</p>
+        <p class="text-[11px] text-gray-400 mb-3 leading-relaxed">分类可增删、改名、排序；学员端活动页顶部会生成数量一致的分类 tab（第一个分类同时承载康复师锻炼活动）。发布科普时按此选择分类。</p>
 
         <div class="space-y-2.5">
           <div v-for="(c, i) in cats" :key="c.key" class="flex items-center gap-2">

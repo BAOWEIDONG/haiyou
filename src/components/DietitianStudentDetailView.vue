@@ -631,7 +631,7 @@ const openReport = (r: any) => {
               <div v-if="record.coachComment" class="relative">
                 <div class="flex items-center justify-between mb-1">
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-[#0B6BCB]">教练批注</span>
+                    <span class="text-xs font-bold text-[#0B6BCB]">康复师批注</span>
                   </div>
                   <span v-if="record.coachCommentDate" class="text-[10px] text-gray-400">{{ record.coachCommentDate }}</span>
                 </div>
@@ -646,7 +646,7 @@ const openReport = (r: any) => {
               </div>
               <div v-else class="text-xs text-gray-400 flex items-center gap-1">
                 <MessageCircle class="w-3 h-3" />
-                暂无教练批注
+                暂无康复师批注
               </div>
             </div>
           </Card>

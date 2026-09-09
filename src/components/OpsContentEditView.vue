@@ -21,7 +21,7 @@ const videoUrl = ref('');
 
 const uploads = ref(0);
 
-const roleLabel: Record<string, string> = { dietitian: '营养师', coach: '康复教练' };
+const roleLabel: Record<string, string> = { dietitian: '营养师', coach: '康复师' };
 
 // 上传控件
 const coverInput = ref<HTMLInputElement | null>(null);

@@ -96,7 +96,7 @@ for (let i = -(COMPLETE_DAYS - 1); i <= 0; i++) {
     photos: i % 2 === 0 ? ['https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80'] : undefined,
     coachComment: i < 0 ? (i % 2 === 0 ? '配速不错，继续保持。' : '动作标准，力量稳步提升。') : undefined,
     coachCommentDate: i < 0 ? iso(i, '21:00:00') : undefined,
-    coachName: i < 0 ? '李教练' : undefined,
+    coachName: i < 0 ? '李康复师' : undefined,
   });
 }
 
@@ -231,7 +231,7 @@ MOCK_EXERCISE_RECORDS.push(
     duration: 40,
     intensity: 2,
     coachComment: '核心收紧得很好，拉伸很到位，继续保持！',
-    coachName: '李教练',
+    coachName: '李康复师',
     coachCommentDate: iso(0, '20:30:00'),
   },
   {
@@ -381,7 +381,7 @@ export const MOCK_COACH_ACTIVITIES: CoachActivityRecord[] = [
       'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80',
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'
     ],
-    coachName: '李教练',
+    coachName: '李康复师',
     date: dateStr(0),
     videoUrls: ['http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'],
   },
@@ -393,7 +393,7 @@ export const MOCK_COACH_ACTIVITIES: CoachActivityRecord[] = [
       'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80',
       'https://images.unsplash.com/photo-1599901860904-17e08c2d159a?w=800&q=80'
     ],
-    coachName: '王教练',
+    coachName: '王康复师',
     date: dateStr(-1),
     campIds: ['camp1'],
   },
@@ -406,7 +406,7 @@ export const MOCK_COACH_ACTIVITIES: CoachActivityRecord[] = [
       'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80',
       'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80'
     ],
-    coachName: '张教练',
+    coachName: '张康复师',
     date: dateStr(-2),
   }
 ];
@@ -690,9 +690,9 @@ export const MOCK_ACCOUNTS: Account[] = [
   { id: 'd1', phone: '13900000001', name: '王营养师', role: 'dietitian', active: true, createdAt: iso(-30, '09:00:00') },
   { id: 'd2', phone: '13900000002', name: '李营养师', role: 'dietitian', active: true, createdAt: iso(-20, '09:00:00') },
   // 教练
-  { id: 'c1', phone: '13700000001', name: '李教练', role: 'coach', campIds: ['camp1'], active: true, createdAt: iso(-28, '10:00:00') },
-  { id: 'c2', phone: '13700000002', name: '王教练', role: 'coach', campIds: ['camp1', 'camp2'], active: true, createdAt: iso(-28, '10:00:00') },
-  { id: 'c3', phone: '13700000003', name: '张教练', role: 'coach', active: true, createdAt: iso(-28, '10:00:00') },
+  { id: 'c1', phone: '13700000001', name: '李康复师', role: 'coach', campIds: ['camp1'], active: true, createdAt: iso(-28, '10:00:00') },
+  { id: 'c2', phone: '13700000002', name: '王康复师', role: 'coach', campIds: ['camp1', 'camp2'], active: true, createdAt: iso(-28, '10:00:00') },
+  { id: 'c3', phone: '13700000003', name: '张康复师', role: 'coach', active: true, createdAt: iso(-28, '10:00:00') },
   // 学员（id 与 MOCK_STUDENTS 一致，确保登录后能关联到打卡/体重/检测数据）
   { id: 's1', phone: '13800000001', name: '李明', role: 'student', campIds: ['camp1'], active: true, createdAt: iso(-15, '08:00:00') },
   { id: 's2', phone: '13800000002', name: '王丽', role: 'student', campIds: ['camp1'], active: true, createdAt: iso(-15, '08:00:00') },
@@ -819,10 +819,10 @@ export const MOCK_KNOWLEDGE_CONTENTS = [
   {
     id: 'kc3',
     title: '每天 10 分钟办公室康复拉伸',
-    summary: '久坐人群的肩颈放松与核心激活示范，由康复教练录制。',
+    summary: '久坐人群的肩颈放松与核心激活示范，由康复师录制。',
     imageUrls: [],
     authorRole: 'coach',
-    authorName: '李教练',
+    authorName: '李康复师',
     contentType: 'article',
     category: 'exercise',
     createdAt: iso(-8, '09:00:00'),

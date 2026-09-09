@@ -75,7 +75,7 @@ export async function login(phone: string, code: string, role: User['role']): Pr
     return {
       id: role === 'student' ? 's1' : `usr_${Date.now()}`,
       role,
-      name: role === 'student' ? '李明' : role === 'coach' ? '李教练' : '王营养师',
+      name: role === 'student' ? '李明' : role === 'coach' ? '李康复师' : '王营养师',
       phone,
     };
   }

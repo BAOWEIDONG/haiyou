@@ -105,7 +105,7 @@ const handlePhoneSubmit = () => {
             <div :class="['p-2 rounded-full mb-2', role === 'coach' ? 'bg-[#FF976A] text-white' : 'bg-gray-100 text-gray-500']">
               <Dumbbell class="w-6 h-6" />
             </div>
-            <span :class="['text-sm font-bold', role === 'coach' ? 'text-[#FF976A]' : 'text-gray-600']">教练</span>
+            <span :class="['text-sm font-bold', role === 'coach' ? 'text-[#FF976A]' : 'text-gray-600']">康复师</span>
           </button>
           <button
             @click="role = 'dietitian'"

@@ -16,7 +16,7 @@ const store = useAppStore();
 const activeTab = ref<Role>('student');
 const tabs: { role: Role; label: string; icon: typeof Users; color: string }[] = [
   { role: 'student', label: '学员', icon: UserCircle, color: '#0B6BCB' },
-  { role: 'coach', label: '教练', icon: Dumbbell, color: '#FF976A' },
+  { role: 'coach', label: '康复师', icon: Dumbbell, color: '#FF976A' },
   { role: 'dietitian', label: '营养师', icon: Stethoscope, color: '#1677FF' },
 ];
 
@@ -204,7 +204,7 @@ const saveAccount = () => {
   if (dup) {
     // 同手机号已存在：如果是同学员角色，合并服务批次；如果是不同角色，报错
     if (dup.role !== role) {
-      const roleLabel = dup.role === 'dietitian' ? '营养师' : dup.role === 'coach' ? '教练' : '学员';
+      const roleLabel = dup.role === 'dietitian' ? '营养师' : dup.role === 'coach' ? '康复师' : '学员';
       accountFormError.value = `该手机号已注册为${roleLabel}，不能重复注册其他角色`;
       return;
     }
@@ -299,7 +299,7 @@ const switchTab = (role: Role) => {
             学员需预录入才能登录
           </div>
           <div class="text-[10px] text-gray-400 mt-1 leading-relaxed">
-            关闭=开放登录（任意手机号自动建档为学员）；开启=学员必须先在此录入手机号才能登录。营养师与教练始终需录入。
+            关闭=开放登录（任意手机号自动建档为学员）；开启=学员必须先在此录入手机号才能登录。营养师与康复师始终需录入。
           </div>
         </div>
         <VanSwitch
@@ -446,7 +446,7 @@ const switchTab = (role: Role) => {
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="`搜索${activeTab === 'student' ? '学员' : activeTab === 'coach' ? '教练' : '营养师'}姓名或手机号`"
+          :placeholder="`搜索${activeTab === 'student' ? '学员' : activeTab === 'coach' ? '康复师' : '营养师'}姓名或手机号`"
           class="w-full pl-9 pr-9 py-2.5 bg-white border border-gray-100 rounded-xl text-sm shadow-sm focus:outline-none focus:border-[#FF976A] transition-colors"
         />
         <button
@@ -521,7 +521,7 @@ const switchTab = (role: Role) => {
           </button>
         </template>
         <div v-else class="text-center text-xs text-gray-400 py-8 bg-white rounded-xl border border-gray-100">
-          {{ searchKeyword ? `未找到匹配的${activeTab === 'student' ? '学员' : activeTab === 'coach' ? '教练' : '营养师'}` : '暂无账户，请添加' }}
+          {{ searchKeyword ? `未找到匹配的${activeTab === 'student' ? '学员' : activeTab === 'coach' ? '康复师' : '营养师'}` : '暂无账户，请添加' }}
         </div>
       </div>
     </div>
@@ -534,7 +534,7 @@ const switchTab = (role: Role) => {
         @click="handleEditAccount()"
       >
         <UserPlus class="w-5 h-5" />
-        新增{{ activeTab === 'student' ? '学员' : activeTab === 'coach' ? '教练' : '营养师' }}
+        新增{{ activeTab === 'student' ? '学员' : activeTab === 'coach' ? '康复师' : '营养师' }}
       </button>
     </div>
 
@@ -585,7 +585,7 @@ const switchTab = (role: Role) => {
     <VanPopup v-model:show="showAccountModal" position="bottom" round :style="{ maxHeight: '90%' }">
       <div class="p-5 flex flex-col" style="max-height: 90vh;" v-if="editingAccount">
         <h3 class="text-lg font-bold text-gray-900 mb-5 shrink-0">
-          {{ editingAccount.id ? '编辑账户' : '新增' + (editingAccount.role === 'student' ? '学员' : editingAccount.role === 'coach' ? '教练' : '营养师') }}
+          {{ editingAccount.id ? '编辑账户' : '新增' + (editingAccount.role === 'student' ? '学员' : editingAccount.role === 'coach' ? '康复师' : '营养师') }}
         </h3>
         <div class="space-y-4 mb-6 overflow-y-auto flex-1 min-h-0">
           <!-- 手机号 -->

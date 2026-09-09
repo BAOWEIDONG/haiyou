@@ -130,7 +130,7 @@ const handleSubmit = () => {
       description: formData.description,
       imageUrls: mediaType.value === 'image' ? imageFiles.value : [],
       videoUrls: mediaType.value === 'video' ? videoUrls.value : [],
-      coachName: store.user?.name || '教练',
+      coachName: store.user?.name || '康复师',
       date: format(new Date(), 'yyyy-MM-dd'),
       campIds: selectedCampIds.value.length > 0 ? [...selectedCampIds.value] : undefined,
     });
