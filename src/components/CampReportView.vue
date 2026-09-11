@@ -48,7 +48,7 @@ const campExerciseRecords = computed(() => selectedCampId.value ? store.getCampE
 const campWeightRecords = computed(() => selectedCampId.value ? store.getCampWeightRecords(selectedCampId.value) : store.weightRecords);
 
 // 未读批注数（tabbar badge）
-// 消息未读数（批注 + 系统通知，store 级统一，与各学员页「消息」Tab 角标一致）
+// 消息未读数（批注+解读+答疑，store 级统一，与各学员页「消息」Tab 角标一致）
 const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
 );

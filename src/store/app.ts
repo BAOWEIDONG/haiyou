@@ -419,6 +419,7 @@ export const useAppStore = defineStore('app', () => {
   function logout() {
     user.value = null;
     selectedCampId.value = null;
+    questionnaireAnswered.value = false; // 换账号登录时由 LoginView 按新账号重算
     localStorage.removeItem('camp_auth');
     viewHistory.value = ['login'];
   }
@@ -599,6 +600,9 @@ export const useAppStore = defineStore('app', () => {
   /** 学员登录：已知手机号返回其账户（角色匹配在 LoginView 校验）；
    *  未知手机号：预录入开启时一律拒绝（须先在账户管理中录入），否则自动建档为学员，挂到默认活跃营期，返回 created=true。 */
   function openStudentLogin(phone: string): { account: Account | null; created: boolean } {
+    // 退营(active=false)学员：不登录也不重复建档（LoginView 已拦截，此处兜底）
+    const anyExisting = accounts.value.find((a) => a.phone === phone && a.role === 'student');
+    if (anyExisting && anyExisting.active === false) return { account: null, created: false };
     const existing = accounts.value.find((a) => a.phone === phone && a.active);
     if (existing) return { account: existing, created: false };
     // 预录入关闭=开放登录；开启时未知手机号必须先在账户管理中录入为学员，禁止自动建档

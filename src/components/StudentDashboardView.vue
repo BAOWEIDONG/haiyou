@@ -177,7 +177,7 @@ const campDiet = computed(() => activeCampId.value ? store.getCampDietRecords(ac
 const campEx = computed(() => activeCampId.value ? store.getCampExerciseRecords(activeCampId.value) : store.exerciseRecords);
 const campWt = computed(() => activeCampId.value ? store.getCampWeightRecords(activeCampId.value) : store.weightRecords);
 
-// 消息未读数（与消息中心/活动/档案等各学员页底部「消息」Tab 角标口径一致：批注 + 系统通知）
+// 消息未读数（与消息中心/活动/档案等各学员页底部「消息」Tab 角标口径一致：批注+解读+答疑）
 const unreadCount = computed(() =>
   store.user?.role === 'student' ? store.getStudentMsgUnreadCount(store.user.id) : 0,
 );

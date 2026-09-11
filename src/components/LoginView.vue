@@ -5,7 +5,7 @@ import { useAppStore } from '../store/app';
 import { isSubmitted } from '../lib/questionnaireStorage';
 import { Button, NavBar } from './ui';
 import { MessageCircle, UserCircle, Dumbbell, Leaf, Activity } from 'lucide-vue-next';
-import type { Role } from '../types';
+import type { Account, Role } from '../types';
 import { ROLE_LABEL } from '../types';
 
 const store = useAppStore();
@@ -36,22 +36,45 @@ const handlePhoneSubmit = () => {
     return;
   }
 
-  // 开放登录：任意手机号+验证码即可登录。已知手机号按所选角色匹配；
-  // 若手机号已注册其他角色则提示切换；（账户管理中开启「学员需预录入」时）未知手机号不自动建档。
+  // 登录规则：学员开放登录（未知手机号自动建档入「开放营期」）；
+  // 营养师/康复师必须由管理员在账户管理中预先维护，未知手机号不自动建档。
   const existing = store.accounts.find((a) => a.phone === phone.value && a.active);
   if (existing && existing.role !== role.value) {
     error.value = `该手机号已注册为${ROLE_LABEL[existing.role]}，请切换角色后登录`;
     return;
   }
 
+  // 营养师/康复师：必须预先维护才能登录
+  if (role.value !== 'student') {
+    const staff = store.accounts.find((a) => a.phone === phone.value && a.role === role.value && a.active);
+    if (!staff) {
+      error.value = `该手机号尚未维护为${ROLE_LABEL[role.value]}账号，请联系管理员在账户管理中预先维护`;
+      return;
+    }
+    loginAs(staff, false);
+    return;
+  }
+
+  // 学员：退营(active=false)学员不得登录，也不重复建档
+  const disabled = store.accounts.find((a) => a.phone === phone.value && a.role === 'student' && a.active === false);
+  if (disabled) {
+    error.value = '该账号已退营，无法登录';
+    return;
+  }
+
   const { account, created } = store.openStudentLogin(phone.value);
   if (!account) {
-    error.value = role.value === 'student' && store.studentRequiresPreRegister
+    error.value = store.studentRequiresPreRegister
       ? '该手机号需先在账户管理中录入为学员，方可登录'
       : '登录失败，请重试';
     return;
   }
 
+  loginAs(account, created);
+};
+
+/** 通用登录落位：写 user、按本账号刷新问卷已填状态、按角色分流去向 */
+function loginAs(account: Account, created: boolean) {
   error.value = '';
   // 从 students 列表补充 gender/age 信息（新学员暂无则留空，后续问卷填写）
   const studentInfo = store.students.find((s) => s.id === account.id);
@@ -72,9 +95,12 @@ const handlePhoneSubmit = () => {
 
   if (account.role === 'coach') store.setCurrentView('coach-dashboard');
   else if (account.role === 'dietitian') store.setCurrentView('dietitian-dashboard');
-  // 学员：按「本账号」是否已提交问卷决定去向（按账号隔离，换账号互不影响）
-  else store.setCurrentView(isSubmitted(account.id) ? 'dashboard' : 'questionnaire');
-};
+  // 学员：按「本账号」是否已提交问卷决定去向，并同步刷新 store 的已填状态（换账号不残留）
+  else {
+    store.setQuestionnaireAnswered(isSubmitted(account.id));
+    store.setCurrentView(isSubmitted(account.id) ? 'dashboard' : 'questionnaire');
+  }
+}
 </script>
 
 <template>

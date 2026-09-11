@@ -8,11 +8,15 @@ import { campDateRange } from '../lib/camps';
 import { Card } from './ui';
 import ActivityCard from './ActivityCard.vue';
 import type { CoachActivityRecord } from '../types';
-import { UserCircle, LogOut, Clock, FileText, Users, CheckCircle, XCircle, Search, X, ChevronDown, Dumbbell } from 'lucide-vue-next';
+import { UserCircle, LogOut, Clock, FileText, Users, CheckCircle, XCircle, Search, X, ChevronDown, Dumbbell, MessageSquareText } from 'lucide-vue-next';
 import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem, Popup as VanPopup, showConfirmDialog, showToast } from 'vant';
 
 const store = useAppStore();
 const { unannotatedCount: coachUnannotatedCount } = useCoachCounts();
+// 待回复答疑数（口径与营养师端一致：pending + 学员追答未读）
+const pendingThreads = computed(() =>
+  store.consultThreads.filter((t) => t.status === 'pending' || t.doctorUnread).length,
+);
 
 const activeTab = computed<'incomplete' | 'completed' | 'activities'>({
   get: () => store.coachDashboardTab,
@@ -145,10 +149,20 @@ const selectCamp = (campId: string | null) => {
         <div class="h-14 w-14 rounded-full bg-[#0B6BCB] flex items-center justify-center shadow-md shrink-0">
           <UserCircle class="h-7 w-7 text-white" />
         </div>
-        <div>
+        <div class="min-w-0 flex-1">
           <h2 class="text-xl font-bold text-gray-900">康复师您好，{{ store.user?.name || '康复师' }}</h2>
           <p class="text-xs font-bold text-[#0B6BCB] uppercase tracking-wider mt-1">您当前负责 {{ campStudents.length }} 名学员</p>
         </div>
+        <!-- 健康答疑快捷入口：康复师与营养师共用答疑线程（replierRole 按 role 区分） -->
+        <button
+          @click="store.setCurrentView('doctor-consult')"
+          class="relative shrink-0 h-10 w-10 rounded-full bg-white/70 backdrop-blur-md border border-white/60 shadow-sm flex items-center justify-center text-[#0B6BCB] active:bg-white"
+        >
+          <MessageSquareText class="h-5 w-5" />
+          <span v-if="pendingThreads > 0" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+            {{ pendingThreads > 99 ? '99+' : pendingThreads }}
+          </span>
+        </button>
       </div>
     </div>
 

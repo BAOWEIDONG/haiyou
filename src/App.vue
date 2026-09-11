@@ -70,7 +70,7 @@ const VIEW_IMPORTERS: Record<string, () => Promise<{ default: Component }>> = {
 const ROLE_TABS: Record<string, string[]> = {
   student: ['dashboard', 'messages', 'health-profile', 'exercise', 'diet', 'weight-checkin', 'calendar', 'my-team', 'interpretation-result', 'consult', 'article-detail', 'chronic-dashboard', 'chronic-record', 'chronic-detail', 'activity'],
   dietitian: ['dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config', 'dietitian-student-detail', 'account-manage', 'doctor-interpretation', 'doctor-consult', 'ops-content', 'ops-content-new', 'article-detail', 'dietitian-chronic-alerts', 'report-transcribe', 'dietitian-pending-center', 'dietitian-activity-config'],
-  coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload'],
+  coach: ['coach-dashboard', 'coach-student-detail', 'coach-unannotated-list', 'activity-upload', 'doctor-consult'],
 };
 let prefetchedRole = false;
 let prefetchedAll = false;
