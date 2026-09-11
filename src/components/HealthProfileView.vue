@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useAppStore } from '../store/app';
+import { loadSubmitted, loadDraft, saveSubmitted } from '../lib/questionnaireStorage';
 import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { NavBar, Card, StudentTabbar } from './ui';
@@ -67,11 +68,11 @@ function normalizeQData(raw: any): any {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem('submitted_questionnaire') || localStorage.getItem('draft_questionnaire');
+  // 问卷数据按账号隔离：只读本账号的提交/草稿，换账号登录不会带出他人姓名
+  const saved = loadSubmitted(store.user?.id) ?? loadDraft(store.user?.id);
   if (saved) {
     try {
-      const parsed = JSON.parse(saved);
-      qData.value = normalizeQData(parsed.formData || parsed);
+      qData.value = normalizeQData(saved.formData || saved);
     } catch (e) {
       // ignore
     }
@@ -80,7 +81,7 @@ onMounted(() => {
 
 function persistQuestionnaire(data: any) {
   try {
-    localStorage.setItem('submitted_questionnaire', JSON.stringify(data));
+    if (store.user?.id) saveSubmitted(store.user.id, data);
   } catch (e) {
     // ignore
   }

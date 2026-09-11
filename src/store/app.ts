@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { showImagePreview } from 'vant';
+import { isSubmitted } from '../lib/questionnaireStorage';
 import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues, ActivityBanner, InfoCategory } from '../types';
 import {
   DEFAULT_MEAL_TIME_CONFIG,
@@ -387,9 +388,9 @@ export const useAppStore = defineStore('app', () => {
         user.value = data.user;
         // 默认展示最新营期
         applyLatestCampDefault();
-        // 恢复问卷状态
-        const qSaved = localStorage.getItem('submitted_questionnaire');
-        questionnaireAnswered.value = !!qSaved;
+        // 恢复问卷状态（按账号隔离：只看当前账号自己的提交记录，换账号登录不会误判为已填）
+        const qSaved = isSubmitted(data.user.id);
+        questionnaireAnswered.value = qSaved;
         // 根据角色和问卷状态跳转到对应首页
         if (data.user.role === 'coach') {
           viewHistory.value = ['coach-dashboard'];

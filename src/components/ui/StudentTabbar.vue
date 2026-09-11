@@ -22,7 +22,7 @@ type Anchor = 'health' | 'activity' | 'messages' | 'mine';
 
 const props = defineProps<{
   anchor: Anchor;
-  badge?: number; // 消息未读数：主页面传各自口径；当前就在消息页(anchor=messages)时不展示徽标
+  badge?: number; // 消息未读数：主页面传各自口径；消息页本身也展示（进页面不清零，逐条点开阅读才减）
   printHidden?: boolean; // 打印/长图导出时隐藏底部栏(个人历程/个人服务报告用)
 }>();
 
@@ -66,7 +66,7 @@ function go(key: Anchor) {
       v-for="t in tabs"
       :key="t.key"
       @click="go(t.key)"
-      :badge="t.key === 'messages' && anchor !== 'messages' ? badge ?? undefined : undefined"
+      :badge="t.key === 'messages' && badge && badge > 0 ? badge : undefined"
     >
       <template #icon><component :is="ICONS[t.key]" class="h-6 w-6" /></template>
       {{ t.label }}

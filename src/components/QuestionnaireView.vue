@@ -2,6 +2,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { showConfirmDialog, showToast, Popup as VanPopup, TimePicker as VanTimePicker } from 'vant';
 import { useAppStore } from '../store/app';
+import { loadDraft, saveDraft, saveSubmitted, clearDraft } from '../lib/questionnaireStorage';
 import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { Button, NavBar, Card } from './ui';
@@ -56,12 +57,12 @@ const formData = reactive({
 });
 
 onMounted(() => {
-  const saved = localStorage.getItem('draft_questionnaire');
+  // 草稿按账号隔离：换账号登录不会带出上一个账号的姓名等预填数据
+  const saved = loadDraft(store.user?.id);
   if (saved) {
     try {
-      const parsed = JSON.parse(saved);
-      Object.assign(formData, parsed.formData);
-      step.value = parsed.step;
+      Object.assign(formData, saved.formData);
+      step.value = saved.step;
       showToast('已为您恢复上次进度');
     } catch (e) {
       // ignore
@@ -72,7 +73,7 @@ onMounted(() => {
 watch(
   [() => ({ ...formData }), step],
   () => {
-    localStorage.setItem('draft_questionnaire', JSON.stringify({ formData, step: step.value }));
+    if (store.user?.id) saveDraft(store.user.id, { formData, step: step.value });
   },
   { deep: true },
 );
@@ -182,8 +183,10 @@ const handleSubmit = () => {
     });
   }
 
-  localStorage.setItem('submitted_questionnaire', JSON.stringify(formData));
-  localStorage.removeItem('draft_questionnaire');
+  if (store.user?.id) {
+    saveSubmitted(store.user.id, formData);
+    clearDraft(store.user.id);
+  }
   store.setQuestionnaireAnswered(true);
   store.setCurrentView('dashboard');
 };

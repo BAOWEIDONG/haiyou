@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onActivated, nextTick } from 'vue';
 import { format } from 'date-fns';
 import { useAppStore } from '../store/app';
+import { loadSubmitted, loadDraft } from '../lib/questionnaireStorage';
 import { campDateRange } from '../lib/camps';
 import { MOCK_STUDENTS } from '../mock/data';
 import { NavBar, Card, Button, ChartRulePopup } from './ui';
@@ -156,11 +157,11 @@ watch(() => student.value?.id, () => {
 // ─── Questionnaire tab (read-only) ───
 const qData = ref<any>(null);
 onMounted(() => {
-  const saved = localStorage.getItem('submitted_questionnaire') || localStorage.getItem('draft_questionnaire');
+  // 问卷 Tab 读「该学员本人」的问卷数据（按账号隔离，不再读全局 key 串账号）
+  const saved = loadSubmitted(student.value?.id) ?? loadDraft(student.value?.id);
   if (saved) {
     try {
-      const parsed = JSON.parse(saved);
-      qData.value = parsed.formData || parsed;
+      qData.value = saved.formData || saved;
     } catch (e) {
       // ignore
     }

@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { showDialog, Checkbox as VanCheckbox, showToast } from 'vant';
 import { useAppStore } from '../store/app';
+import { isSubmitted } from '../lib/questionnaireStorage';
 import { Button, NavBar } from './ui';
 import { MessageCircle, UserCircle, Dumbbell, Leaf, Activity } from 'lucide-vue-next';
 import type { Role } from '../types';
@@ -71,7 +72,8 @@ const handlePhoneSubmit = () => {
 
   if (account.role === 'coach') store.setCurrentView('coach-dashboard');
   else if (account.role === 'dietitian') store.setCurrentView('dietitian-dashboard');
-  else store.setCurrentView('questionnaire');
+  // 学员：按「本账号」是否已提交问卷决定去向（按账号隔离，换账号互不影响）
+  else store.setCurrentView(isSubmitted(account.id) ? 'dashboard' : 'questionnaire');
 };
 </script>
 
