@@ -5,11 +5,26 @@ import { useDebounced } from '../composables/useDebounced';
 import { useAppStore } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { Card, DietitianTabbar } from './ui';
-import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren, MessageCircleQuestion } from 'lucide-vue-next';
+import { Users, UserCircle, LogOut, CheckCircle, XCircle, Search, X, ChevronDown, Siren, MessageCircleQuestion, RefreshCw } from 'lucide-vue-next';
 import { judgeRecord } from '../lib/chronic';
-import { Popup as VanPopup } from 'vant';
+import { Popup as VanPopup, showToast } from 'vant';
 
 const store = useAppStore();
+
+// ─── 手动刷新（与消息中心一致：重拉数据 + toast 反馈） ───
+const isRefreshing = ref(false);
+async function handleRefresh() {
+  if (isRefreshing.value) return;
+  isRefreshing.value = true;
+  try {
+    await store.init();
+    showToast('已刷新');
+  } catch {
+    showToast('刷新失败，请稍后重试');
+  } finally {
+    isRefreshing.value = false;
+  }
+}
 
 const activeTab = ref<'incomplete' | 'completed'>('incomplete');
 const searchQuery = ref('');
@@ -126,7 +141,10 @@ const interpretationPendingCount = computed(() => store.getOpenInterpretations()
 <template>
   <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#FFF6EE] to-[#FFFDFB]">
     <div class="pt-[calc(env(safe-area-inset-top)+2.5rem)] px-6 pb-6">
-      <div class="flex justify-end mb-2">
+      <div class="flex justify-end mb-2 gap-2">
+        <button @click="handleRefresh" :disabled="isRefreshing" class="text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded-full backdrop-blur-sm disabled:opacity-50">
+          <RefreshCw :class="['h-3 w-3', isRefreshing ? 'animate-spin' : '']" /> {{ isRefreshing ? '刷新中…' : '刷新' }}
+        </button>
         <button @click="store.logout()" class="text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded-full backdrop-blur-sm">
           <LogOut class="h-3 w-3" /> 退出
         </button>
@@ -159,8 +177,9 @@ const interpretationPendingCount = computed(() => store.getOpenInterpretations()
         <span class="text-[#B6523E] font-bold text-lg">›</span>
       </button>
 
-      <!-- 报告待办中心（档案转录 + 报告解读 两 tab；数字仅计入待处理，不含已办） -->
+      <!-- 报告待办中心（档案转录 + 报告解读 两 tab；数字仅计入待处理，不含已办；0 时不展示空横幅） -->
       <button
+        v-if="reportPendingCount + interpretationPendingCount > 0"
         @click="store.setCurrentView('dietitian-pending-center')"
         class="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-[#0B6BCB]/10 to-[#8B5CF6]/10 border border-[#0B6BCB]/25 text-left active:opacity-90 transition-opacity"
       >

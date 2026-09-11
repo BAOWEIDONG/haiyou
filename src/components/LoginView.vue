@@ -153,8 +153,8 @@ function loginAs(account: Account, created: boolean) {
       </div>
 
       <p class="text-[10px] text-gray-400 text-center leading-relaxed">
-        任意手机号+验证码即可登录，未注册将自动创建学员账号<br />
-        测试账号：18888888888（营养师）
+        学员：任意手机号+验证码即可登录，未注册将自动创建学员账号<br />
+        营养师/康复师：需管理员预先维护账号方可登录
       </p>
     </div>
   </div>

@@ -166,7 +166,7 @@ const handleDeleteAccount = (account: Account) => {
   const displayName = account.name || account.phone;
   showConfirmDialog({
     title: '删除账户',
-    message: `确定删除「${displayName}」(${account.phone})？删除后该手机号将无法登录。`,
+    message: `确定删除「${displayName}」(${account.phone})？\n删除后：该手机号将无法登录；已产生的打卡记录、批注消息与问卷数据仍保留在系统台账中，但不再关联任何可登录账号。`,
   })
     .then(() => {
       store.deleteAccount(account.id);
@@ -176,8 +176,22 @@ const handleDeleteAccount = (account: Account) => {
 };
 
 const toggleActive = (account: Account) => {
-  store.updateAccount(account.id, { active: !account.active });
-  showToast(account.active ? '已禁用' : '已启用');
+  const displayName = account.name || account.phone;
+  if (account.active) {
+    // 禁用=退营级高危操作：须二次确认并写明连带影响
+    showConfirmDialog({
+      title: '禁用账户',
+      message: `确定禁用「${displayName}」(${account.phone})？\n禁用后：该学员将立即无法登录（刷新/重开也不再自动登录）；其打卡与批注记录保留，但营养师/康复师端的统计口径将不再计入其新数据。`,
+    })
+      .then(() => {
+        store.updateAccount(account.id, { active: false });
+        showToast('已禁用');
+      })
+      .catch(() => {});
+  } else {
+    store.updateAccount(account.id, { active: true });
+    showToast('已启用');
+  }
 };
 
 const saveAccount = () => {

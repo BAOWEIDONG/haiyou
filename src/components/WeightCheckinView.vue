@@ -96,6 +96,7 @@ watch(
 );
 
 const handleSubmit = () => {
+  if (submitting.value) return; // 防连点：双击只入一条
   const val = parseFloat(weight.value);
   if (isNaN(val) || val <= 0 || val > 300) {
     showToast({ message: '请输入合理的体重数值（例如: 65.5）', position: 'top', duration: 2500 });
@@ -106,22 +107,37 @@ const handleSubmit = () => {
     return;
   }
 
+  // 同日幂等：当日已有打卡记录则改为覆盖式更新，双击/重复提交不产生重复脏数据
+  const todayPrefix = format(new Date(), 'yyyy-MM-dd');
+  const mine = campWt.value.filter((r) => r.studentId === (store.user?.id || 's1') && r.date.startsWith(todayPrefix));
+  const existingToday = [...mine].sort((a, b) => b.date.localeCompare(a.date))[0];
+
+  submitting.value = true;
   justSubmitted.value = true;
 
-  store.addWeightRecord({
-    id: `w_${Date.now()}`,
-    studentId: store.user?.id || 's1',
-    campId: activeCampId.value || undefined,
-    date: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-    weight: parseFloat(val.toFixed(1)),
-    photos: photos.value.length > 0 ? photos.value : undefined,
-  });
+  if (existingToday) {
+    store.updateWeightRecord(existingToday.id, { weight: parseFloat(val.toFixed(1)), photos: photos.value.length > 0 ? photos.value : existingToday.photos });
+    showToast({ message: '已更新今日体重打卡', position: 'top', duration: 2000 });
+  } else {
+    store.addWeightRecord({
+      id: `w_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      studentId: store.user?.id || 's1',
+      campId: activeCampId.value || undefined,
+      date: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      weight: parseFloat(val.toFixed(1)),
+      photos: photos.value.length > 0 ? photos.value : undefined,
+    });
+  }
 
   store.justCheckedIn = true;
   weight.value = '';
   photos.value = [];
   showPhotoUpload.value = false;
+  // 跳转/异步间隙后解除，防住极短时间内的二次点击
+  setTimeout(() => { submitting.value = false; }, 800);
 };
+
+const submitting = ref(false);
 
 // ---- Weight trend chart ----
 const sortedRecords = computed(() =>
@@ -763,7 +779,7 @@ function handleChartTouchMove(e: TouchEvent) {
 
     <!-- 固定悬浮底部打卡按钮（仅打卡Tab显示） -->
     <div v-show="activeTab === 'checkin'" class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 bg-gradient-to-t from-[#F7F8FA] via-[#F7F8FA]/95 to-transparent">
-      <Button class="w-full bg-[#1677FF] hover:bg-[#1677FF]/90 text-white shadow-lg shadow-[#1677FF]/30 active:scale-95 transition-transform" size="lg" @click="handleSubmit">
+      <Button :disabled="submitting" class="w-full bg-[#1677FF] hover:bg-[#1677FF]/90 text-white shadow-lg shadow-[#1677FF]/30 active:scale-95 transition-transform" size="lg" @click="handleSubmit">
         完成打卡
       </Button>
     </div>

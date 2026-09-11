@@ -66,7 +66,7 @@ function go(key: Anchor) {
       v-for="t in tabs"
       :key="t.key"
       @click="go(t.key)"
-      :badge="t.key === 'messages' && badge && badge > 0 ? badge : undefined"
+      :badge="t.key === 'messages' && badge && badge > 0 ? (badge > 99 ? '99+' : badge) : undefined"
     >
       <template #icon><component :is="ICONS[t.key]" class="h-6 w-6" /></template>
       {{ t.label }}

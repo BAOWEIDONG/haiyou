@@ -6,7 +6,7 @@ import { uploadFile } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { NavBar, Card, StudentTabbar } from './ui';
 import { Activity, FileText, ClipboardList, UploadCloud, X, Pencil, ChevronRight } from 'lucide-vue-next';
-import { Popup as VanPopup, TimePicker as VanTimePicker } from 'vant';
+import { Popup as VanPopup, TimePicker as VanTimePicker, showToast } from 'vant';
 import { CHRONIC_GROUPS, judgeRecord, fieldDef, LEVEL_META, type AlarmLevel } from '../lib/chronic';
 import type { StudentReport } from '../types';
 
@@ -157,6 +157,17 @@ function openEditLifestyle() {
 }
 
 function saveBasic() {
+  // 范围校验（与问卷页同口径）：身高 100-250cm、体重 20-300kg
+  const h = parseFloat(editForm.value.height);
+  if (editForm.value.height && (isNaN(h) || h < 100 || h > 250)) {
+    showToast('请输入正确的身高（100-250cm）');
+    return;
+  }
+  const w = parseFloat(editForm.value.weight);
+  if (editForm.value.weight && (isNaN(w) || w < 20 || w > 300)) {
+    showToast('请输入正确的体重（20-300kg）');
+    return;
+  }
   // 更新性别到 store（同步 user + students + localStorage）
   if (editForm.value.gender && editForm.value.gender !== store.user?.gender) {
     store.updateUserProfile({ gender: editForm.value.gender });
@@ -172,6 +183,12 @@ function saveBasic() {
 }
 
 function saveLifestyle() {
+  // 睡眠时长校验：0-24 小时
+  const sd = parseFloat(editForm.value.sleepDuration);
+  if (editForm.value.sleepDuration && (isNaN(sd) || sd < 0 || sd > 24)) {
+    showToast('请输入正确的睡眠时长（0-24小时）');
+    return;
+  }
   const typesStr = editForm.value.exerciseTypesStr || '';
   const types = typesStr.split(/[,，]/).map((s: string) => s.trim()).filter(Boolean);
   const newQData = {

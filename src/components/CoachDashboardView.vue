@@ -8,7 +8,7 @@ import { campDateRange } from '../lib/camps';
 import { Card } from './ui';
 import ActivityCard from './ActivityCard.vue';
 import type { CoachActivityRecord } from '../types';
-import { UserCircle, LogOut, Clock, FileText, Users, CheckCircle, XCircle, Search, X, ChevronDown, Dumbbell, MessageSquareText } from 'lucide-vue-next';
+import { UserCircle, LogOut, Clock, FileText, Users, CheckCircle, XCircle, Search, X, ChevronDown, Dumbbell, MessageSquareText, RefreshCw } from 'lucide-vue-next';
 import { Tabbar as VanTabbar, TabbarItem as VanTabbarItem, Popup as VanPopup, showConfirmDialog, showToast } from 'vant';
 
 const store = useAppStore();
@@ -17,6 +17,21 @@ const { unannotatedCount: coachUnannotatedCount } = useCoachCounts();
 const pendingThreads = computed(() =>
   store.consultThreads.filter((t) => t.status === 'pending' || t.doctorUnread).length,
 );
+
+// ─── 手动刷新（与消息中心一致：重拉数据 + toast 反馈） ───
+const isRefreshing = ref(false);
+async function handleRefresh() {
+  if (isRefreshing.value) return;
+  isRefreshing.value = true;
+  try {
+    await store.init();
+    showToast('已刷新');
+  } catch {
+    showToast('刷新失败，请稍后重试');
+  } finally {
+    isRefreshing.value = false;
+  }
+}
 
 const activeTab = computed<'incomplete' | 'completed' | 'activities'>({
   get: () => store.coachDashboardTab,
@@ -140,7 +155,10 @@ const selectCamp = (campId: string | null) => {
   <div class="flex min-h-[100dvh] flex-col pb-24 font-sans bg-gradient-to-b from-[#EDF9F1] to-[#FBFEFC]">
     <!-- Header -->
     <div class="pt-[calc(env(safe-area-inset-top)+2.5rem)] px-6 pb-6">
-      <div class="flex justify-end mb-2">
+      <div class="flex justify-end mb-2 gap-2">
+        <button @click="handleRefresh" :disabled="isRefreshing" class="text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded-full backdrop-blur-sm disabled:opacity-50">
+          <RefreshCw :class="['h-3 w-3', isRefreshing ? 'animate-spin' : '']" /> {{ isRefreshing ? '刷新中…' : '刷新' }}
+        </button>
         <button @click="store.logout()" class="text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded-full backdrop-blur-sm">
           <LogOut class="h-3 w-3" /> 退出
         </button>

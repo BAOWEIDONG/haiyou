@@ -58,7 +58,7 @@ function go(key: Anchor) {
       v-for="t in tabs"
       :key="t.key"
       @click="go(t.key)"
-      :badge="t.key === 'annotate' && anchor !== 'annotate' ? unannotatedCount > 0 ? unannotatedCount : undefined : undefined"
+      :badge="t.key === 'annotate' && anchor !== 'annotate' ? unannotatedCount > 0 ? (unannotatedCount > 99 ? '99+' : unannotatedCount) : undefined : undefined"
     >
       <template #icon><component :is="ICONS[t.key]" class="h-6 w-6" /></template>
       {{ t.label }}

@@ -8,8 +8,8 @@ import {
 
 /**
  * 营养师端「配置」tab（服务/管理/配置三段融合）。医生端+运营端已并入营养师。
- * 只保留被学员端实际消费的后台功能：解读/答疑（对应用户报告解读/健康答疑）、
- * 账户/服务包/科普（对应用户登录/服务批次/订阅）、健康档案指标（对应用户体检档案）。
+ * 只保留被学员端实际消费的后台功能：解读/答疑（对应学员报告解读/健康答疑）、
+ * 账户/服务包/科普（对应学员登录/服务批次/订阅）、健康档案指标（对应学员体检档案）。
  * 与学员端无关的孤立后台（转介/随访/线索台账/用户画像/合规/结业统计/企业履约看板）已删除。
  */
 const store = useAppStore();
@@ -26,19 +26,19 @@ interface ConfigItem {
   badge?: number;
 }
 
-// 服务（对应用户端报告解读 + 健康答疑）
+// 服务（对应学员端报告解读 + 健康答疑）
 const serviceItems = computed<ConfigItem[]>(() => [
-  { view: 'doctor-interpretation', title: '报告健康解读', desc: '解答用户勾选的体检指标', icon: FileSearch, color: '#0B6BCB', badge: pendingInterpretations.value },
-  { view: 'doctor-consult', title: '健康答疑', desc: '回复用户的健康留言', icon: MessageSquareText, color: '#0B6BCB', badge: pendingThreads.value },
+  { view: 'doctor-interpretation', title: '报告健康解读', desc: '解答学员勾选的体检指标', icon: FileSearch, color: '#0B6BCB', badge: pendingInterpretations.value },
+  { view: 'doctor-consult', title: '健康答疑', desc: '回复学员的健康留言', icon: MessageSquareText, color: '#0B6BCB', badge: pendingThreads.value },
 ]);
 
-// 管理（平台后台：用户登录所需账户 / 服务批次 / 科普订阅）
+// 管理（平台后台：学员登录所需账户 / 服务批次 / 科普订阅）
 const manageItems: ConfigItem[] = [
   { view: 'account-manage', title: '账户管理', desc: '各角色手机号与服务批次', icon: Users, color: '#FF976A' },
   { view: 'ops-content', title: '科普内容', desc: '发布健康科普/视频', icon: Newspaper, color: '#8B5CF6' },
 ];
 
-// 配置（对应用户端健康档案/打卡）
+// 配置（对应学员端健康档案/打卡）
 const configItems: ConfigItem[] = [
   { view: 'metric-config', title: '健康档案指标', desc: '体检指标项与参考区间', icon: Activity, color: '#FF976A' },
   { view: 'dietitian-activity-config', title: '活动页设置', desc: '资讯分类名 + 顶部 Banner', icon: SlidersHorizontal, color: '#12B5C2' },
@@ -74,7 +74,7 @@ const configItems: ConfigItem[] = [
           <button v-for="s in serviceItems" :key="s.view" @click="store.setCurrentView(s.view as never)"
             class="relative w-full flex items-center gap-3 p-4 text-left rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm active:scale-[0.98] transition-transform">
             <div v-if="s.badge" class="absolute -top-1.5 -right-1.5 min-w-[1.5rem] h-6 px-1 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center shadow">
-              {{ s.badge }}
+              {{ s.badge > 99 ? '99+' : s.badge }}
             </div>
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" :style="{ background: s.color + '18' }">
               <component :is="s.icon" class="h-6 w-6" :style="{ color: s.color }" />
