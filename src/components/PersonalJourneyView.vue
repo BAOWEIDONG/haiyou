@@ -279,10 +279,6 @@ const exportPDF = () => {
                     <stop offset="100%" stop-color="#0B6BCB" stop-opacity="0" />
                   </linearGradient>
                 </defs>
-                <!-- 减重 3% 目标线 -->
-                <line v-if="weightMilestones" :x1="CHART_PAD_X" :y1="weightMilestones.target3Cy" :x2="chartWidth - CHART_PAD_X" :y2="weightMilestones.target3Cy" stroke="#0B6BCB" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4" />
-                <!-- 减重 5% 目标线 -->
-                <line v-if="weightMilestones" :x1="CHART_PAD_X" :y1="weightMilestones.target5Cy" :x2="chartWidth - CHART_PAD_X" :y2="weightMilestones.target5Cy" stroke="#FF976A" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4" />
                 <!-- 渐变填充 -->
                 <polygon :points="`${CHART_PAD_X},${CHART_PAD_TOP + CHART_PLOT_HEIGHT} ${svgPoints} ${weightCx(journey.weightTrend.records.length - 1)},${CHART_PAD_TOP + CHART_PLOT_HEIGHT}`" fill="url(#weightGradJourney)" />
                 <!-- 折线 -->
@@ -304,8 +300,8 @@ const exportPDF = () => {
               <span class="inline-block w-2 h-2 rounded-full border border-[#0B6BCB]"></span>
               历史最低 {{ weightMilestones.lowestWeight.toFixed(1) }} kg
             </div>
-            <!-- 目标线图例 -->
-            <div v-if="weightMilestones" class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-[9px] text-gray-500">
+            <!-- 目标线图例（3%/5% 达标目标线已移除） -->
+            <div v-if="false" class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-[9px] text-gray-500">
               <span class="flex items-center gap-1">
                 <span class="inline-block w-3 border-t border-dashed border-[#0B6BCB]"></span>
                 达标3%目标 {{ weightMilestones.target3.toFixed(1) }}kg

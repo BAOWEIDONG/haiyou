@@ -314,28 +314,36 @@ const exportPDF = () => {
         <div v-else class="text-center text-sm text-gray-400 py-6">暂无体重记录</div>
       </Card>
 
-      <!-- 体成分变化（无数据时整卡隐藏，对齐化验指标卡"有才展示"，体重/打卡/建议仍在 -->
-      <Card v-if="bodyCompositionMetrics.some((m) => m.beforeValue !== null || m.afterValue !== null)">
+      <!-- 体成分检测变化（无数据时展示空态引导，而非隐藏整卡） -->
+      <Card>
         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
           <Activity class="h-4 w-4 text-[#1677FF]" />
           体成分检测变化
         </h3>
-        <div class="space-y-3">
-          <div
-            v-for="m in bodyCompositionMetrics.filter(m => m.beforeValue !== null || m.afterValue !== null)"
-            :key="m.configId"
-            class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
-          >
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900">{{ m.name }}</div>
-              <div class="text-[10px] text-gray-400">{{ m.beforeValue ?? '--' }} → {{ m.afterValue ?? '--' }} {{ m.unit }}</div>
-            </div>
-            <div class="text-right shrink-0 ml-2">
-              <div class="text-sm font-bold" :class="metricChangeColor(m)">
-                {{ metricChangeText(m) }}
+        <template v-if="bodyCompositionMetrics.some((m) => m.beforeValue !== null || m.afterValue !== null)">
+          <div class="space-y-3">
+            <div
+              v-for="m in bodyCompositionMetrics.filter(m => m.beforeValue !== null || m.afterValue !== null)"
+              :key="m.configId"
+              class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+            >
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-900">{{ m.name }}</div>
+                <div class="text-[10px] text-gray-400">{{ m.beforeValue ?? '--' }} → {{ m.afterValue ?? '--' }} {{ m.unit }}</div>
+              </div>
+              <div class="text-right shrink-0 ml-2">
+                <div class="text-sm font-bold" :class="metricChangeColor(m)">
+                  {{ metricChangeText(m) }}
+                </div>
               </div>
             </div>
           </div>
+        </template>
+        <div v-else class="text-center py-8">
+          <div class="text-sm font-bold text-gray-700">暂无体成分检测数据</div>
+          <p class="text-xs text-gray-400 mt-1.5 leading-relaxed">
+            上传体检报告并经营养师转录后，<br />此处将展示体成分变化趋势
+          </p>
         </div>
       </Card>
 
