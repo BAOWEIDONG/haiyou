@@ -155,8 +155,14 @@ function chronicMini(g: ChronicGroupKey) {
     fields,
     hasValue,
     hasToday,
+    date: rec?.date ?? '',
   };
 }
+const fmtChipDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+};
 const chronicMiniCards = computed(() => {
   // 展示顺序：血压/血糖/血脂/尿酸/同型半胱氨酸 在前，体重BMI 排到最后（用户指定）
   const order: ChronicGroupKey[] = ['bp', 'glucose', 'lipid', 'uric', 'hcy', 'bmi'];
@@ -452,36 +458,53 @@ const todayDietLabel = computed(() => {
             <button @click="store.setCurrentView('chronic-dashboard')" class="text-[11px] font-bold text-gray-500 px-2.5 py-1 rounded-lg bg-gray-50 active:opacity-80">五高看台 ›</button>
           </div>
         </div>
+        <!-- 六族等高度网格（固定卡高，数据/空态/字段多寡均整齐） -->
         <div class="grid grid-cols-2 gap-3">
           <button
             v-for="c in chronicMiniCards" :key="c.key"
-            @click="c.hasToday ? openChronicGroup(c.key) : openRecord(c.key)"
-            :class="['rounded-xl p-3 h-full flex flex-col text-left transition-opacity', c.hasValue ? 'bg-[#F6F8FB] active:opacity-90' : 'bg-transparent border border-dashed border-gray-200 active:opacity-80']"
+            @click="c.hasValue ? openChronicGroup(c.key) : openRecord(c.key)"
+            class="h-[118px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
           >
+            <!-- 顶部：名称 + 状态/最近 角标 -->
             <div class="flex items-center justify-between gap-1 min-w-0">
               <span class="text-xs font-bold text-gray-700 truncate">{{ c.title }}</span>
-              <span v-if="c.hasToday" :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]">{{ LEVEL_META[c.level].label }}</span>
-              <span v-else class="text-[9px] px-1.5 py-px rounded-full font-bold shrink-0 bg-amber-50 text-amber-500">今日未录入</span>
+              <span
+                v-if="c.hasToday"
+                :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]"
+              >{{ LEVEL_META[c.level].label }}</span>
+              <span
+                v-else-if="c.hasValue"
+                class="text-[9px] px-1.5 py-px rounded-full font-bold shrink-0 bg-gray-100 text-gray-500"
+              >最近 {{ fmtChipDate(c.date) }}</span>
+              <span
+                v-else
+                class="text-[9px] px-1.5 py-px rounded-full font-bold shrink-0 bg-gray-100 text-gray-400"
+              >未录入</span>
             </div>
 
-            <!-- 已录入：列出该族全部已测字段（名称+数值+单位，各自档位着色），不再截断隐藏 -->
-            <template v-if="c.hasValue">
-              <div
-                v-for="f in c.fields" :key="f.key"
-                class="mt-2 pt-2 border-t border-gray-100/80 first:mt-auto first:pt-3 first:border-t-0 min-w-0"
-              >
-                <div class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</div>
-                <div class="text-[15px] font-bold tabular-nums leading-none mt-1 truncate" :class="LEVEL_META[f.level].text">
-                  {{ f.value }}<span class="text-[10px] text-gray-400 font-normal ml-0.5">{{ f.unit }}</span>
+            <!-- 数据区：单字段居中大号 / 多字段 2 列网格；空态占位；垂直居中保证等高 -->
+            <div class="flex-1 flex items-center min-h-0">
+              <template v-if="c.hasValue">
+                <!-- 单字段：大号主值 -->
+                <div v-if="c.fields.length === 1" class="flex items-baseline gap-1" :class="LEVEL_META[c.fields[0].level].text">
+                  <span class="text-[22px] font-black tabular-nums tracking-tight leading-none">{{ c.fields[0].value }}</span>
+                  <span class="text-[10px] text-gray-400 font-normal leading-none">{{ c.fields[0].unit }}</span>
                 </div>
+                <!-- 多字段：2 列表格 -->
+                <div v-else class="w-full grid grid-cols-2 gap-x-3 gap-y-2">
+                  <div
+                    v-for="f in c.fields" :key="f.key"
+                    class="flex items-baseline gap-1 min-w-0"
+                  >
+                    <span class="text-[17px] font-bold tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
+                    <span class="text-[9px] text-gray-400 font-normal leading-none shrink-0">{{ f.unit }}</span>
+                  </div>
+                </div>
+              </template>
+              <div v-else class="w-full text-center text-[11px] text-gray-400">
+                <span class="inline-flex items-center gap-1"><span class="text-base text-[#0B6BCB]">＋</span> 去记录</span>
               </div>
-            </template>
-            <!-- 未录入：占位提示 -->
-            <template v-else>
-              <div class="flex-1 flex flex-col items-center justify-center gap-1 py-6">
-                <span class="text-[10px] text-gray-400">未录入，去记录 ›</span>
-              </div>
-            </template>
+            </div>
           </button>
         </div>
         <p v-if="!chronicMiniHasAny" class="text-[10px] text-gray-400 mt-3 text-center">还没有健康指标测量记录，点「记录指标」录入血压 / 血糖 / 血脂，首页直接看数据</p>
