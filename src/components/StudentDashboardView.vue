@@ -485,19 +485,25 @@ const todayDietLabel = computed(() => {
             <!-- 数据区：单字段居中大号 / 多字段 2 列网格；空态占位；垂直居中保证等高 -->
             <div class="flex-1 flex items-center min-h-0">
               <template v-if="c.hasValue">
-                <!-- 单字段：大号主值 -->
-                <div v-if="c.fields.length === 1" class="flex items-baseline gap-1" :class="LEVEL_META[c.fields[0].level].text">
-                  <span class="text-[22px] font-black tabular-nums tracking-tight leading-none">{{ c.fields[0].value }}</span>
-                  <span class="text-[10px] text-gray-400 font-normal leading-none">{{ c.fields[0].unit }}</span>
+                <!-- 单字段：名称 + 大号主值 -->
+                <div v-if="c.fields.length === 1" class="flex flex-col">
+                  <span class="text-[10px] text-gray-500 leading-none truncate">{{ c.fields[0].label }}</span>
+                  <div class="flex items-baseline gap-1 mt-1" :class="LEVEL_META[c.fields[0].level].text">
+                    <span class="text-[22px] font-black tabular-nums tracking-tight leading-none">{{ c.fields[0].value }}</span>
+                    <span class="text-[10px] text-gray-400 font-normal leading-none">{{ c.fields[0].unit }}</span>
+                  </div>
                 </div>
-                <!-- 多字段：2 列表格 -->
-                <div v-else class="w-full grid grid-cols-2 gap-x-3 gap-y-2">
+                <!-- 多字段：2 列表格，各列带指标名 -->
+                <div v-else class="w-full grid grid-cols-2 gap-x-3 gap-y-2.5">
                   <div
                     v-for="f in c.fields" :key="f.key"
-                    class="flex items-baseline gap-1 min-w-0"
+                    class="flex flex-col min-w-0"
                   >
-                    <span class="text-[17px] font-bold tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
-                    <span class="text-[9px] text-gray-400 font-normal leading-none shrink-0">{{ f.unit }}</span>
+                    <span class="text-[10px] text-gray-500 leading-none truncate">{{ f.label }}</span>
+                    <div class="flex items-baseline gap-1 mt-0.5 min-w-0">
+                      <span class="text-[17px] font-bold tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
+                      <span class="text-[9px] text-gray-400 font-normal leading-none shrink-0">{{ f.unit }}</span>
+                    </div>
                   </div>
                 </div>
               </template>
