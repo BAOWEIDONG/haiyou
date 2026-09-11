@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, watch, reactive } from 'vue';
+import { computed, watch, reactive, ref } from 'vue';
 import { useAppStore } from '../store/app';
 import { NavBar } from './ui';
 import { showToast } from 'vant';
 import {
-  Siren, Activity, Droplet, CircleDot, Gauge, HeartPulse, Save, Ruler, Weight,
+  Siren, Activity, Droplet, CircleDot, Gauge, HeartPulse, Save, Ruler, Weight, Delete, History, CircleAlert,
 } from 'lucide-vue-next';
 import type { ChronicGroupKey, ChronicFieldKey } from '../lib/chronic';
-import { CHRONIC_GROUPS, groupFields, calcBmi } from '../lib/chronic';
+import { CHRONIC_GROUPS, groupFields, calcBmi, fieldDef, parseRef } from '../lib/chronic';
 import type { ChronicValues } from '../types';
 
 const store = useAppStore();
@@ -98,13 +98,62 @@ const latestValueOf = (key: ChronicFieldKey): string => {
   const v = (latest.value.values as Record<string, number | undefined>)[key];
   return v != null ? String(v) : '';
 };
+
+// ─── 大号数字键盘（适老化：停靠底部，替代系统键盘） ──────────────
+const keypadOpen = ref(false);
+const activeKey = ref<ChronicFieldKey | null>(null);
+
+function openKeypad(key: ChronicFieldKey) {
+  activeKey.value = key;
+  keypadOpen.value = true;
+}
+function closeKeypad() {
+  keypadOpen.value = false;
+  activeKey.value = null;
+}
+function pressDigit(d: string) {
+  if (!activeKey.value) return;
+  // 只允许一位小数点，避免误触出 "1.2.3"
+  if (d === '.' && (form[activeKey.value] || '').includes('.')) return;
+  activeJustFilled.value = false;
+  form[activeKey.value] = (form[activeKey.value] || '') + d;
+}
+function pressBackspace() {
+  if (!activeKey.value) return;
+  form[activeKey.value] = (form[activeKey.value] || '').slice(0, -1);
+}
+const activeRow = computed(
+  () => INPUT_ROWS.value.find((r) => r.key === activeKey.value) || null,
+);
+const activeJustFilled = ref(false);
+function fillLastValue(key: ChronicFieldKey) {
+  const last = latestValueOf(key);
+  if (!last) return;
+  form[key] = last;
+  if (activeKey.value === key) activeJustFilled.value = true;
+}
+
+// 异常值大字体提醒（实时，按当前性别取各指标参考区间）
+function warningOf(key: ChronicFieldKey): string | null {
+  const raw = (form[key] || '').trim();
+  if (!raw) return null;
+  const n = parseFloat(raw);
+  if (Number.isNaN(n) || n < 0) return null;
+  // height/weight 的 range 为「参考」无可解析边界，走绝对合理范围粗判
+  if (key === 'height' && (n < 100 || n > 250)) return `身高 ${n}cm 超出常见范围，请核对`;
+  if (key === 'weight' && (n < 20 || n > 300)) return `体重 ${n}kg 超出常见范围，请核对`;
+  const { lo, hi } = parseRef(fieldDef(key).range, store.user?.gender);
+  if (hi != null && n > hi) return `高于参考上限 ${hi}${fieldDef(key).unit}，请核对`;
+  if (lo != null && n < lo) return `低于参考下限 ${lo}${fieldDef(key).unit}，请核对`;
+  return null;
+}
 </script>
 
 <template>
   <div class="flex min-h-[100dvh] flex-col font-sans bg-gradient-to-b from-[#E8F3FB] to-[#FBFEFF]">
     <NavBar title="记录健康指标" :on-back="goRecord" />
 
-    <div class="flex-1 px-4 py-5 space-y-5">
+    <div :class="['flex-1 px-4 py-5 space-y-5', keypadOpen ? 'pb-72' : 'pb-8']">
       <!-- 指标族切换（整齐 3 列网格，6族两行对齐全） -->
       <div class="rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-sm p-2">
         <div class="grid grid-cols-3 gap-2">
@@ -136,13 +185,32 @@ const latestValueOf = (key: ChronicFieldKey): string => {
           </div>
           <div class="flex items-center gap-3 mt-4">
             <input
-              v-model="form[row.key]"
+              :value="form[row.key]"
               type="text"
-              inputmode="decimal"
-              :placeholder="latestValueOf(row.key) ? `上次 ${latestValueOf(row.key)}` : '请输入数值'"
+              inputmode="none"
+              readonly
+              :placeholder="latestValueOf(row.key) ? `上次 ${latestValueOf(row.key)}` : '点这里输入'"
+              @click="openKeypad(row.key)"
               class="flex-1 min-w-0 text-2xl font-bold tabular-nums py-3 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0B6BCB] focus:outline-none text-gray-800 tracking-wide"
             />
             <span class="text-sm text-gray-400 w-14 shrink-0 text-center">{{ row.unit }}</span>
+          </div>
+
+          <!-- 上次值一键填入 + 实时异常提醒 -->
+          <div class="mt-3 flex items-center gap-2 min-h-[2rem]">
+            <button
+              v-if="latestValueOf(row.key)"
+              @click="fillLastValue(row.key)"
+              class="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-bold text-[#0B6BCB] bg-[#0B6BCB]/10 active:bg-[#0B6BCB]/20 transition-colors"
+            >
+              <History class="w-4 h-4" /> 和上次一样 {{ latestValueOf(row.key) }}
+            </button>
+            <div
+              v-if="warningOf(row.key)"
+              class="flex items-center gap-1.5 text-[15px] font-bold text-red-500"
+            >
+              <CircleAlert class="w-5 h-5 shrink-0" /> {{ warningOf(row.key) }}
+            </div>
           </div>
         </div>
       </div>
@@ -159,5 +227,58 @@ const latestValueOf = (key: ChronicFieldKey): string => {
         当前记录进行健康管理参考，不构成医疗诊断；持续异常请线下就医。
       </p>
     </div>
+
+    <!-- 大号数字键盘（停靠底部，适老化） -->
+    <transition name="keypad-slide">
+      <div
+        v-if="keypadOpen"
+        class="fixed inset-x-0 bottom-0 z-50 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.12)] rounded-t-3xl px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      >
+        <!-- 顶部：当前录入项 + 收起 -->
+        <div class="flex items-center justify-between mb-3 px-1">
+          <div class="text-[15px] font-bold text-gray-800">
+            {{ activeRow?.label }}
+            <span v-if="activeRow?.unit" class="text-xs text-gray-400 font-normal ml-1">{{ activeRow.unit }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span v-if="activeJustFilled" class="text-xs font-bold text-emerald-600">已填入上次值</span>
+            <button @click="closeKeypad" class="px-4 py-2 rounded-full text-sm font-bold text-[#0B6BCB] bg-[#0B6BCB]/10 active:bg-[#0B6BCB]/20">完成</button>
+          </div>
+        </div>
+
+        <!-- 按键：1-9 / . 0 退格 -->
+        <div class="grid grid-cols-3 gap-2">
+          <template v-for="d in ['1','2','3','4','5','6','7','8','9']" :key="d">
+            <button
+              @click="pressDigit(d)"
+              class="h-14 rounded-xl text-2xl font-bold text-gray-800 bg-gray-100 active:bg-[#0B6BCB] active:text-white transition-colors select-none"
+            >{{ d }}</button>
+          </template>
+          <button
+            @click="pressDigit('.')"
+            class="h-14 rounded-xl text-2xl font-bold text-gray-800 bg-gray-100 active:bg-[#0B6BCB] active:text-white transition-colors select-none"
+          >.</button>
+          <button
+            @click="pressDigit('0')"
+            class="h-14 rounded-xl text-2xl font-bold text-gray-800 bg-gray-100 active:bg-[#0B6BCB] active:text-white transition-colors select-none"
+          >0</button>
+          <button
+            @click="pressBackspace"
+            class="h-14 rounded-xl text-[#0B6BCB] bg-[#0B6BCB]/10 active:bg-[#0B6BCB]/20 transition-colors flex items-center justify-center select-none"
+          ><Delete class="w-7 h-7" /></button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
+
+<style scoped>
+.keypad-slide-enter-active,
+.keypad-slide-leave-active {
+  transition: transform 0.22s ease;
+}
+.keypad-slide-enter-from,
+.keypad-slide-leave-to {
+  transform: translateY(100%);
+}
+</style>
