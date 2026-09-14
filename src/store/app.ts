@@ -1018,6 +1018,11 @@ export const useAppStore = defineStore('app', () => {
   function removeChronicRecord(id: string) {
     chronicRecords.value = chronicRecords.value.filter((r) => r.id !== id);
   }
+  /** 同日同族重复录入 → 合并进已有记录（幂等，与体重打卡口径一致；避免趋势图当天双点） */
+  function updateChronicRecord(id: string, values: ChronicValues) {
+    const r = chronicRecords.value.find((x) => x.id === id);
+    if (r) r.values = { ...r.values, ...values };
+  }
 
   // ─── 学员体检报告 / 健康档案转录域 ───
   /** 某学员上传的体检报告（新→旧） */
@@ -1192,6 +1197,7 @@ export const useAppStore = defineStore('app', () => {
     getStudentChronicRecords,
     getLatestChronic,
     addChronicRecord,
+    updateChronicRecord,
     removeChronicRecord,
     // 体检报告 / 健康档案
     studentReports,

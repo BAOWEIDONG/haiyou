@@ -159,9 +159,10 @@ function chronicMini(g: ChronicGroupKey) {
   };
 }
 const fmtChipDate = (dateStr: string): string => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+  // 手动解析 yyyy-MM-dd 前缀：微信 iOS 内核对空格分隔时间串 new Date 会得 Invalid Date
+  if (!dateStr || dateStr.length < 10) return '';
+  const parts = dateStr.slice(0, 10).split('-');
+  return `${Number(parts[1])}/${Number(parts[2])}`;
 };
 const chronicMiniCards = computed(() => {
   // 展示顺序：血压/血糖/血脂/尿酸/同型半胱氨酸 在前，体重BMI 排到最后（用户指定）

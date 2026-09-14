@@ -41,8 +41,11 @@ function resetForm() {
   Object.keys(form).forEach((k) => delete form[k]);
 }
 
-// 切换指标族时清空已填
-watch(activeGroup, resetForm);
+// 切换指标族时清空已填 + 收起数字键盘（否则 activeKey 停留在旧字段，敲数字写入废弃字段）
+watch(activeGroup, () => {
+  resetForm();
+  closeKeypad();
+});
 
 // BMI 自动计算：体重(kg)/身高(cm) 都填了就联动
 watch(
@@ -77,11 +80,21 @@ function save() {
     if (bmiVal != null) values.bmi = bmiVal;
   }
 
-  store.addChronicRecord({
-    studentId: store.user?.id || '',
-    campId: store.selectedCampId || undefined,
-    values: values as ChronicValues,
-  });
+  // 同日同族幂等：今天已录过该族 → 合并更新，不再新增一条（与体重打卡口径一致）
+  const todayPrefix = new Date().toLocaleDateString('sv-SE'); // yyyy-MM-dd（本地时区）
+  const groupKeys = INPUT_ROWS.value.map((r) => r.key as string);
+  const existingToday = store
+    .getStudentChronicRecords(store.user?.id || '')
+    .find((r) => r.date.startsWith(todayPrefix) && Object.keys(r.values).some((k) => groupKeys.includes(k)));
+  if (existingToday) {
+    store.updateChronicRecord(existingToday.id, values as ChronicValues);
+  } else {
+    store.addChronicRecord({
+      studentId: store.user?.id || '',
+      campId: store.selectedCampId || undefined,
+      values: values as ChronicValues,
+    });
+  }
   showToast('已保存');
   store.goBack();
 }
