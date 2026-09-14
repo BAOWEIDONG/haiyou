@@ -110,6 +110,10 @@ const store = useAppStore();
 
 const currentComponent = computed<Component>(() => viewMap[store.currentView] || viewMap.login);
 
+// 视图缓存键 = 视图 + 当前登录用户。换账号登录时 key 变化 → KeepAlive 里旧账号的缓存实例整体作废重建，
+// 否则学员A的缓存实例（问卷预填姓名等 setup 态）会被学员B复用，出现跨账号数据残留。
+const viewCacheKey = computed(() => `${store.currentView}_${store.user?.id ?? 'anon'}`);
+
 // 同步营养师/教练角色到 <body>，用于全局复用首页浅渐变背景（学员端不挂该类）
 function syncRoleClass(role?: string | null) {
   document.body.classList.remove('role-diet', 'role-coach');
@@ -159,10 +163,10 @@ onMounted(() => {
   <div class="fixed inset-0 max-w-md mx-auto overflow-hidden font-sans text-gray-700 sm:shadow-2xl sm:border-x sm:border-gray-100">
     <div ref="scrollContainer" class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;">
       <div class="relative">
-        <!-- 视图缓存：去掉 :key 强制重建，改用 KeepAlive 缓存已访问视图。
-             返回/切底部 tab 不再整个销毁重建，大幅降低导航卡顿（性能优化） -->
+        <!-- 视图缓存：KeepAlive 缓存已访问视图（返回/切 tab 不重建，降导航卡顿）；
+             key 绑定「视图+用户」：换账号时缓存实例按用户隔离，杜绝跨账号数据残留 -->
         <KeepAlive>
-          <component :is="currentComponent" />
+          <component :is="currentComponent" :key="viewCacheKey" />
         </KeepAlive>
       </div>
     </div>

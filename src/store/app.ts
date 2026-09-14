@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
-import { showImagePreview } from 'vant';
+import { showImagePreview, showToast } from 'vant';
 import { isSubmitted } from '../lib/questionnaireStorage';
 import type { User, WeightRecord, ExerciseRecord, DietRecord, CoachActivityRecord, MealTimeConfig, MetricConfig, Camp, Account, InterpretationRequest, ConsultThread, KnowledgeContent, ChronicRecord, StudentReport, ChronicValues, ActivityBanner, InfoCategory } from '../types';
 import {
@@ -439,7 +439,24 @@ export const useAppStore = defineStore('app', () => {
   /** 学员详情流视图：在此流内继承 detailSelectedCampId，离开则清空（不污染全局 selectedCampId） */
   const DETAIL_FLOW_VIEWS: View[] = ['dietitian-student-detail', 'coach-student-detail'];
 
+  /** 学员问卷未提交的导航守卫：目标页一律拉回问卷页（login 例外，供登出流程）。
+   *  此前学员登录后历史栈是 ['login','questionnaire']，问卷页点返回会 pop 回 login，
+   *  已登录却停在登录页、问卷被绕过；任何 setCurrentView 也可绕开建档直接进首页。 */
+  function guardQuestionnaire(view: View): View {
+    if (
+      user.value?.role === 'student' &&
+      !questionnaireAnswered.value &&
+      view !== 'questionnaire' &&
+      view !== 'login'
+    ) {
+      showToast('请先完成健康问卷');
+      return 'questionnaire';
+    }
+    return view;
+  }
+
   function setCurrentView(view: View) {
+    view = guardQuestionnaire(view);
     const current = viewHistory.value[viewHistory.value.length - 1];
     if (current === view) return;
 
@@ -464,6 +481,13 @@ export const useAppStore = defineStore('app', () => {
     if (viewHistory.value.length > 1) {
       viewHistory.value.pop();
       if (!DETAIL_FLOW_VIEWS.includes(currentView.value)) detailSelectedCampId.value = null;
+      // 学员问卷未填：返回不得绕过问卷（更不能落到登录页——已登录却停在登录页）
+      if (user.value?.role === 'student' && !questionnaireAnswered.value) {
+        if (currentView.value !== 'questionnaire') {
+          showToast('请先完成健康问卷');
+          viewHistory.value = ['questionnaire'];
+        }
+      }
     }
   }
 
