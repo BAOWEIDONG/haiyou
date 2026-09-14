@@ -16,6 +16,7 @@ const phone = ref('');
 const materials = ref<string[]>([]);
 const materialInput = ref<HTMLInputElement | null>(null);
 const uploading = ref(false);
+const submitting = ref(false);
 
 const onPickMaterial = async (e: Event) => {
   const files = Array.from((e.target as HTMLInputElement).files || []) as File[];
@@ -36,12 +37,15 @@ const onPickMaterial = async (e: Event) => {
 const removeMaterial = (idx: number) => { materials.value = materials.value.filter((_, i) => i !== idx); };
 
 const submit = () => {
+  if (submitting.value) return; // 防连点：页面跳转前二次点击会重复提交
   if (!store.user) { showToast('请先登录'); return; }
   if (materials.value.length === 0) { showToast('请上传报告材料（化验单/体检报告）'); return; }
   if (!question.value.trim()) { showToast('请留下你的问题或想了解的方向'); return; }
+  submitting.value = true;
   store.submitInterpretationRequest(store.user.id, [], question.value.trim(), materials.value, phone.value.trim());
   showToast('已提交，医生团队将结合你的报告为你解读');
   store.setCurrentView('interpretation-result');
+  setTimeout(() => { submitting.value = false; }, 800);
 };
 </script>
 
@@ -108,7 +112,7 @@ const submit = () => {
       </div>
 
       <div class="pt-2">
-        <button @click="submit" class="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90">
+        <button @click="submit" :disabled="submitting" class="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] text-white text-sm font-bold active:opacity-90 disabled:opacity-60">
           <Send class="w-4 h-4" /> 提交请健康解读
         </button>
       </div>

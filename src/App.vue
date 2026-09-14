@@ -140,10 +140,13 @@ onMounted(() => {
   window.addEventListener('beforeprint', handleBeforePrint);
   window.addEventListener('afterprint', handleAfterPrint);
 
-  // 先尝试恢复登录态（保活），再加载数据
+  // 先尝试恢复登录态（保活），再加载数据；init 完成后复核账户表（API 模式下退营/删户的学员不得保活）
   store.restoreAuth();
-  store.init();
   syncRoleClass(store.user?.role);
+  store.init().then(() => {
+    store.revalidateAuth();
+    syncRoleClass(store.user?.role);
+  });
 
   // 等登录角色确定后再按角色空闲预取底部 tab 页 chunk（登录页不预取，避免误拉）
   watch(() => store.user?.role, (r) => { if (r) prefetchTabs(r); }, { immediate: true });

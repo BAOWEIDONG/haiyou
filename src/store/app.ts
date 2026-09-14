@@ -424,6 +424,14 @@ export const useAppStore = defineStore('app', () => {
     viewHistory.value = ['login'];
   }
 
+  /** init 拉到服务端/持久化账户表后复核当前登录学员：账户被删或已退营（active=false）则强制登出。
+   *  场景：restoreAuth 先于 init 执行，此刻 accounts 还是 MOCK 种子，服务端禁用/删除的学员会先自动登录成功。 */
+  function revalidateAuth() {
+    if (!user.value || user.value.role !== 'student') return;
+    const acc = accounts.value.find((a) => a.id === user.value!.id && a.role === 'student');
+    if (!acc || acc.active === false) logout();
+  }
+
   /** 底部 Tab 根页面（切换时去重，避免历史栈无限增长） */
   // 学员端底部Tab：健康(/首页记录台) / 活动(信息流) / 消息 / 我的；教练/营养师端各自的底部Tab根页
   const TAB_ROOTS: View[] = ['dashboard', 'messages', 'health-profile', 'my-team', 'activity', 'coach-dashboard', 'dietitian-dashboard', 'dietitian-unannotated-list', 'dietitian-config'];
@@ -1102,6 +1110,7 @@ export const useAppStore = defineStore('app', () => {
     setUser,
     updateUserProfile,
     restoreAuth,
+    revalidateAuth,
     logout,
     setCurrentView,
     goBack,

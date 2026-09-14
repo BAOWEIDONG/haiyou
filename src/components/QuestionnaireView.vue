@@ -121,11 +121,11 @@ const handleNext = () => {
       return;
     }
     const a = parseInt(formData.age);
-    if (a < 1 || a > 120) { error.value = '请输入正确的年龄'; return; }
+    if (!Number.isFinite(a) || a < 1 || a > 120) { error.value = '请输入正确的年龄'; return; }
     const h = parseFloat(formData.height);
     const w = parseFloat(formData.weight);
-    if (h < 100 || h > 250) { error.value = '身高需在100-250cm之间'; return; }
-    if (w < 20 || w > 300) { error.value = '体重需在20-300kg之间'; return; }
+    if (!Number.isFinite(h) || h < 100 || h > 250) { error.value = '身高需在100-250cm之间'; return; }
+    if (!Number.isFinite(w) || w < 20 || w > 300) { error.value = '体重需在20-300kg之间'; return; }
   } else if (step.value === 2) {
     if (!formData.hasChronic || !formData.hasSpecialDiet || !formData.hasFoodAllergy) {
       error.value = '请回答所有必填问题'; return;
@@ -138,9 +138,9 @@ const handleNext = () => {
       error.value = '请回答所有必填问题'; return;
     }
     const sd = parseFloat(formData.sleepDuration);
-    if (sd < 0 || sd > 24) { error.value = '睡眠时间需在0-24小时之间'; return; }
+    if (!Number.isFinite(sd) || sd < 0 || sd > 24) { error.value = '睡眠时间需在0-24小时之间'; return; }
     const dw = parseInt(formData.dailyWater);
-    if (dw < 0 || dw > 10000) { error.value = '饮水量需在0-10000ml之间'; return; }
+    if (!Number.isFinite(dw) || dw < 0 || dw > 10000) { error.value = '饮水量需在0-10000ml之间'; return; }
   } else if (step.value === 4) {
     // 如果选了"其他"，把自定义名称同步进 exerciseTypes
     syncCustomExercise();
@@ -151,9 +151,9 @@ const handleNext = () => {
       error.value = '选择了"其他"，请填写具体运动名称'; return;
     }
     const ef = parseInt(formData.exerciseFrequency);
-    if (ef < 0 || ef > 21) { error.value = '每周运动频率需在0-21次之间'; return; }
+    if (!Number.isFinite(ef) || ef < 0 || ef > 21) { error.value = '每周运动频率需在0-21次之间'; return; }
     const ed = parseInt(formData.exerciseDuration);
-    if (ed < 0 || ed > 600) { error.value = '每次运动时长需在0-600分钟之间'; return; }
+    if (!Number.isFinite(ed) || ed < 0 || ed > 600) { error.value = '每次运动时长需在0-600分钟之间'; return; }
   } else if (step.value === 5) {
     showConfirmDialog({ title: '提示', message: '提交后不可修改，确认提交？' })
       .then(() => handleSubmit())

@@ -102,6 +102,7 @@ function save() {
 const goRecord = () => {
   store.setActiveChronicGroup(activeGroup.value);
   resetForm();
+  closeKeypad(); // KeepAlive 缓存下返回再进不应残留键盘
   store.goBack();
 };
 
