@@ -45,6 +45,8 @@ export interface User {
   name: string;
   phone: string;
   gender?: 'male' | 'female';
+  /** 学员自定义头像（dataURL，方形裁剪后保存） */
+  avatar?: string;
   age?: number;
   height?: number;
   weight?: number;

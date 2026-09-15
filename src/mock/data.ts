@@ -14,7 +14,7 @@ function iso(offsetDays: number, time: string): string {
   return `${dateStr(offsetDays)} ${time}`;
 }
 
-export const MOCK_STUDENTS: { id: string; name: string; age: number; gender: 'male' | 'female'; phone: string }[] = [
+export const MOCK_STUDENTS: { id: string; name: string; age: number; gender: 'male' | 'female'; phone: string; avatar?: string }[] = [
   { id: 's1', name: '李明', age: 32, gender: 'male', phone: '13800000001' },
   { id: 's2', name: '王丽', age: 28, gender: 'female', phone: '13800000002' },
   { id: 's3', name: '张伟', age: 45, gender: 'male', phone: '13800000003' },

@@ -5,7 +5,9 @@ import { useAppStore } from '../store/app';
 import type { View } from '../store/app';
 import { campDateRange } from '../lib/camps';
 import { GenderAvatar, StudentTabbar } from './ui';
-import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, ChevronRight } from 'lucide-vue-next';
+import AvatarCropPopup from './AvatarCropPopup.vue';
+import { compressImage } from '../lib/imageCompress';
+import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, ChevronRight, Camera } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
 import { judgeGroup, groupFields, CHRONIC_GROUPS, LEVEL_META, type ChronicGroupKey } from '../lib/chronic';
@@ -14,6 +16,35 @@ const store = useAppStore();
 
 const todayStr = format(new Date(), 'yyyy-MM-dd');
 const isMine = (r: { studentId?: string }) => r.studentId === store.user?.id;
+
+// ─── 学员自定义头像：选图 → 1:1 方形裁剪 → 保存 ─────────────────
+const avatarInputRef = ref<HTMLInputElement | null>(null);
+const showAvatarCrop = ref(false);
+const rawAvatar = ref<string | null>(null);
+
+async function onPickAvatar(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('请选择图片文件'); return; }
+  try {
+    const comp = await compressImage(file);
+    rawAvatar.value = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(comp);
+    });
+    showAvatarCrop.value = true;
+  } catch {
+    showToast('图片读取失败');
+  }
+}
+function onAvatarConfirm(dataUrl: string | null) {
+  store.updateUserProfile({ avatar: dataUrl ?? undefined });
+  showToast(dataUrl ? '头像已更新' : '已恢复默认头像');
+}
 
 // ─── 每日激励语（30 天一组，按日轮换） ─────────────────
 // 口径：中性、无歧义、不制造对立/歧视，仅鼓励正向健康习惯。
@@ -328,9 +359,19 @@ const todayDietLabel = computed(() => {
       </div>
 
       <div class="relative z-10 flex items-start space-x-4">
-        <div class="h-16 w-16 rounded-full bg-white/95 p-1 shadow-lg shrink-0 overflow-hidden">
-          <GenderAvatar :gender="store.user?.gender" />
+        <div class="relative h-16 w-16 shrink-0">
+          <button
+            @click="avatarInputRef?.click()"
+            class="h-16 w-16 rounded-full bg-white/95 p-1 shadow-lg overflow-hidden block active:scale-95 transition-transform"
+            title="更换头像"
+          >
+            <GenderAvatar :gender="store.user?.gender" :src="store.user?.avatar" />
+          </button>
+          <span class="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-gradient-to-r from-[#0B6BCB] to-[#12B5C2] flex items-center justify-center shadow-md pointer-events-none">
+            <Camera class="w-3 h-3 text-white" />
+          </span>
         </div>
+        <input ref="avatarInputRef" type="file" accept="image/*" class="hidden" @change="onPickAvatar" />
         <div class="flex-1 min-w-0">
           <h2 class="text-2xl font-black text-white tracking-tight truncate">你好，{{ store.user?.name || '学员' }}</h2>
           <p class="text-[12px] font-medium text-white/85 mt-1.5 leading-snug flex items-center gap-1">
@@ -599,6 +640,14 @@ const todayDietLabel = computed(() => {
         </div>
       </Transition>
     </Teleport>
+
+    <!-- 头像裁剪弹窗（1:1 方形，与圆形展示一致） -->
+    <AvatarCropPopup
+      v-model:show="showAvatarCrop"
+      :src="rawAvatar"
+      :allow-remove="!!store.user?.avatar"
+      @confirm="onAvatarConfirm"
+    />
 
     <!-- 服务批次选择弹窗 -->
     <VanPopup v-model:show="showCampPicker" position="bottom" round class="custom-popup">

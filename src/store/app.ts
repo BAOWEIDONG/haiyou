@@ -345,11 +345,17 @@ export const useAppStore = defineStore('app', () => {
   function updateUserProfile(updates: Partial<User>) {
     if (!user.value) return;
     user.value = { ...user.value, ...updates };
-    // 同步 name/gender/age 到 students 列表
-    if (updates.name !== undefined || updates.gender !== undefined || updates.age !== undefined) {
+    // 同步 name/gender/age/avatar 到 students 列表（avatar 允许显式清除）
+    if (updates.name !== undefined || updates.gender !== undefined || updates.age !== undefined || updates.avatar !== undefined) {
       students.value = students.value.map((s) =>
         s.id === user.value!.id
-          ? { ...s, name: updates.name ?? s.name, gender: updates.gender ?? s.gender, age: updates.age ?? s.age }
+          ? {
+              ...s,
+              name: updates.name ?? s.name,
+              gender: updates.gender ?? s.gender,
+              age: updates.age ?? s.age,
+              avatar: 'avatar' in updates ? updates.avatar : s.avatar,
+            }
           : s,
       );
     }

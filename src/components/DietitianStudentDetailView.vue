@@ -5,9 +5,9 @@ import { useAppStore } from '../store/app';
 import { loadSubmitted, loadDraft } from '../lib/questionnaireStorage';
 import { campDateRange, latestOrFirstId } from '../lib/camps';
 import { MOCK_METRIC_VALUES, MOCK_STUDENT_METRIC_VALUES } from '../mock/data';
-import { NavBar, Card, Button, ChartRulePopup, ChronicTrendChart } from './ui';
+import { NavBar, Card, Button, ChartRulePopup, ChronicTrendChart, GenderAvatar } from './ui';
 import WeightTrendChart from './ui/WeightTrendChart.vue';
-import { UserCircle, Coffee, MessageCircle, Stethoscope, ClipboardList, AlertCircle, FileText, Activity, Scale, TrendingUp, PlayCircle, ChevronDown, Eye, FileSearch, MessageSquareText } from 'lucide-vue-next';
+import { Coffee, MessageCircle, Stethoscope, ClipboardList, AlertCircle, FileText, Activity, Scale, TrendingUp, PlayCircle, ChevronDown, Eye, FileSearch, MessageSquareText } from 'lucide-vue-next';
 import { Popup as VanPopup } from 'vant';
 import { buildMedicalData, isValueOutOfRange, type MedicalCategory, type Indicator } from '../lib/medicalData';
 import { formatDateTime } from '../lib/utils';
@@ -324,8 +324,8 @@ const openReport = (r: any) => {
     <div class="bg-white px-4 pt-4 pb-4 border-b border-gray-200 space-y-4">
       <Card class="flex items-center p-4 bg-[#FF976A]/5 border-[#FF976A]/20">
         <div class="flex items-center space-x-3">
-          <div class="h-10 w-10 rounded-full bg-[#FF976A]/10 flex items-center justify-center text-[#FF976A]">
-            <UserCircle class="h-6 w-6" />
+          <div class="h-10 w-10 rounded-full bg-[#FF976A]/10 overflow-hidden shrink-0">
+            <GenderAvatar :gender="student.gender" :src="student.avatar" />
           </div>
           <div>
             <div class="text-sm font-bold text-gray-900 mb-1">{{ student.name }}</div>
