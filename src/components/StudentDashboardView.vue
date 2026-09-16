@@ -508,7 +508,7 @@ const todayDietLabel = computed(() => {
           <button
             v-for="c in chronicMiniCards" :key="c.key"
             @click="c.hasValue ? openChronicGroup(c.key) : openRecord(c.key)"
-            class="h-[140px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
+            class="h-[178px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
           >
             <!-- 顶部：名称 + 状态/最近 角标 -->
             <div class="flex items-center justify-between gap-1 min-w-0">
@@ -546,7 +546,7 @@ const todayDietLabel = computed(() => {
                   >
                     <span class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</span>
                     <div class="flex flex-col mt-0.5 min-w-0">
-                      <span class="text-[24px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
+                      <span class="text-[38px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
                       <span v-if="f.unit" class="text-[9px] text-gray-400 font-normal leading-none mt-0.5 truncate">{{ f.unit }}</span>
                     </div>
                   </div>
