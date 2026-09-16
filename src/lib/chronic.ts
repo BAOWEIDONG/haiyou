@@ -76,7 +76,7 @@ export const CHRONIC_FIELDS: ChronicFieldDef[] = [
   { key: 'bmi', group: 'bmi', label: 'BMI指数', short: '体重指数', unit: '', range: '18.5 ～ 23.9', order: 1, display: true, higherIsWorse: true },
   { key: 'weight', group: 'bmi', label: '体重', unit: 'kg', range: '参考', order: 2, display: false, higherIsWorse: true },
   { key: 'height', group: 'bmi', label: '身高', unit: 'cm', range: '参考', order: 3, display: false, higherIsWorse: false },
-  { key: 'homocysteine', group: 'hcy', label: '同型半胱氨酸', short: '血同', unit: 'μmol/L', range: '理想 <15', order: 1, display: true, higherIsWorse: true },
+  { key: 'homocysteine', group: 'hcy', label: '同型半胱氨酸', unit: 'μmol/L', range: '理想 <15', order: 1, display: true, higherIsWorse: true },
 ];
 
 export const CHRONIC_GROUPS: { key: ChronicGroupKey; title: string; desc: string }[] = [

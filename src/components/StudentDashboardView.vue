@@ -184,7 +184,7 @@ function chronicMini(g: ChronicGroupKey) {
     key: g,
     title: CHRONIC_GROUPS.find((x) => x.key === g)!.title,
     // 首页小卡短标题（老年友好：全中文，避免英文缩写），避免与角标挤压换行
-    shortTitle: ({ hcy: '血同', bmi: '体重指数' } as Record<ChronicGroupKey, string>)[g] || CHRONIC_GROUPS.find((x) => x.key === g)!.title,
+    shortTitle: ({ bmi: '体重指数' } as Record<ChronicGroupKey, string>)[g] || CHRONIC_GROUPS.find((x) => x.key === g)!.title,
     level: judged?.level ?? 'normal',
     fields,
     hasValue,
@@ -508,7 +508,7 @@ const todayDietLabel = computed(() => {
           <button
             v-for="c in chronicMiniCards" :key="c.key"
             @click="c.hasValue ? openChronicGroup(c.key) : openRecord(c.key)"
-            class="h-[128px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
+            class="h-[140px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
           >
             <!-- 顶部：名称 + 状态/最近 角标 -->
             <div class="flex items-center justify-between gap-1 min-w-0">
@@ -533,8 +533,8 @@ const todayDietLabel = computed(() => {
                 <!-- 单字段：名称 + 大号主值 -->
                 <div v-if="c.fields.length === 1" class="flex flex-col">
                   <span class="text-[11px] text-gray-500 leading-none truncate">{{ c.fields[0].label }}</span>
-                  <div class="flex flex-col mt-1">
-                    <span class="text-[32px] font-black tabular-nums tracking-tight leading-none" :class="LEVEL_META[c.fields[0].level].text">{{ c.fields[0].value }}</span>
+                  <div class="flex flex-col mt-0.5">
+                    <span class="text-[38px] font-black tabular-nums tracking-tight leading-none" :class="LEVEL_META[c.fields[0].level].text">{{ c.fields[0].value }}</span>
                     <span v-if="c.fields[0].unit" class="text-[10px] text-gray-400 font-normal leading-none mt-0.5">{{ c.fields[0].unit }}</span>
                   </div>
                 </div>
@@ -546,7 +546,7 @@ const todayDietLabel = computed(() => {
                   >
                     <span class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</span>
                     <div class="flex flex-col mt-0.5 min-w-0">
-                      <span class="text-[21px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
+                      <span class="text-[24px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
                       <span v-if="f.unit" class="text-[9px] text-gray-400 font-normal leading-none mt-0.5 truncate">{{ f.unit }}</span>
                     </div>
                   </div>
