@@ -538,8 +538,9 @@ const todayDietLabel = computed(() => {
                     <span v-if="c.fields[0].unit" class="text-[10px] text-gray-400 font-normal leading-none mt-0.5">{{ c.fields[0].unit }}</span>
                   </div>
                 </div>
-                <!-- 多字段：2 列表格，各列带指标名 -->
-                <div v-else class="w-full grid grid-cols-2 gap-x-3 gap-y-2.5">
+                <!-- 多字段：2 列表格，各列带指标名；中间竖分隔线避免两列大数字连在一起 -->
+                <div v-else class="w-full relative grid grid-cols-2 gap-x-5 gap-y-2.5">
+                  <div class="absolute left-1/2 -translate-x-1/2 top-0.5 bottom-0.5 w-px bg-gray-300/70 rounded-full pointer-events-none"></div>
                   <div
                     v-for="f in c.fields" :key="f.key"
                     class="flex flex-col min-w-0"
