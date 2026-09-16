@@ -10,7 +10,7 @@ import { compressImage } from '../lib/imageCompress';
 import { Activity, Coffee, Scale, LogOut, Medal, BookOpen, MessageCircle, ChevronDown, TrendingDown, TrendingUp, Minus, Target, X, Flame, FileSearch, MessageSquareText, ChevronRight, Camera } from 'lucide-vue-next';
 import { Popup as VanPopup, showToast } from 'vant';
 import { calculateStreak } from '../lib/streak';
-import { judgeGroup, groupFields, CHRONIC_GROUPS, LEVEL_META, type ChronicGroupKey } from '../lib/chronic';
+import { judgeGroup, groupFields, CHRONIC_GROUPS, LEVEL_META, fieldDef, type ChronicGroupKey } from '../lib/chronic';
 
 const store = useAppStore();
 
@@ -176,12 +176,15 @@ function chronicMini(g: ChronicGroupKey) {
   const rec = chronicRecs.value.find((r) => gf.some((f) => r.values[f.key] != null)) || null;
   // 该族全部已测显示字段（含各自档位/数值/单位）——首页完整展示，不再只取主项隐藏其余字段值
   const judged = rec ? judgeGroup(rec.values, g, gender) : null;
-  const fields = (judged?.fields ?? []).map((f) => ({ key: f.key, label: f.label, unit: f.unit, value: f.value, level: f.level }));
+  // 首页小卡空间受限：优先用短名（低密度/高压/Hcy），无短名回退完整 label
+  const fields = (judged?.fields ?? []).map((f) => { const def = fieldDef(f.key); return { key: f.key, label: def.short || f.label, unit: f.unit, value: f.value, level: f.level }; });
   const hasValue = rec != null;
   const hasToday = rec != null && rec.date.startsWith(todayStr);
   return {
     key: g,
     title: CHRONIC_GROUPS.find((x) => x.key === g)!.title,
+    // 首页小卡短标题（同型半胱氨酸→Hcy），避免与角标挤压换行
+    shortTitle: ({ hcy: 'Hcy', bmi: '体重BMI' } as Record<ChronicGroupKey, string>)[g] || CHRONIC_GROUPS.find((x) => x.key === g)!.title,
     level: judged?.level ?? 'normal',
     fields,
     hasValue,
@@ -505,11 +508,11 @@ const todayDietLabel = computed(() => {
           <button
             v-for="c in chronicMiniCards" :key="c.key"
             @click="c.hasValue ? openChronicGroup(c.key) : openRecord(c.key)"
-            class="h-[118px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
+            class="h-[124px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
           >
             <!-- 顶部：名称 + 状态/最近 角标 -->
             <div class="flex items-center justify-between gap-1 min-w-0">
-              <span class="text-xs font-bold text-gray-700 truncate">{{ c.title }}</span>
+              <span class="text-xs font-bold text-gray-700 truncate">{{ c.shortTitle }}</span>
               <span
                 v-if="c.hasToday"
                 :class="['text-[9px] px-1.5 py-px rounded-full font-bold shrink-0', LEVEL_META[c.level].bg, LEVEL_META[c.level].text]"
@@ -529,9 +532,9 @@ const todayDietLabel = computed(() => {
               <template v-if="c.hasValue">
                 <!-- 单字段：名称 + 大号主值 -->
                 <div v-if="c.fields.length === 1" class="flex flex-col">
-                  <span class="text-[10px] text-gray-500 leading-none truncate">{{ c.fields[0].label }}</span>
+                  <span class="text-[11px] text-gray-500 leading-none truncate">{{ c.fields[0].label }}</span>
                   <div class="flex items-baseline gap-1 mt-1" :class="LEVEL_META[c.fields[0].level].text">
-                    <span class="text-[22px] font-black tabular-nums tracking-tight leading-none">{{ c.fields[0].value }}</span>
+                    <span class="text-[25px] font-black tabular-nums tracking-tight leading-none">{{ c.fields[0].value }}</span>
                     <span class="text-[10px] text-gray-400 font-normal leading-none">{{ c.fields[0].unit }}</span>
                   </div>
                 </div>
@@ -541,9 +544,9 @@ const todayDietLabel = computed(() => {
                     v-for="f in c.fields" :key="f.key"
                     class="flex flex-col min-w-0"
                   >
-                    <span class="text-[10px] text-gray-500 leading-none truncate">{{ f.label }}</span>
+                    <span class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</span>
                     <div class="flex items-baseline gap-1 mt-0.5 min-w-0">
-                      <span class="text-[17px] font-bold tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
+                      <span class="text-[19px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
                       <span class="text-[9px] text-gray-400 font-normal leading-none shrink-0">{{ f.unit }}</span>
                     </div>
                   </div>

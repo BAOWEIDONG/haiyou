@@ -52,6 +52,8 @@ export interface RecordJudge {
 export interface ChronicFieldDef {
   key: ChronicFieldKey;
   label: string;
+  /** 首页小卡专用短名（空间受限时替代长 label，避免截断） */
+  short?: string;
   unit: string;
   range: string;      // 参考区间展示文案
   group: ChronicGroupKey;
@@ -61,20 +63,20 @@ export interface ChronicFieldDef {
 }
 
 export const CHRONIC_FIELDS: ChronicFieldDef[] = [
-  { key: 'systolic', group: 'bp', label: '收缩压(高压)', unit: 'mmHg', range: '理想 <140', order: 1, display: true, higherIsWorse: true },
-  { key: 'diastolic', group: 'bp', label: '舒张压(低压)', unit: 'mmHg', range: '理想 <90', order: 2, display: true, higherIsWorse: true },
-  { key: 'glucoseFasting', group: 'glucose', label: '空腹血糖', unit: 'mmol/L', range: '3.9 ～ 6.1', order: 1, display: true, higherIsWorse: true },
-  { key: 'glucosePostprandial', group: 'glucose', label: '餐后2小时血糖', unit: 'mmol/L', range: '理想 <7.8', order: 2, display: true, higherIsWorse: true },
-  { key: 'glucoseHba1c', group: 'glucose', label: '糖化血红蛋白', unit: '%', range: '理想 <7', order: 3, display: true, higherIsWorse: true },
-  { key: 'ldl', group: 'lipid', label: '低密度脂蛋白(LDL-C)', unit: 'mmol/L', range: '核心管理 <2.6', order: 1, display: true, higherIsWorse: true },
-  { key: 'tg', group: 'lipid', label: '甘油三酯', unit: 'mmol/L', range: '理想 <1.7', order: 2, display: true, higherIsWorse: true },
-  { key: 'tc', group: 'lipid', label: '总胆固醇', unit: 'mmol/L', range: '理想 <5.2', order: 3, display: true, higherIsWorse: true },
-  { key: 'hdl', group: 'lipid', label: '高密度脂蛋白(HDL-C)', unit: 'mmol/L', range: '≥1.0', order: 4, display: true, higherIsWorse: false },
-  { key: 'uricAcid', group: 'uric', label: '尿酸', unit: 'μmol/L', range: '男<420 / 女<360', order: 1, display: true, higherIsWorse: true },
-  { key: 'bmi', group: 'bmi', label: 'BMI指数', unit: '', range: '18.5 ～ 23.9', order: 1, display: true, higherIsWorse: true },
+  { key: 'systolic', group: 'bp', label: '收缩压(高压)', short: '高压', unit: 'mmHg', range: '理想 <140', order: 1, display: true, higherIsWorse: true },
+  { key: 'diastolic', group: 'bp', label: '舒张压(低压)', short: '低压', unit: 'mmHg', range: '理想 <90', order: 2, display: true, higherIsWorse: true },
+  { key: 'glucoseFasting', group: 'glucose', label: '空腹血糖', short: '空腹血糖', unit: 'mmol/L', range: '3.9 ～ 6.1', order: 1, display: true, higherIsWorse: true },
+  { key: 'glucosePostprandial', group: 'glucose', label: '餐后2小时血糖', short: '餐后血糖', unit: 'mmol/L', range: '理想 <7.8', order: 2, display: true, higherIsWorse: true },
+  { key: 'glucoseHba1c', group: 'glucose', label: '糖化血红蛋白', short: '糖化', unit: '%', range: '理想 <7', order: 3, display: true, higherIsWorse: true },
+  { key: 'ldl', group: 'lipid', label: '低密度脂蛋白(LDL-C)', short: '低密度', unit: 'mmol/L', range: '核心管理 <2.6', order: 1, display: true, higherIsWorse: true },
+  { key: 'tg', group: 'lipid', label: '甘油三酯', short: '甘油三酯', unit: 'mmol/L', range: '理想 <1.7', order: 2, display: true, higherIsWorse: true },
+  { key: 'tc', group: 'lipid', label: '总胆固醇', short: '总胆固醇', unit: 'mmol/L', range: '理想 <5.2', order: 3, display: true, higherIsWorse: true },
+  { key: 'hdl', group: 'lipid', label: '高密度脂蛋白(HDL-C)', short: '高密度', unit: 'mmol/L', range: '≥1.0', order: 4, display: true, higherIsWorse: false },
+  { key: 'uricAcid', group: 'uric', label: '尿酸', short: '尿酸', unit: 'μmol/L', range: '男<420 / 女<360', order: 1, display: true, higherIsWorse: true },
+  { key: 'bmi', group: 'bmi', label: 'BMI指数', short: 'BMI', unit: '', range: '18.5 ～ 23.9', order: 1, display: true, higherIsWorse: true },
   { key: 'weight', group: 'bmi', label: '体重', unit: 'kg', range: '参考', order: 2, display: false, higherIsWorse: true },
   { key: 'height', group: 'bmi', label: '身高', unit: 'cm', range: '参考', order: 3, display: false, higherIsWorse: false },
-  { key: 'homocysteine', group: 'hcy', label: '同型半胱氨酸', unit: 'μmol/L', range: '理想 <15', order: 1, display: true, higherIsWorse: true },
+  { key: 'homocysteine', group: 'hcy', label: '同型半胱氨酸', short: 'Hcy', unit: 'μmol/L', range: '理想 <15', order: 1, display: true, higherIsWorse: true },
 ];
 
 export const CHRONIC_GROUPS: { key: ChronicGroupKey; title: string; desc: string }[] = [
