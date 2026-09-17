@@ -508,7 +508,7 @@ const todayDietLabel = computed(() => {
           <button
             v-for="c in chronicMiniCards" :key="c.key"
             @click="c.hasValue ? openChronicGroup(c.key) : openRecord(c.key)"
-            class="h-[178px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
+            class="min-h-[168px] rounded-2xl bg-[#F6F8FB] p-3.5 flex flex-col text-left transition-colors active:bg-[#EEF2F7]"
           >
             <!-- 顶部：名称 + 状态/最近 角标 -->
             <div class="flex items-center justify-between gap-1 min-w-0">
@@ -527,7 +527,7 @@ const todayDietLabel = computed(() => {
               >未录入</span>
             </div>
 
-            <!-- 数据区：单字段居中大号 / 多字段 2 列网格；空态占位；垂直居中保证等高 -->
+            <!-- 数据区：单字段居中大号 / 多字段每项一行(名称左+大数字右)；空态占位；垂直居中 -->
             <div class="flex-1 flex items-center min-h-0">
               <template v-if="c.hasValue">
                 <!-- 单字段：名称 + 大号主值 -->
@@ -538,18 +538,17 @@ const todayDietLabel = computed(() => {
                     <span v-if="c.fields[0].unit" class="text-[10px] text-gray-400 font-normal leading-none mt-0.5">{{ c.fields[0].unit }}</span>
                   </div>
                 </div>
-                <!-- 多字段：2 列表格，各列带指标名；中间竖分隔线避免两列大数字连在一起 -->
-                <div v-else class="w-full relative grid grid-cols-2 gap-x-5 gap-y-2.5">
-                  <div class="absolute left-1/2 -translate-x-1/2 top-0.5 bottom-0.5 w-px bg-gray-300/70 rounded-full pointer-events-none"></div>
+                <!-- 多字段：每项一行，指标名靠左，大数字靠右，行间留白不用分隔线避免与数字重叠 -->
+                <div v-else class="w-full flex flex-col justify-center gap-y-2.5">
                   <div
                     v-for="f in c.fields" :key="f.key"
-                    class="flex flex-col min-w-0"
+                    class="flex items-center justify-between gap-2 min-w-0"
                   >
-                    <span class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</span>
-                    <div class="flex flex-col mt-0.5 min-w-0">
+                    <span class="text-[11px] text-gray-500 leading-none shrink-0">{{ f.label }}</span>
+                    <span class="flex items-baseline gap-1 min-w-0 justify-end">
                       <span class="text-[38px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
-                      <span v-if="f.unit" class="text-[9px] text-gray-400 font-normal leading-none mt-0.5 truncate">{{ f.unit }}</span>
-                    </div>
+                      <span v-if="f.unit" class="text-[9px] text-gray-400 font-normal leading-none shrink-0 truncate">{{ f.unit }}</span>
+                    </span>
                   </div>
                 </div>
               </template>
