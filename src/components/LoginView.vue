@@ -152,7 +152,7 @@ function loginAs(account: Account, created: boolean) {
         </Button>
       </div>
 
-      <p class="text-[10px] text-gray-400 text-center leading-relaxed">
+      <p class="text-xs text-gray-500 text-center leading-relaxed max-w-[320px]">
         学员：任意手机号+验证码即可登录，未注册将自动创建学员账号<br />
         营养师/康复师：需管理员预先维护账号方可登录
       </p>
