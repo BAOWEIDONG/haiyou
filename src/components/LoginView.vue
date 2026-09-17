@@ -173,25 +173,27 @@ function loginAs(account: Account, created: boolean) {
           <input
             type="tel"
             placeholder="请输入11位手机号"
-            class="w-full border-b border-gray-200 py-4 px-2 text-lg focus:border-[#0B6BCB] focus:outline-none transition-colors bg-transparent placeholder-gray-300"
+            class="w-full border-b border-gray-200 py-4 px-2 text-lg focus:border-[#0B6BCB] focus:outline-none transition-colors bg-transparent placeholder-gray-400"
             :value="phone"
-            @input="phone = ($event.target as HTMLInputElement).value; error = ''"
+            @input="phone = ($event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 11); error = ''"
             maxlength="11"
           />
         </div>
 
         <div class="space-y-1 relative flex items-center border-b border-gray-200 focus-within:border-[#0B6BCB] transition-colors">
           <input
-            type="number"
+            type="text"
             inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="one-time-code"
             placeholder="请输入6位验证码"
-            class="flex-1 py-4 px-2 text-lg focus:outline-none bg-transparent placeholder-gray-300"
+            class="flex-1 min-w-0 py-4 px-2 text-lg focus:outline-none bg-transparent placeholder-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             :value="code"
-            @input="code = ($event.target as HTMLInputElement).value; error = ''"
+            @input="code = ($event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 6); error = ''"
             maxlength="6"
           />
           <button
-            class="text-[#0B6BCB] font-medium text-sm px-4 whitespace-nowrap active:opacity-70 transition-opacity"
+            class="shrink-0 text-[#0B6BCB] font-medium text-sm px-4 whitespace-nowrap active:opacity-70 transition-opacity"
             @click="code = '123456'; error = ''"
           >
             获取验证码
@@ -207,9 +209,9 @@ function loginAs(account: Account, created: boolean) {
         </Button>
         <div class="flex justify-center mt-6">
           <VanCheckbox :model-value="agreed" @update:model-value="(v: boolean) => { agreed = v; error = ''; }" class="custom-checkbox">
-            <p class="text-[10px] text-gray-400 text-center">
+            <div class="text-[11px] text-gray-500 leading-relaxed">
               我已阅读并同意<a href="#" class="text-[#0B6BCB] hover:underline" @click.prevent="showAgreement">《服务协议》</a>与<a href="#" class="text-[#0B6BCB] hover:underline" @click.prevent="showPrivacy">《隐私政策》</a>
-            </p>
+            </div>
           </VanCheckbox>
         </div>
       </div>
