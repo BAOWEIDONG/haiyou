@@ -538,17 +538,17 @@ const todayDietLabel = computed(() => {
                     <span v-if="c.fields[0].unit" class="text-[10px] text-gray-400 font-normal leading-none mt-0.5">{{ c.fields[0].unit }}</span>
                   </div>
                 </div>
-                <!-- 多字段：每项一行，指标名靠左，大数字靠右，行间留白不用分隔线避免与数字重叠 -->
+                <!-- 多字段：每项独立一块，名称在上、大数字在下（单列堆叠，绝不与文字共用横向空间→零重叠） -->
                 <div v-else class="w-full flex flex-col justify-center gap-y-2.5">
                   <div
                     v-for="f in c.fields" :key="f.key"
-                    class="flex items-center justify-between gap-2 min-w-0"
+                    class="flex flex-col min-w-0"
                   >
-                    <span class="text-[11px] text-gray-500 leading-none shrink-0">{{ f.label }}</span>
-                    <span class="flex items-baseline gap-1 min-w-0 justify-end">
-                      <span class="text-[38px] font-black tabular-nums leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
+                    <span class="text-[11px] text-gray-500 leading-none truncate">{{ f.label }}</span>
+                    <div class="flex items-baseline gap-1 mt-0.5 min-w-0">
+                      <span class="text-[38px] font-black tabular-nums tracking-tight leading-none" :class="LEVEL_META[f.level].text">{{ f.value }}</span>
                       <span v-if="f.unit" class="text-[9px] text-gray-400 font-normal leading-none shrink-0 truncate">{{ f.unit }}</span>
-                    </span>
+                    </div>
                   </div>
                 </div>
               </template>
